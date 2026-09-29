@@ -1,0 +1,6 @@
+.env
+certs/
+.DS_Store
+*.cnf
+__pycache__/
+node_modules/
