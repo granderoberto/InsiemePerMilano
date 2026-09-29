@@ -19,8 +19,8 @@ Leggere prima `CLAUDE.md` (regole, comandi, decisioni) e `db/README.md` (ricrear
 
 ## Aperto
 
-1. **Stack applicativo**: proposto Django (SDK `spid-cie-oidc-django` con RP, Provider di test e Trust Anchor). Da verificare i vincoli di versione dell'SDK con una prova di un'ora (installazione isolata + demo Docker). Fallback: Node.js (solo RP) o proxy RP PHP.
-2. **SPID/CIE reali** (obiettivo didattico): serve un ente che aderisca (probabilmente la scuola, oppure un soggetto aggregatore); sviluppo in locale con gli ambienti di test di Developers Italia. Procedure e tempi di onboarding non verificati.
+1. **Stack**: deciso Django 5.2 LTS + SDK SPID/CIE isolato in un servizio separato (vedi `CLAUDE.md`, sezione Stack, e `docs/spike_django_spid.md`). Da fare: impostare i due progetti.
+2. **SPID/CIE reali** (obiettivo didattico): serve un ente che aderisca (probabilmente la scuola) o un soggetto aggregatore; non avviato. Sviluppo con il demo locale dell'SDK.
 3. Colonna spaziale per `quartieri.confine`: rinviata; 2 poligoni (`CASCINA MERLATA`, `ASSIANO`) risultano invalidi per MySQL.
 4. Filtro per tabella nella vista `v_statistiche_utenti`: da valutare (nuova migrazione).
 5. Materiale 3 della traccia: schema a blocchi dell'architettura IA (non iniziato).

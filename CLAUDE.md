@@ -13,7 +13,7 @@ Autore: Roberto Grande (GitHub: Bertox0). Lingua del progetto: **italiano** (doc
 | 2b. Schema logico normalizzato | fatto (MySQL 8) | `db/schema.sql`, `db/schema.dbml` |
 | Database su Aiven (MySQL) | **fatto** (fase 1 completata: migrazioni, 88 NIL, dati demo, verifica) | `db/migrations/`, `db/README.md` |
 | 3. Architettura di integrazione IA (schema a blocchi) | **da fare** | |
-| Implementazione della web app | **da fare**, stack non ancora scelto | |
+| Implementazione della web app | **da fare**; stack scelto: Django 5.2 LTS (vedi sezione Stack) | `docs/spike_django_spid.md` |
 
 ## Struttura
 
@@ -106,6 +106,27 @@ pip install cairosvg && tools/er/run.sh
 - Permessi per ruolo (chi può cambiare stato, nascondere, sospendere, cambiare ruoli).
 - Limite di 3 tentativi di verifica è nel DB (CHECK), ma la logica "puoi riprovare" è applicativa.
 
+## Stack applicativo (deciso 2026-09-29)
+
+- **App principale: Django 5.2 LTS** (supporto di sicurezza fino al 2028-04-30), Python 3.12+, MySQL 8.4 su Aiven con `mysqlclient`, template server-side + HTMX + Leaflet.
+- **SPID/CIE: SDK `spid-cie-oidc-django` isolato in un servizio separato** (progetto Django e database/schema propri), non nello stesso progetto dell'app. L'SDK dichiara `Django<5.0` (4.2 è fuori supporto): va eseguito su Django 5.2 con vincolo forzato e con `max_length` 1024 → 700 nelle sue migrazioni per MySQL. Dopo il login il servizio passa all'app gli attributi verificati (il codice fiscale si salva solo come hash SHA-256). In sviluppo si usa il demo locale dell'SDK (TA, Provider di test, RP). Dettagli e prove: `docs/spike_django_spid.md`.
+- Fallback: Node.js (SDK solo RP) se l'RP non regge su un ambiente di test SPID/CIE vero.
+- Accesso reale a SPID/CIE (didattico): serve un ente che aderisca come Fornitore di Servizi (probabilmente la scuola) o un soggetto aggregatore; non ancora avviato.
+
+### Regola di convivenza migrazioni SQL / migrazioni Django
+
+1. Le migrazioni SQL (`db/migrations/`, `tools/db/migrate.sh`) sono l'unica fonte dello schema del dominio. I modelli Django sulle tabelle del dominio sono sempre `managed = False`: Django non le crea né le modifica.
+2. Chi cambia una tabella con una nuova migrazione SQL aggiorna nello stesso commit il modello Django e ne genera la migrazione (nessun effetto sul DB). `makemigrations --check` non deve trovare differenze.
+3. Le tabelle di Django (`django_*`, `auth_*`, `<app>_*`) le crea solo `manage.py migrate`; le migrazioni SQL non le citano e non compaiono in `schema_migrations`.
+4. Ordine di deploy: prima `tools/db/migrate.sh`, poi `manage.py migrate` (`django_admin_log` ha una FK verso `utenti`).
+5. Un solo progetto Django per database (si condividono `django_migrations`, `django_content_type`, `auth_*`): il servizio SPID/CIE usa un database o uno schema separato.
+6. Django non ha un prefisso globale: nessuna tabella del dominio può chiamarsi `django_*` o `auth_*`; i modelli del dominio hanno `db_table` esplicito.
+7. `DEFAULT_AUTO_FIELD = "django.db.models.AutoField"` e `id` dichiarato esplicitamente sui modelli di tabelle esistenti (`AutoField` per INT, `SmallAutoField` per SMALLINT): una FK BIGINT verso `utenti.id` INT fallisce (errore 3780).
+8. Nei modelli: booleani come `BooleanField`, ENUM come `CharField` con `choices`, default del DB con `db_default`, colonne generate (`copertina_di`) mai scrivibili.
+9. Errori del DB: `OperationalError` con errno 1644 = regola dei trigger (da tradurre in messaggio all'utente); `IntegrityError` 3819 = CHECK violato.
+10. Le migrazioni Django su MySQL non sono atomiche: se una fallisce a metà, ripulire le tabelle create prima di riprovare. Provarle prima su `la_nostra_citta_test`.
+11. Utente di autenticazione: modello personalizzato su `utenti` (`managed=False`, `password` con `db_column="password_hash"`, `last_login = None`, permessi derivati da `ruolo`), backend che verifica gli hash bcrypt con `bcrypt.checkpw`. Niente `auth_user`.
+
 ## Stato del database (fase 1 conclusa)
 
 Su Aiven ci sono `defaultdb` (principale, popolato) e `la_nostra_citta_test` (prove distruttive). 22 tabelle, 7 trigger, 3 viste, circa 5 MB. Dati demo: 154 utenti, 300 segnalazioni, 1916 sostegni, 397 commenti, 5095 righe di log; password demo `DemoMilano2026!` (vedi `tools/seed/README.md`).
@@ -118,7 +139,7 @@ Note sui dati:
 
 ## Prossimi passi suggeriti
 
-1. Materiale 3: schema a blocchi dell'architettura IA (dove si innestano verifica documento, classificazione, moderazione testo/immagini, coerenza nel flusso web app → API → DB).
-2. Scegliere lo stack. Vincoli utili: MySQL 8 su Aiven già deciso; serve upload file, mappa interattiva, integrazione SPID/CIE (mock in sviluppo, vedi `docs/`), code di moderazione.
+1. Impostare il progetto Django (app principale) e il servizio SPID/CIE separato.
+2. Materiale 3: schema a blocchi dell'architettura IA (dove si innestano verifica documento, classificazione, moderazione testo/immagini, coerenza nel flusso web app → API → DB).
 3. Decidere sulla colonna spaziale per `confine` e sul filtro della vista `v_statistiche_utenti`.
 4. Cambiare la password dell'utente `avnadmin` su Aiven (è stata condivisa in chiaro in chat).
