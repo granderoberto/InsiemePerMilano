@@ -1,0 +1,422 @@
+Project la_nostra_citta {
+  database_type: 'MySQL'
+  Note: 'La Nostra Città, Il Nostro Futuro - Comitato "Insieme per Milano"'
+}
+
+// ==================== ENUM ====================
+
+Enum ruolo_utente {
+  utente
+  moderatore
+  amministratore
+}
+
+Enum stato_account {
+  in_attesa_verifica
+  attivo
+  sospeso
+  eliminato
+}
+
+Enum metodo_registrazione {
+  credenziali
+  spid
+  cie
+}
+
+Enum tipo_documento_identita {
+  carta_identita
+  patente
+  passaporto
+}
+
+Enum esito_verifica {
+  approvata
+  da_rivedere
+  rifiutata
+}
+
+Enum tipo_normativa {
+  privacy
+  biometrici
+  intelligenza_artificiale
+  termini_uso
+  cookie
+  eta_minima
+}
+
+Enum tipo_segnalazione {
+  proposta
+  problema
+}
+
+Enum tipo_media {
+  foto
+  video
+}
+
+Enum esito_ia {
+  ok
+  dubbio
+  bloccato
+}
+
+Enum origine_categoria {
+  ia
+  utente
+  moderatore
+}
+
+Enum stato_richiesta {
+  aperta
+  accolta
+  respinta
+}
+
+Enum tipo_notifica {
+  verifica_account
+  stato_account
+  stato_segnalazione
+  contenuto_bloccato
+  nuovo_commento
+  risposta_commento
+  nuova_segnalazione_quartiere
+  normativa_aggiornata
+}
+
+Enum tipo_attore {
+  utente
+  sistema
+}
+
+Enum operazione_log {
+  accesso
+  creazione
+  modifica
+  eliminazione
+  commento
+  sostegno
+  cambio_stato
+  verifica_identita
+  decisione_ia
+  revisione_moderatore
+  sospensione
+  cambio_ruolo
+  accettazione_normativa
+}
+
+// ==================== UTENTI E ACCESSO ====================
+
+Table quartieri {
+  id smallint [pk, increment]
+  nome varchar(100) [not null, unique]
+  municipio smallint [not null, note: 'da 1 a 9']
+  confine json [note: 'poligono GeoJSON per ricavare il quartiere dalla posizione']
+}
+
+Table utenti {
+  id integer [pk, increment]
+  nome varchar(50) [not null]
+  cognome varchar(50) [not null]
+  email varchar(254) [not null, unique]
+  password_hash varchar(255) [note: 'solo per metodo credenziali']
+  codice_fiscale_hash char(64) [unique, note: 'SHA-256, solo per SPID/CIE']
+  data_nascita date [not null, note: 'età minima 14 anni']
+  metodo_registrazione metodo_registrazione [not null]
+  ruolo ruolo_utente [not null, default: 'utente']
+  stato_account stato_account [not null, default: 'in_attesa_verifica']
+  id_quartiere smallint [ref: > quartieri.id]
+  profilo_pubblico boolean [not null, default: false]
+  mfa_attiva boolean [not null, default: false]
+  tentativi_falliti smallint [not null, default: 0]
+  bloccato_fino datetime
+  email_verificata_il datetime
+  creato_il datetime [not null, default: `now()`]
+  eliminato_il datetime
+}
+
+Table verifiche_identita {
+  id integer [pk, increment]
+  id_utente integer [not null, ref: > utenti.id]
+  tentativo smallint [not null, note: 'da 1 a 3']
+  tipo_documento tipo_documento_identita [not null]
+  ok_lettura_ocr boolean [not null]
+  ok_corrispondenza_dati boolean [not null]
+  ok_validita boolean [not null]
+  ok_autenticita boolean [not null]
+  ok_confronto_volto boolean [not null]
+  punteggio smallint [not null, note: 'attendibilità da 0 a 100']
+  esito_ia esito_verifica [not null]
+  motivo text
+  id_revisore integer [ref: > utenti.id, note: 'moderatore che rivede la decisione IA']
+  esito_finale esito_verifica
+  motivo_revisione text
+  revisionata_il datetime
+  creata_il datetime [not null, default: `now()`]
+
+  indexes {
+    (id_utente, tentativo) [unique]
+  }
+  Note: 'Le immagini di documento e selfie vengono cancellate dopo la verifica: qui restano solo esiti e punteggio.'
+}
+
+Table sospensioni {
+  id integer [pk, increment]
+  id_utente integer [not null, ref: > utenti.id]
+  id_moderatore integer [not null, ref: > utenti.id]
+  motivo text [not null]
+  inizio datetime [not null, default: `now()`]
+  fine datetime [note: 'NULL = definitiva']
+  revocata_il datetime
+  id_revocante integer [ref: > utenti.id]
+}
+
+Table documenti_normativi {
+  id smallint [pk, increment]
+  tipo tipo_normativa [not null]
+  versione varchar(20) [not null]
+  testo text [not null]
+  pubblicato_il datetime [not null, default: `now()`]
+  id_amministratore integer [not null, ref: > utenti.id]
+
+  indexes {
+    (tipo, versione) [unique]
+  }
+}
+
+Table consensi {
+  id_utente integer [not null, ref: > utenti.id]
+  id_documento smallint [not null, ref: > documenti_normativi.id]
+  accettato_il datetime [not null, default: `now()`]
+
+  indexes {
+    (id_utente, id_documento) [pk]
+  }
+}
+
+// ==================== SEGNALAZIONI ====================
+
+Table stati {
+  id smallint [pk]
+  nome varchar(30) [not null, unique]
+  finale boolean [not null, default: false]
+  pubblico boolean [not null, default: false, note: 'visibile anche ai visitatori']
+}
+
+Table transizioni_ammesse {
+  id_stato_da smallint [not null, ref: > stati.id]
+  id_stato_a smallint [not null, ref: > stati.id]
+
+  indexes {
+    (id_stato_da, id_stato_a) [pk]
+  }
+}
+
+Table categorie {
+  id smallint [pk, increment]
+  nome varchar(50) [not null, unique]
+  descrizione text
+  attiva boolean [not null, default: true]
+}
+
+Table segnalazioni {
+  id integer [pk, increment]
+  id_autore integer [not null, ref: > utenti.id]
+  tipo tipo_segnalazione [not null]
+  titolo varchar(100) [not null]
+  descrizione text [not null, note: 'da 30 a 2000 caratteri']
+  latitudine decimal(9,6) [not null]
+  longitudine decimal(9,6) [not null]
+  indirizzo varchar(255)
+  id_quartiere smallint [not null, ref: > quartieri.id]
+  id_stato smallint [not null, default: 1, ref: > stati.id, note: 'stato attuale: ridondanza controllata aggiornata da trigger su cambi_stato']
+  esito_moderazione esito_ia
+  punteggio_moderazione decimal(4,3)
+  punteggio_coerenza decimal(4,3) [note: 'coerenza immagini/testo']
+  nascosta boolean [not null, default: false]
+  motivo_nascosta text
+  id_moderatore_nascosta integer [ref: > utenti.id]
+  creata_il datetime [not null, default: `now()`]
+  aggiornata_il datetime
+  eliminata_il datetime
+}
+
+Table media {
+  id integer [pk, increment]
+  id_segnalazione integer [not null, ref: > segnalazioni.id]
+  tipo tipo_media [not null]
+  percorso varchar(500) [not null]
+  mime_type varchar(50) [not null]
+  dimensione_byte integer [not null, note: 'foto max 10 MB, video max 50 MB']
+  durata_sec smallint [note: 'solo video, max 60']
+  ordine smallint [not null, note: 'da 1 a 10']
+  copertina boolean [not null, default: false]
+  copertina_di integer [unique, note: 'colonna generata: IF(copertina, id_segnalazione, NULL), garantisce una sola copertina']
+  exif_lat decimal(9,6)
+  exif_lon decimal(9,6)
+  esito_visione esito_ia
+  punteggio_sessuale decimal(4,3)
+  punteggio_violenza decimal(4,3)
+  testo_ocr text
+  esito_testo_ocr esito_ia
+  caricato_il datetime [not null, default: `now()`]
+
+  indexes {
+    (id_segnalazione, ordine) [unique]
+  }
+}
+
+Table classificazioni {
+  id_segnalazione integer [not null, ref: > segnalazioni.id]
+  id_categoria smallint [not null, ref: > categorie.id]
+  origine origine_categoria [not null]
+  confidenza decimal(4,3) [note: 'solo se origine = ia']
+
+  indexes {
+    (id_segnalazione, id_categoria) [pk]
+  }
+}
+
+Table cambi_stato {
+  id integer [pk, increment]
+  id_segnalazione integer [not null, ref: > segnalazioni.id]
+  id_stato_da smallint [not null, ref: > stati.id]
+  id_stato_a smallint [not null, ref: > stati.id]
+  id_operatore integer [ref: > utenti.id, note: 'NULL = sistema']
+  nota text
+  avvenuto_il datetime [not null, default: `now()`]
+}
+
+// ==================== COMMUNITY ====================
+
+Table sostegni {
+  id_utente integer [not null, ref: > utenti.id]
+  id_segnalazione integer [not null, ref: > segnalazioni.id]
+  creato_il datetime [not null, default: `now()`]
+
+  indexes {
+    (id_utente, id_segnalazione) [pk]
+  }
+}
+
+Table commenti {
+  id integer [pk, increment]
+  id_segnalazione integer [not null, ref: > segnalazioni.id]
+  id_autore integer [not null, ref: > utenti.id]
+  id_padre integer [ref: > commenti.id, note: 'risposta a un altro commento']
+  testo varchar(1000) [not null]
+  esito_moderazione esito_ia
+  punteggio_moderazione decimal(4,3)
+  nascosto boolean [not null, default: false]
+  motivo_nascosto text
+  id_moderatore_nascosto integer [ref: > utenti.id]
+  creato_il datetime [not null, default: `now()`]
+  modificato_il datetime
+  eliminato_il datetime
+}
+
+Table candidati {
+  id smallint [pk, increment]
+  nome varchar(50) [not null]
+  cognome varchar(50) [not null]
+  lista varchar(100) [not null]
+  email varchar(254) [not null, unique]
+}
+
+Table invii {
+  id integer [pk, increment]
+  id_segnalazione integer [not null, ref: > segnalazioni.id]
+  id_candidato smallint [not null, ref: > candidati.id]
+  id_moderatore integer [not null, ref: > utenti.id]
+  inviato_il datetime [not null, default: `now()`]
+
+  indexes {
+    (id_segnalazione, id_candidato) [unique]
+  }
+}
+
+// ==================== MODERAZIONE, NOTIFICHE, LOG ====================
+
+Table richieste_revisione {
+  id integer [pk, increment]
+  id_richiedente integer [not null, ref: > utenti.id]
+  id_segnalazione integer [ref: > segnalazioni.id]
+  id_commento integer [ref: > commenti.id]
+  id_verifica integer [ref: > verifiche_identita.id]
+  motivo text [not null]
+  stato stato_richiesta [not null, default: 'aperta']
+  id_moderatore integer [ref: > utenti.id]
+  risposta text
+  creata_il datetime [not null, default: `now()`]
+  chiusa_il datetime
+  Note: 'Esattamente uno tra id_segnalazione, id_commento, id_verifica è valorizzato'
+}
+
+Table notifiche {
+  id bigint [pk, increment]
+  id_utente integer [not null, ref: > utenti.id]
+  tipo tipo_notifica [not null]
+  messaggio varchar(500) [not null]
+  link varchar(500)
+  letta boolean [not null, default: false]
+  creata_il datetime [not null, default: `now()`]
+}
+
+Table preferenze_notifica {
+  id_utente integer [not null, ref: > utenti.id]
+  tipo tipo_notifica [not null]
+  in_app boolean [not null, default: true]
+  email boolean [not null, default: false]
+
+  indexes {
+    (id_utente, tipo) [pk]
+  }
+}
+
+Table log_attivita {
+  id bigint [pk, increment]
+  avvenuto_il datetime [not null, default: `now()`]
+  attore tipo_attore [not null]
+  id_utente integer [ref: > utenti.id, note: 'NULL se attore = sistema']
+  operazione operazione_log [not null]
+  tabella varchar(50) [not null]
+  id_oggetto bigint [not null]
+  dati_precedenti json
+  dati_nuovi json
+  Note: 'Append-only: UPDATE e DELETE bloccati da trigger'
+}
+
+// ==================== GRUPPI ====================
+
+TableGroup utenti_e_accesso {
+  quartieri
+  utenti
+  verifiche_identita
+  sospensioni
+  documenti_normativi
+  consensi
+}
+
+TableGroup segnalazioni_e_ciclo_di_vita {
+  stati
+  transizioni_ammesse
+  categorie
+  segnalazioni
+  media
+  classificazioni
+  cambi_stato
+}
+
+TableGroup community {
+  sostegni
+  commenti
+  candidati
+  invii
+}
+
+TableGroup moderazione_e_log {
+  richieste_revisione
+  notifiche
+  preferenze_notifica
+  log_attivita
+}

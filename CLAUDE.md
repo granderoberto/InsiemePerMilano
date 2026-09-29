@@ -1,0 +1,124 @@
+# La Nostra Città, Il Nostro Futuro
+
+Progetto d'esame (5° anno informatica): piattaforma web civica per il comitato "Insieme per Milano". I cittadini inseriscono segnalazioni e proposte sui quartieri, la community le sostiene e commenta, i moderatori le fanno avanzare fino alla presentazione ai candidati Sindaco.
+
+Autore: Roberto Grande (GitHub: Bertox0). Lingua del progetto: **italiano** (documenti, nomi di tabelle e colonne, commenti). Termini tecnici standard restano in inglese.
+
+## Stato del progetto
+
+| Materiale richiesto dalla traccia | Stato | File |
+|---|---|---|
+| 1. Analisi dei requisiti | fatto | `docs/specifiche_utente.md` |
+| 2a. Modello ER (Chen) | fatto | `docs/modello_er.pdf`, `docs/modello_er.md` |
+| 2b. Schema logico normalizzato | fatto (MySQL 8) | `db/schema.sql`, `db/schema.dbml` |
+| Database su Aiven (MySQL) | **fatto** (fase 1 completata: migrazioni, 88 NIL, dati demo, verifica) | `db/migrations/`, `db/README.md` |
+| 3. Architettura di integrazione IA (schema a blocchi) | **da fare** | |
+| Implementazione della web app | **da fare**, stack non ancora scelto | |
+
+## Struttura
+
+```
+docs/
+  specifiche_utente.md   specifica funzionale completa (fonte di verità)
+  modello_er.md          entità, PK, associazioni con cardinalità, vincoli extra-diagramma
+  modello_er.{pdf,svg,png}  diagramma Chen generato
+db/
+  schema.sql             MySQL 8.0+: tabelle, ENUM, CHECK, trigger, viste, seed (riferimento completo)
+  schema.dbml            stesso schema per dbdiagram.io (solo tabelle e relazioni)
+  test_vincoli.sql       casi di test dei vincoli (righe "ERRORE ATTESO" devono fallire)
+  migrations/            001_schema.sql, 002_dati_riferimento.sql (applicate da tools/db/migrate.sh)
+  data/                  GeoJSON sorgente dei NIL e dei Municipi (Comune di Milano, CC BY) + README fonti
+  README.md              come ricreare il database da zero
+docs/prompt/
+  01_database.md         prompt operativo per la fase database su Aiven
+tools/db/migrate.sh      applica le migrazioni a un database (idempotente, tabella schema_migrations)
+tools/geo/import_quartieri.py   importa gli 88 NIL in `quartieri`
+tools/seed/              seed.py (dati demo deterministici) + README con password demo e scelte
+tools/requirements.txt   dipendenze Python (venv in tools/.venv, ignorato da git)
+.env, certs/ca.pem       credenziali e certificato Aiven: NON versionati (.gitignore)
+tools/er/
+  gen.py                 DATI del modello ER: dict E (entità→attributi), lista R (associazioni)
+  build.py, lay.js, pass2.py, render.py, run.sh   pipeline di disegno
+```
+
+## Regole di lavoro
+
+- `docs/specifiche_utente.md` è la fonte di verità. Ogni modifica funzionale parte da lì, poi si propaga a ER e schema.
+- **Quattro artefatti da tenere sincronizzati**: `db/schema.sql`, `db/migrations/`, `db/schema.dbml`, `tools/er/gen.py`. Se cambi una tabella o una colonna, aggiorna tutti e rigenera il diagramma. Le modifiche allo schema già applicato su Aiven vanno in una **nuova migrazione** (`003_...sql`), non modificando 001/002.
+- Nel modello ER **non compaiono FK**: le rappresentano le associazioni. Le tabelle ponte (`sostegni`, `classificazioni`, `consensi`) nell'ER sono associazioni N:N con attributi. `INVIA` è ternaria.
+- `schema.dbml` va incollato nell'editor di dbdiagram.io. `schema.sql` **no**: contiene `DELIMITER` e trigger che il parser DBML rifiuta.
+- **Database: MySQL 8** (scelta dell'autore; il servizio Aiven Free è 8.4.8, con `sql_require_primary_key=ON` e `log_bin_trust_function_creators=ON`: i trigger si creano senza privilegi extra). Convenzioni: InnoDB, utf8mb4, DATETIME(3) sempre in UTC (`SET time_zone = '+00:00'`), ENUM inline. Lo schema va eseguito con il client `mysql` (serve `DELIMITER`), non con un driver che invia una query alla volta.
+- Limiti MySQL già gestiti: niente indici parziali (una copertina per segnalazione con colonna generata `copertina_di` + UNIQUE); niente CHECK su colonne AUTO_INCREMENT; niente `ON DELETE CASCADE` su `media.id_segnalazione` perché incompatibile con la colonna generata (le segnalazioni si eliminano solo logicamente con `eliminata_il`).
+- Nomi: `snake_case`, tabelle al plurale nello SQL (`utenti`), entità al singolare maiuscolo nell'ER (`UTENTE`).
+
+## Comandi
+
+```bash
+# Credenziali: .env (DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME) + certs/ca.pem. Mai stampare la password.
+# Ambiente Python (una tantum)
+python3 -m venv tools/.venv && tools/.venv/bin/pip install -r tools/requirements.txt
+
+# Migrazioni (idempotente) su un database Aiven
+tools/db/migrate.sh la_nostra_citta_test        # database di test (per prove distruttive)
+tools/db/migrate.sh defaultdb                   # database principale
+
+# Quartieri (88 NIL) e dati demo
+tools/.venv/bin/python tools/geo/import_quartieri.py defaultdb
+tools/.venv/bin/python tools/seed/seed.py defaultdb [--oggi AAAA-MM-GG]   # DISTRUTTIVO sulle tabelle non di riferimento
+
+# Test dei vincoli: SOLO sul database di test, dopo migrate.sh (non sul principale)
+mysql --force la_nostra_citta_test < db/test_vincoli.sql   # devono fallire solo le righe ERRORE ATTESO (10)
+
+# Validare il DBML
+npm i @dbml/core && node -e "const{Parser}=require('@dbml/core');new Parser().parse(require('fs').readFileSync('db/schema.dbml','utf8'),'dbml');console.log('ok')"
+
+# Rigenerare il diagramma ER (dopo aver modificato tools/er/gen.py)
+pip install cairosvg && tools/er/run.sh
+```
+
+## Decisioni di dominio già prese
+
+**Ruoli:** `utente`, `moderatore`, `amministratore`. **Stato account** separato dal ruolo: `in_attesa_verifica`, `attivo`, `sospeso`, `eliminato`. Il visitatore non registrato legge i contenuti pubblici ma non interagisce.
+
+**Accesso:** SPID/CIE (identità già certificata, account subito attivo, si salva solo l'hash SHA-256 del codice fiscale per garantire un account per persona) oppure credenziali + verifica IA del documento.
+
+**Verifica IA del documento:** OCR, corrispondenza dati, validità, autenticità, confronto selfie/foto documento. Punteggio 0-100: ≥85 approvata, 50-84 da rivedere (coda moderatore), <50 rifiutata. Max 3 tentativi, revisione umana sempre richiedibile. Immagini cancellate dopo la verifica.
+
+**Normative in registrazione:** informativa GDPR art. 13, consenso biometrico art. 9 (solo percorso credenziali), informativa IA con diritto a revisione umana (art. 22), termini d'uso, cookie policy, età minima 14 anni. Si registra la versione accettata; nuova versione = nuova accettazione.
+
+**Segnalazione:** tipo (proposta/problema), titolo ≤100, descrizione 30-2000, una o più categorie (suggerite dall'IA con confidenza), posizione dentro il Comune di Milano da GPS / mappa / indirizzo, quartiere ricavato dalla posizione, 1-10 media (foto JPG/PNG/HEIC ≤10 MB, video MP4/MOV ≤60 s e ≤50 MB). Metadati EXIF rimossi prima della pubblicazione. Max 5 segnalazioni/giorno. Modificabile dall'autore solo negli stati 1-2; ogni modifica va nel log.
+
+**Ciclo di vita:** 1 Ricevuta → 2 In attesa → 3 Approvata | 4 Rifiutata; 3 → 5 Presentata ai candidati. 4 e 5 finali. Pubblici solo 3 e 5. Transizioni in tabella `transizioni_ammesse`, imposte da trigger.
+
+**Moderazione IA:** NLP su testo e commenti; classificatore visivo per contenuti sessuali/violenti (sui video: fotogrammi campione); OCR sulle immagini con il testo estratto passato al filtro NLP; coerenza immagine/testo. Esito `ok` / `dubbio` (coda moderatore) / `bloccato` (autore avvisato, può chiedere revisione).
+
+**Community:** un sostegno per utente per segnalazione, mai sulla propria; commenti con risposte (stessa segnalazione del padre); condivisione via link.
+
+**Statistiche:** classifiche nominative pubbliche solo per utenti con `profilo_pubblico = true`; statistiche complete (più post, più interazioni, più commenti, più attivi negli ultimi 30 giorni) nella dashboard admin. Viste: `v_classifica_segnalazioni`, `v_statistiche_utenti`, `v_classifica_utenti_pubblica`.
+
+**Log:** `log_attivita` append-only (trigger blocca UPDATE/DELETE), consultabile solo dall'amministratore. Il pubblico vede solo la cronologia stati. Il reset dei dati demo usa `SET FOREIGN_KEY_CHECKS=0; TRUNCATE ...`, perché TRUNCATE non attiva i trigger.
+
+## Vincoli NON imposti dal database (vanno nell'applicazione)
+
+- Almeno un media per segnalazione (inserire segnalazione + media nella stessa transazione).
+- Limite di 5 segnalazioni al giorno.
+- Confine preciso di Milano: il DB ha solo un rettangolo lat 45.38-45.54 / lon 9.04-9.28; il controllo esatto usa il poligono GeoJSON in `quartieri.confine`.
+- Permessi per ruolo (chi può cambiare stato, nascondere, sospendere, cambiare ruoli).
+- Limite di 3 tentativi di verifica è nel DB (CHECK), ma la logica "puoi riprovare" è applicativa.
+
+## Stato del database (fase 1 conclusa)
+
+Su Aiven ci sono `defaultdb` (principale, popolato) e `la_nostra_citta_test` (prove distruttive). 22 tabelle, 7 trigger, 3 viste, circa 5 MB. Dati demo: 154 utenti, 300 segnalazioni, 1916 sostegni, 397 commenti, 5095 righe di log; password demo `DemoMilano2026!` (vedi `tools/seed/README.md`).
+
+Note sui dati:
+- `quartieri` = 88 NIL (Comune di Milano, CC BY). `quartieri.id` = `ID_NIL` della fonte. Il `municipio` è ricavato per maggiore sovrapposizione: per 16 NIL che attraversano più Municipi è un'approssimazione.
+- `v_statistiche_utenti` conta come attività ogni `log_attivita.operazione` in ('creazione','commento','sostegno') senza filtrare la tabella: le richieste di revisione (`creazione` su `richieste_revisione`) gonfiano un poco `attivita_30_giorni`. Da correggere con una nuova migrazione se serve.
+- Per `confine` si è valutato il tipo spaziale (`POLYGON SRID 4326` + SPATIAL): funziona con `ST_Contains(geom, ST_SRID(POINT(lon, lat), 4326))`, ma 2 poligoni (`CASCINA MERLATA`, `ASSIANO`) risultano invalidi per MySQL. Decisione rinviata; oggi il controllo punto-in-poligono va fatto nell'applicazione.
+- Il servizio Free si spegne se inattivo: se la connessione fallisce, riaccenderlo dalla console Aiven.
+
+## Prossimi passi suggeriti
+
+1. Materiale 3: schema a blocchi dell'architettura IA (dove si innestano verifica documento, classificazione, moderazione testo/immagini, coerenza nel flusso web app → API → DB).
+2. Scegliere lo stack. Vincoli utili: MySQL 8 su Aiven già deciso; serve upload file, mappa interattiva, integrazione SPID/CIE (mock in sviluppo, vedi `docs/`), code di moderazione.
+3. Decidere sulla colonna spaziale per `confine` e sul filtro della vista `v_statistiche_utenti`.
+4. Cambiare la password dell'utente `avnadmin` su Aiven (è stata condivisa in chiaro in chat).
