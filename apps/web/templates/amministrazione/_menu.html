@@ -1,0 +1,8 @@
+<nav class="schede" aria-label="Amministrazione" style="margin-bottom:18px;flex-wrap:wrap">
+  <a href="{% url 'amministrazione' %}" {% if request.resolver_match.url_name == 'amministrazione' %}aria-current="true"{% endif %}>Riepilogo</a>
+  <a href="{% url 'amm_utenti' %}" {% if 'utenti' in request.path %}aria-current="true"{% endif %}>Utenti</a>
+  <a href="{% url 'amm_registro' %}" {% if request.resolver_match.url_name == 'amm_registro' %}aria-current="true"{% endif %}>Registro attività</a>
+  <a href="{% url 'amm_statistiche' %}" {% if request.resolver_match.url_name == 'amm_statistiche' %}aria-current="true"{% endif %}>Statistiche</a>
+  <a href="{% url 'amm_categorie' %}" {% if request.resolver_match.url_name == 'amm_categorie' %}aria-current="true"{% endif %}>Categorie</a>
+  <a href="{% url 'amm_documenti' %}" {% if request.resolver_match.url_name == 'amm_documenti' %}aria-current="true"{% endif %}>Normative</a>
+</nav>

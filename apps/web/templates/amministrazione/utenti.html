@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block titolo %}Utenti{% endblock %}
+{% block contenuto %}<h1>Utenti</h1>{% include "amministrazione/_menu.html" %}
+<form class="filtri" method="get" role="search" aria-label="Cerca utenti">
+  <div class="cerca"><label for="q">Cerca per nome, email o quartiere</label><input id="q" type="search" name="q" value="{{ filtri.q }}"></div>
+  <div><label for="ruolo">Ruolo</label><select id="ruolo" name="ruolo"><option value="">Tutti</option>{% for v in ruoli %}<option value="{{ v }}" {% if filtri.ruolo == v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+  <div><label for="stato">Stato account</label><select id="stato" name="stato"><option value="">Tutti</option>{% for v in stati %}<option value="{{ v }}" {% if filtri.stato == v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+  <div><label for="metodo">Registrazione</label><select id="metodo" name="metodo"><option value="">Tutte</option>{% for v in metodi %}<option value="{{ v }}" {% if filtri.metodo == v %}selected{% endif %}>{{ v|upper }}</option>{% endfor %}</select></div>
+  <div><button class="btn btn-primario" type="submit">Cerca</button> <a class="btn btn-lieve" href="{% url 'amm_utenti' %}">Azzera</a></div>
+</form>
+<p class="piccolo"><strong>{{ pagina.paginator.count }}</strong> utenti</p>
+<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Utente</th><th scope="col">Email</th><th scope="col">Ruolo</th><th scope="col">Stato</th><th scope="col">Accesso</th><th scope="col">Quartiere</th><th scope="col">Iscritto</th></tr></thead><tbody>
+{% for u in pagina %}<tr><td><a href="{% url 'amm_utente' u.id %}">{{ u.nome }} {{ u.cognome }}</a></td><td>{{ u.email }}</td><td>{{ u.ruolo }}</td><td><span class="badge badge-{% if u.stato_account == 'attivo' %}3{% elif u.stato_account == 'sospeso' %}4{% else %}2{% endif %}">{{ u.stato_account }}</span></td><td>{{ u.metodo_registrazione|upper }}</td><td>{{ u.quartiere.nome_leggibile|default:"—" }}</td><td>{{ u.creato_il|date:"j M Y" }}</td></tr>
+{% empty %}<tr><td colspan="7">Nessun utente corrisponde ai filtri.</td></tr>{% endfor %}</tbody></table></div>
+{% if pagina.paginator.num_pages > 1 %}<nav class="paginazione" aria-label="Pagine">
+  {% if pagina.has_previous %}<a class="btn btn-lieve" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.previous_page_number }}">← Precedente</a>{% endif %}
+  <span>Pagina {{ pagina.number }} di {{ pagina.paginator.num_pages }}</span>
+  {% if pagina.has_next %}<a class="btn btn-lieve" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.next_page_number }}">Successiva →</a>{% endif %}</nav>{% endif %}
+{% endblock %}

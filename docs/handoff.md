@@ -18,7 +18,7 @@
 
 ## Prossimo passo
 
-Il sito gira (`apps/web/`, vedi il suo README): elenco, mappa, dettaglio, accesso, nuova segnalazione, moderazione, statistiche. Mancano modifica/eliminazione della propria segnalazione, richieste di revisione, dashboard admin, email/2FA, CSV, e il servizio SPID/CIE separato (oggi simulato).
+Il sito gira (`apps/web/`, vedi il suo README): portale pubblico, area utente (registrazione con conferma email, recupero password, preferenze), autore (modifica/elimina/revisione), moderazione, amministrazione (utenti, ruoli, sospensioni, registro, statistiche con CSV, categorie, normative). Mancano 2FA (richiede una colonna nuova), segnalazioni simili, eliminazione account, il servizio SPID/CIE separato e l'IA vera (oggi simulata), oltre allo schema a blocchi dell'IA (materiale 3).
 
 Attenzione: il servizio Aiven Free si spegne dopo pochi giorni di inattività e può cambiare stato; se `nslookup` dell'host dà NXDOMAIN, riaccenderlo dalla console.
 

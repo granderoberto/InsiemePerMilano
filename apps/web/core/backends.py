@@ -14,4 +14,9 @@ class UtenteBackend:
 
     def get_user(self, user_id):
         u = Utente.objects.filter(pk=user_id).first()
-        return u if u and u.stato_account != "eliminato" else None
+        if u is None or u.stato_account == "eliminato":
+            return None
+        if u.stato_account == "sospeso":
+            from .services.utenti import riattiva_se_scaduta
+            riattiva_se_scaduta(u)  # la sospensione a tempo finisce da sola
+        return u

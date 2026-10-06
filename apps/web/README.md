@@ -23,15 +23,18 @@ Database usato: `DJANGO_DB_NAME` (default `la_nostra_citta_test`, stessi dati de
 | Area | Cosa fa |
 |---|---|
 | Pubblico | elenco con filtri (parola chiave, quartiere, categoria, stato, tipo, ordine), mappa, dettaglio con cronologia stati, commenti e risposte, link condivisibile, statistiche e classifiche |
-| Utente | registrazione (con consensi), accesso (blocco 15 min dopo 5 errori), nuova segnalazione (mappa, indirizzo, GPS, foto/video, categorie suggerite, EXIF rimosso, max 5 al giorno), sostegno e ritiro, commenti, profilo, notifiche |
-| Moderatore (`/moderazione/`) | code: in attesa, contenuti segnalati dall'IA, da presentare (per sostegni), verifiche d'identità da rivedere; approva, rifiuta con motivo, presenta ai candidati, nascondi |
+| Utente | registrazione (con consensi; l'account si attiva dopo la conferma dell'email), accesso (blocco 15 min dopo 5 errori), recupero password, cambio email con nuova conferma, preferenze di notifica, accettazione delle nuove versioni dei documenti normativi, nuova segnalazione (mappa, indirizzo, GPS, foto/video, categorie suggerite, EXIF rimosso, max 5 al giorno), sostegno e ritiro, commenti, profilo, notifiche |
+| Autore | modifica della propria segnalazione negli stati Ricevuta e In attesa (versione precedente nel log, nuovi controlli), eliminazione logica, richiesta di revisione se l'IA l'ha bloccata, richiesta di revisione di una verifica rifiutata |
+| Moderatore (`/moderazione/`) | code: richieste di revisione, in attesa, contenuti segnalati dall'IA, da presentare (per sostegni), verifiche d'identità da rivedere; approva, rifiuta con motivo, presenta ai candidati, nascondi, sospendi e riattiva account |
+| Amministratore (`/amministrazione/`) | elenco utenti con ricerca e filtri, scheda utente (verifiche, consensi, cronologia), correzione dati con motivo, cambio ruolo, sospensione a tempo con scadenza automatica, registro delle attività con filtri, statistiche complete con esportazione CSV, categorie, nuove versioni dei testi normativi (gli utenti devono riaccettarle) |
 
 ## Simulato (da sostituire)
 
 - **Verifica del documento IA** in registrazione: approvata in automatico (`portale/views.py`, `registrati`).
 - **Controlli IA** su testi, categorie, coerenza: `core/services/ia_simulata.py` (stessa interfaccia dei servizi veri).
 - **Accesso SPID/CIE**: form `/accedi/spid/` che riproduce i dati dell'identity provider; sarà il servizio con l'SDK `spid-cie-oidc-django`.
-- Non c'è ancora: invio email, 2FA, modifica/eliminazione della propria segnalazione, richieste di revisione dell'autore, dashboard amministratore (c'è `/gestione/`, l'admin di Django), esportazione CSV.
+- Le email in sviluppo escono sulla console del server e il link compare anche a schermo (`DJANGO_EMAIL_BACKEND` per usare SMTP).
+- Non c'è ancora: 2FA con app di autenticazione (serve una colonna per il segreto: nuova migrazione), segnalazioni simili prima dell'invio, richiesta di revisione per i commenti bloccati, eliminazione dell'account, esportazione delle statistiche personali. `/gestione/` è l'admin standard di Django (non usato).
 
 ## Struttura
 
@@ -41,7 +44,7 @@ core/         modelli del dominio (managed=False), accesso, servizi (geo, stati,
 portale/      viste pubbliche e utente, form, template tag
 moderazione/  area moderatore
 templates/, static/   HTML, CSS, JavaScript (mappa.js, posizione.js)
-smoke/        controlli di prova (scrivono nel DB di test: lanciarli solo lì)
+smoke/        controlli di prova (letture, scrittura, autore, amministrazione, account) (scrivono nel DB di test: lanciarli solo lì)
 ```
 
 Regole sullo schema: vedi "Regola di convivenza" in `CLAUDE.md`. I modelli rispecchiano `db/migrations/*.sql`.
@@ -52,5 +55,8 @@ Regole sullo schema: vedi "Regola di convivenza" in `CLAUDE.md`. I modelli rispe
 .venv/bin/python manage.py check
 .venv/bin/python smoke/letture.py      # GET di tutte le pagine, anche con utente e moderatore
 .venv/bin/python smoke/scrittura.py    # azioni: sostegni, commenti, nuova segnalazione, moderazione, registrazione
+.venv/bin/python smoke/autore.py       # modifica, eliminazione, richieste di revisione
+.venv/bin/python smoke/amministrazione.py   # elenco utenti, ruoli, sospensioni, normative, CSV (lento: molte chiamate remote)
+# .venv/bin/python smoke/account.py    # recupero password, cambio email, preferenze, attivazione
 # poi ripristinare i dati demo: tools/.venv/bin/python tools/seed/seed.py la_nostra_citta_test
 ```

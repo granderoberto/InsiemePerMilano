@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block titolo %}Preferenze di notifica{% endblock %}
+{% block contenuto %}<p><a href="{% url 'profilo' %}">← Profilo</a></p><h1>Preferenze di notifica</h1>
+<p class="piccolo">Le notifiche su account e normative sono obbligatorie e arrivano sempre nell'app.</p>
+<form method="post">{% csrf_token %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Quando</th><th scope="col">Nell'app</th><th scope="col">Per email</th></tr></thead><tbody>
+{% for tipo, etichetta, obbligatoria, in_app, email in righe %}<tr><th scope="row" style="font-weight:600">{{ etichetta }}{% if obbligatoria %} <span class="piccolo">(obbligatoria)</span>{% endif %}</th>
+<td><input type="checkbox" name="app_{{ tipo }}" aria-label="Nell'app: {{ etichetta }}" {% if in_app %}checked{% endif %} {% if obbligatoria %}disabled{% endif %}></td>
+<td><input type="checkbox" name="email_{{ tipo }}" aria-label="Per email: {{ etichetta }}" {% if email %}checked{% endif %}></td></tr>{% endfor %}</tbody></table></div>
+<p style="margin-top:14px"><button class="btn btn-primario" type="submit">Salva</button></p></form>{% endblock %}

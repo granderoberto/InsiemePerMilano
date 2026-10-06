@@ -65,6 +65,14 @@
     <section class="riquadro"><h2>Cronologia</h2>
       <ol class="cronologia">{% for c in cronologia %}<li><strong>{{ c.stato_a.nome }}</strong><br><time class="piccolo" datetime="{{ c.avvenuto_il|date:'c' }}">{{ c.avvenuto_il|date:"j M Y, H:i" }}</time>{% if c.nota and c.stato_a_id == 4 %}<br><span class="piccolo">Motivo: {{ c.nota }}</span>{% endif %}</li>
       {% empty %}<li>Ricevuta<br><time class="piccolo">{{ s.creata_il|date:"j M Y, H:i" }}</time></li>{% endfor %}</ol></section>
+    {% if s.autore_id == user.id and s.modificabile and user.puo_interagire %}
+    <section class="riquadro"><h2>La tua segnalazione</h2>
+      <p><a class="btn btn-primario btn-piccolo" href="{% url 'modifica' s.id %}">✏️ Modifica</a></p>
+      <form method="post" action="{% url 'elimina' s.id %}" onsubmit="return confirm('Eliminare la segnalazione?')">{% csrf_token %}<button class="btn btn-pericolo btn-piccolo" type="submit">Elimina</button></form>
+      {% if s.esito_moderazione == 'bloccato' %}<hr><p class="avviso avviso-warning">I controlli automatici hanno <strong>bloccato</strong> questa segnalazione: non sarà pubblicata finché un moderatore non la rivede.</p>
+        {% if richiesta_aperta %}<p class="piccolo">Hai già chiesto la revisione: attendi la risposta di un moderatore.</p>{% else %}
+        <form method="post" action="{% url 'revisione_segnalazione' s.id %}">{% csrf_token %}<div class="campo"><label for="mot-rev">Chiedi la revisione di una persona</label><textarea id="mot-rev" name="motivo" rows="3" required></textarea></div><button class="btn btn-lieve btn-piccolo" type="submit">Invia richiesta</button></form>{% endif %}{% endif %}
+    </section>{% endif %}
     {% if user.is_authenticated and user.e_moderatore %}<p><a class="btn btn-lieve" href="{% url 'moderazione_segnalazione' s.id %}">Apri nella moderazione</a></p>{% endif %}
   </aside>
 </div>

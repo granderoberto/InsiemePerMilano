@@ -375,3 +375,52 @@ class LogAttivita(models.Model):
     class Meta:
         managed = False
         db_table = "log_attivita"
+
+
+class RichiestaRevisione(models.Model):
+    """L'utente chiede a un moderatore di rivedere un contenuto bloccato o una verifica rifiutata.
+    Esattamente uno tra segnalazione, commento, verifica è valorizzato (CHECK nel DB)."""
+    id = models.AutoField(primary_key=True)
+    richiedente = models.ForeignKey(Utente, models.DO_NOTHING, db_column="id_richiedente", related_name="richieste")
+    segnalazione = models.ForeignKey(Segnalazione, models.DO_NOTHING, db_column="id_segnalazione", blank=True, null=True, related_name="richieste")
+    commento = models.ForeignKey(Commento, models.DO_NOTHING, db_column="id_commento", blank=True, null=True, related_name="richieste")
+    verifica = models.ForeignKey(VerificaIdentita, models.DO_NOTHING, db_column="id_verifica", blank=True, null=True, related_name="richieste")
+    motivo = models.TextField()
+    stato = models.CharField(max_length=8, db_default="aperta")
+    moderatore = models.ForeignKey(Utente, models.DO_NOTHING, db_column="id_moderatore", blank=True, null=True, related_name="+")
+    risposta = models.TextField(blank=True, null=True)
+    creata_il = models.DateTimeField(db_default=Now())
+    chiusa_il = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = "richieste_revisione"
+        ordering = ["creata_il"]
+
+
+class Sospensione(models.Model):
+    id = models.AutoField(primary_key=True)
+    utente = models.ForeignKey(Utente, models.DO_NOTHING, db_column="id_utente", related_name="sospensioni")
+    moderatore = models.ForeignKey(Utente, models.DO_NOTHING, db_column="id_moderatore", related_name="+")
+    motivo = models.TextField()
+    inizio = models.DateTimeField(db_default=Now())
+    fine = models.DateTimeField(blank=True, null=True)
+    revocata_il = models.DateTimeField(blank=True, null=True)
+    revocante = models.ForeignKey(Utente, models.DO_NOTHING, db_column="id_revocante", blank=True, null=True, related_name="+")
+
+    class Meta:
+        managed = False
+        db_table = "sospensioni"
+        ordering = ["-inizio"]
+
+
+class PreferenzaNotifica(models.Model):
+    pk = models.CompositePrimaryKey("utente", "tipo")
+    utente = models.ForeignKey(Utente, models.DO_NOTHING, db_column="id_utente", related_name="preferenze")
+    tipo = models.CharField(max_length=30)
+    in_app = models.BooleanField(db_default=True)
+    email = models.BooleanField(db_default=False)
+
+    class Meta:
+        managed = False
+        db_table = "preferenze_notifica"

@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block titolo %}Accetta le nuove normative{% endblock %}
+{% block contenuto %}<div class="accesso"><h1>Nuove versioni da accettare</h1>
+{% if mancanti %}<p>Alcuni documenti sono cambiati. Per continuare a interagire devi leggere e accettare le nuove versioni. Ogni consenso ha la sua casella.</p>
+<form method="post" class="riquadro">{% csrf_token %}{% for d in mancanti %}
+<div class="campo"><label class="spunta"><input type="checkbox" name="documento" value="{{ d.id }}"> <span><strong>{{ d.tipo }}</strong> · versione {{ d.versione }}. <a href="{% url 'normative' %}#{{ d.tipo }}" target="_blank" rel="noopener">Leggi il testo</a></span></label></div>{% endfor %}
+<button class="btn btn-primario" type="submit">Accetto</button></form>
+{% else %}<p>Hai già accettato tutte le versioni correnti. <a href="{% url 'home' %}">Torna alle segnalazioni</a>.</p>{% endif %}</div>{% endblock %}

@@ -1,7 +1,14 @@
 {% extends "base.html" %}{% block titolo %}Moderazione{% endblock %}
 {% block contenuto %}
 <h1>Area moderatore</h1>
-<nav class="piccolo" aria-label="Code di lavoro"><a href="#attesa">In attesa ({{ in_attesa|length }})</a> · <a href="#segnalati">Contenuti segnalati ({{ segnalate|length }} + {{ commenti|length }})</a> · <a href="#presentare">Da presentare ({{ da_presentare|length }})</a> · <a href="#verifiche">Verifiche da rivedere ({{ verifiche|length }})</a></nav>
+<nav class="piccolo" aria-label="Code di lavoro"><a href="#richieste">Richieste di revisione ({{ richieste|length }})</a> · <a href="#attesa">In attesa ({{ in_attesa|length }})</a> · <a href="#segnalati">Contenuti segnalati ({{ segnalate|length }} + {{ commenti|length }})</a> · <a href="#presentare">Da presentare ({{ da_presentare|length }})</a> · <a href="#verifiche">Verifiche da rivedere ({{ verifiche|length }})</a></nav>
+
+<section id="richieste" class="riquadro"><h2>Richieste di revisione</h2>
+{% for r in richieste %}<div class="commento"><p><strong>{{ r.richiedente.nome_pubblico }}</strong> chiede la revisione di
+{% if r.segnalazione %}una segnalazione bloccata dall'IA: <a href="{% url 'moderazione_segnalazione' r.segnalazione_id %}">{{ r.segnalazione.titolo }}</a>{% else %}una verifica d'identità rifiutata (punteggio {{ r.verifica.punteggio }}, {{ r.verifica.utente.email }}){% endif %}</p>
+<p class="piccolo">«{{ r.motivo }}» · {{ r.creata_il|date:"j M, H:i" }}</p>
+<form method="post" action="{% url 'decidi_richiesta' r.id %}">{% csrf_token %}<label for="ris{{ r.id }}">Risposta per l'utente</label><input id="ris{{ r.id }}" name="risposta" required>
+<button class="btn btn-primario btn-piccolo" name="esito" value="accolta" type="submit">Accogli</button> <button class="btn btn-pericolo btn-piccolo" name="esito" value="respinta" type="submit">Respingi</button></form></div>{% empty %}<p class="piccolo">Nessuna richiesta aperta.</p>{% endfor %}</section>
 
 <section id="attesa" class="riquadro"><h2>Segnalazioni in attesa</h2>
 {% if in_attesa %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Titolo</th><th scope="col">Autore</th><th scope="col">Controlli IA</th><th scope="col">Data</th><th scope="col"><span class="visually-hidden">Azioni</span></th></tr></thead><tbody>

@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block titolo %}Normative{% endblock %}
+{% block contenuto %}<h1>Normative</h1>
+<p class="avviso avviso-simulazione">I testi qui sotto sono <strong>segnaposto</strong> della versione dimostrativa e non hanno valore legale.</p>
+{% for d in documenti %}<section class="riquadro" id="{{ d.tipo }}"><h2>{{ d.tipo|cut:"_"|title }} <span class="piccolo">· versione {{ d.versione }}, {{ d.pubblicato_il|date:"j F Y" }}</span></h2><p style="white-space:pre-line">{{ d.testo }}</p></section>{% endfor %}
+{% endblock %}

@@ -5,6 +5,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from django.conf import settings
+from django.core.mail import send_mail
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -18,10 +19,10 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from core.models import (APPROVATA, PRESENTATA, Candidato, Categoria, Classificazione, Commento, Consenso,
-                         DocumentoNormativo, Media, Notifica, Quartiere, Segnalazione, Sostegno, Stato, Utente,
-                         VerificaIdentita)
+                         DocumentoNormativo, Media, Notifica, PreferenzaNotifica, Quartiere, RichiestaRevisione, Segnalazione, Sostegno, Stato,
+                         Utente, VerificaIdentita)
 from core.queries import con_conteggi
-from core.services import geo, ia_simulata, log, media as servizio_media
+from core.services import geo, ia_simulata, log, media as servizio_media, normative
 from core.services.errori import RegolaViolata, traduci
 from core.services.stati import cambia_stato
 
@@ -38,13 +39,29 @@ def attivo_richiesto(vista):
         if not request.user.puo_interagire:
             messages.warning(request, "Il tuo account non può ancora interagire: è in attesa di verifica o sospeso.")
             return redirect(request.META.get("HTTP_REFERER") or "home")
+        if normative.da_accettare(request.user):  # nuova versione di un documento: serve una nuova accettazione
+            messages.warning(request, "Prima di continuare devi accettare la nuova versione dei documenti normativi.")
+            return redirect("accetta_normative")
         return vista(request, *a, **kw)
     _v.__name__ = vista.__name__
     return _v
 
 
 def notifica(utente, tipo, messaggio, link=None):
-    Notifica.objects.create(utente=utente, tipo=tipo, messaggio=messaggio[:500], link=link)
+    """Crea una notifica nell'app (e, se l'utente l'ha chiesto, un'email) rispettando le sue preferenze.
+    Quelle su account e normative sono obbligatorie."""
+    from .views_account import OBBLIGATORIE
+    pref = None if tipo in OBBLIGATORIE else PreferenzaNotifica.objects.filter(utente=utente, tipo=tipo).first()
+    if pref is None or pref.in_app:
+        Notifica.objects.create(utente=utente, tipo=tipo, messaggio=messaggio[:500], link=link)
+    if pref is not None and pref.email:
+        send_mail("Novità su La Nostra Città", messaggio, settings.DEFAULT_FROM_EMAIL, [utente.email], fail_silently=True)
+
+
+def notifica_quartiere(s):
+    """Quando una segnalazione diventa pubblica, avvisa chi abita nel suo quartiere."""
+    for u in Utente.objects.filter(quartiere_id=s.quartiere_id, stato_account="attivo").exclude(pk=s.autore_id):
+        notifica(u, "nuova_segnalazione_quartiere", f"Nuova segnalazione nel tuo quartiere: «{s.titolo}».", reverse("dettaglio", args=[s.id]))
 
 
 def pubbliche():
@@ -143,6 +160,7 @@ def dettaglio(request, pk):
         "ha_sostenuto": u.is_authenticated and Sostegno.objects.filter(utente=u, segnalazione=s).exists(),
         "candidati": [i.candidato for i in s.invii.select_related("candidato")] if s.stato_id == PRESENTATA else [],
         "url_assoluto": request.build_absolute_uri(),
+        "richiesta_aperta": u.is_authenticated and RichiestaRevisione.objects.filter(segnalazione=s, stato="aperta").exists(),
     })
 
 
@@ -358,17 +376,17 @@ def registrati(request):
                 VerificaIdentita.objects.create(utente=u, tentativo=1, tipo_documento="carta_identita", ok_lettura_ocr=True,
                                                 ok_corrispondenza_dati=True, ok_validita=True, ok_autenticita=True,
                                                 ok_confronto_volto=True, punteggio=92, esito_ia="approvata")
-                u.stato_account, u.email_verificata_il = "attivo", timezone.now()
-                u.save(update_fields=["stato_account", "email_verificata_il"])
             log.registra(u, "verifica_identita", "utenti", u.id, None, {"tentativo": 1, "simulata": True})
             log.registra(None, "decisione_ia", "utenti", u.id, None, {"punteggio": 92, "esito_ia": "approvata", "simulata": True})
-            notifica(u, "verifica_account", "Verifica dell'identità completata: il tuo account è attivo (verifica simulata).", "/profilo/")
+            notifica(u, "verifica_account", "Verifica dell'identità completata (simulata). Per attivare l'account conferma anche l'indirizzo email.", "/profilo/")
         except DatabaseError as e:
             form.add_error(None, str(traduci(e)))
         else:
+            from .views_account import invia_conferma
+            invia_conferma(request, u)
             login(request, u)
-            messages.success(request, "Registrazione completata. Benvenuto!")
-            return redirect("home")
+            messages.success(request, "Registrazione completata. Ti abbiamo inviato un'email: conferma l'indirizzo per attivare l'account.")
+            return redirect("profilo")
     return render(request, "portale/registrati.html", {"form": form})
 
 
@@ -410,7 +428,11 @@ def profilo(request):
         messages.success(request, "Profilo aggiornato.")
         return redirect("profilo")
     mie = con_dettagli(con_conteggi(Segnalazione.objects.filter(autore=u, eliminata_il__isnull=True).select_related("stato", "quartiere")))
+    ultima = u.verifiche.order_by("-creata_il").first()
+    rifiutata = ultima if ultima and ultima.esito_ia == "rifiutata" and ultima.revisore_id is None else None
     return render(request, "portale/profilo.html", {
+        "verifica_rifiutata": rifiutata,
+        "richiesta_verifica_aperta": bool(rifiutata) and RichiestaRevisione.objects.filter(verifica=rifiutata, stato="aperta").exists(),
         "mie": mie, "quartieri": Quartiere.objects.all(),
         "n_segnalazioni": mie.count(), "n_commenti": u.commenti.filter(eliminato_il__isnull=True).count(),
         "n_sostegni_dati": u.sostegni.count(),
@@ -466,3 +488,25 @@ def media_file(request, path):
            f'<path d="M0 400 L180 250 L300 330 L430 220 L640 400Z" fill="hsl({tinta} 32% 70%)"/>'
            f'<text x="320" y="360" text-anchor="middle" font-family="sans-serif" font-size="22" fill="hsl({tinta} 30% 28%)">Foto di esempio (dati demo)</text></svg>')
     return HttpResponse(svg, content_type="image/svg+xml")
+
+
+# ------------------------------------------------------------------ normative
+def pagina_normative(request):
+    return render(request, "portale/normative.html", {"documenti": normative.ultime_versioni().values()})
+
+
+@login_required
+def accetta_normative(request):
+    mancanti = normative.da_accettare(request.user)
+    if request.method == "POST":
+        spuntati = {int(x) for x in request.POST.getlist("documento") if x.isdigit()}
+        if {d.id for d in mancanti} - spuntati:
+            messages.error(request, "Per continuare devi accettare tutti i documenti elencati.")
+        else:
+            for d in mancanti:
+                Consenso.objects.create(utente=request.user, documento=d)
+                log.registra(request.user, "accettazione_normativa", "documenti_normativi", d.id, None, {"versione": d.versione})
+            request.user.notifiche.filter(tipo="normativa_aggiornata").update(letta=True)
+            messages.success(request, "Grazie, hai accettato le nuove versioni.")
+            return redirect("home")
+    return render(request, "portale/accetta_normative.html", {"mancanti": mancanti})

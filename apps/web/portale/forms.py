@@ -114,3 +114,21 @@ class SpidSimulatoForm(forms.Form):
 
     def clean_email(self):
         return self.cleaned_data["email"].strip().lower()
+
+
+class PasswordForm(forms.Form):
+    password = forms.CharField(label="Nuova password", widget=forms.PasswordInput,
+                               help_text="Almeno 8 caratteri, con una maiuscola, un numero e un simbolo.")
+    password2 = forms.CharField(label="Ripeti la password", widget=forms.PasswordInput)
+
+    def clean_password(self):
+        p = self.cleaned_data["password"]
+        if not (len(p) >= 8 and re.search(r"[A-Z]", p) and re.search(r"\d", p) and re.search(r"[^\w\s]", p)):
+            raise forms.ValidationError("La password deve avere almeno 8 caratteri, una maiuscola, un numero e un simbolo.")
+        return p
+
+    def clean(self):
+        d = super().clean()
+        if d.get("password") and d.get("password2") and d["password"] != d["password2"]:
+            self.add_error("password2", "Le due password non coincidono.")
+        return d

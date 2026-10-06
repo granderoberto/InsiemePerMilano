@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block titolo %}Categorie{% endblock %}
+{% block contenuto %}<h1>Categorie</h1>{% include "amministrazione/_menu.html" %}
+<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Categoria</th><th scope="col">Segnalazioni</th><th scope="col">Stato</th><th scope="col"><span class="visually-hidden">Azione</span></th></tr></thead><tbody>
+{% for c in categorie %}<tr><td>{{ c.nome }}{% if c.descrizione %}<br><span class="piccolo">{{ c.descrizione }}</span>{% endif %}</td><td>{{ c.n }}</td><td>{% if c.attiva %}<span class="badge badge-3">attiva</span>{% else %}<span class="badge badge-4">disattivata</span>{% endif %}</td>
+<td><form method="post">{% csrf_token %}<input type="hidden" name="azione" value="attiva"><input type="hidden" name="id" value="{{ c.id }}"><button class="btn btn-lieve btn-piccolo" type="submit">{% if c.attiva %}Disattiva{% else %}Attiva{% endif %}</button></form></td></tr>{% endfor %}</tbody></table></div>
+<section class="riquadro" style="margin-top:18px"><h2>Nuova categoria</h2><form method="post">{% csrf_token %}<input type="hidden" name="azione" value="aggiungi">
+<div class="campo"><label for="nome">Nome</label><input id="nome" name="nome" maxlength="50" required></div><div class="campo"><label for="descrizione">Descrizione (facoltativa)</label><input id="descrizione" name="descrizione"></div><button class="btn btn-primario" type="submit">Aggiungi</button></form></section>
+{% endblock %}

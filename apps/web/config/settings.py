@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "core",
     "portale",
     "moderazione",
+    "amministrazione",
 ]
 
 MIDDLEWARE = [
@@ -113,3 +114,7 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 # Simulazioni in attesa dell'SDK SPID/CIE e dei servizi IA (mostrate nel sito)
 SIMULAZIONE_SPID_CIE = True
 SIMULAZIONE_VERIFICA_DOCUMENTO = True
+
+# Email: in sviluppo escono sulla console del server (in produzione: SMTP)
+EMAIL_BACKEND = os.environ.get("DJANGO_EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+DEFAULT_FROM_EMAIL = "La Nostra Città <noreply@insiemepermilano.example>"

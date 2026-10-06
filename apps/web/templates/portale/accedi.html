@@ -6,7 +6,7 @@
   <form method="post" class="riquadro">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
     <div class="campo"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="username" required autofocus></div>
     <div class="campo"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
-    <button class="btn btn-primario" type="submit">Accedi</button>
+    <button class="btn btn-primario" type="submit">Accedi</button> <a href="{% url 'password_dimenticata' %}">Password dimenticata?</a>
     <p class="piccolo">Dopo 5 tentativi falliti l'account si blocca per 15 minuti.</p>
   </form>
   <section class="riquadro"><h2>Hai SPID o CIE?</h2>

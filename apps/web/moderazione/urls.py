@@ -7,5 +7,7 @@ urlpatterns = [
     path("segnalazioni/<int:pk>/", views.segnalazione, name="moderazione_segnalazione"),
     path("segnalazioni/<int:pk>/<str:azione>/", views.azione_segnalazione, name="azione_segnalazione"),
     path("commenti/<int:cid>/<str:azione>/", views.azione_commento, name="azione_commento"),
+    path("richieste/<int:rid>/decidi/", views.decidi_richiesta, name="decidi_richiesta"),
+    path("utenti/<int:uid>/<str:azione>/", views.azione_utente, name="moderazione_utente"),
     path("verifiche/<int:vid>/decidi/", views.decidi_verifica, name="decidi_verifica"),
 ]

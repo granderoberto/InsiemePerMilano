@@ -8,13 +8,14 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from core.models import (APPROVATA, IN_ATTESA, PRESENTATA, RIFIUTATA, Candidato, Commento, Invio, Segnalazione,
-                         VerificaIdentita)
+from core.models import (APPROVATA, Utente, IN_ATTESA, PRESENTATA, RIFIUTATA, Candidato, Commento, Invio, RichiestaRevisione,
+                         Segnalazione, VerificaIdentita)
 from core.queries import con_conteggi
-from core.services import log
+from core.services import log, utenti as servizio_utenti
 from core.services.errori import RegolaViolata, traduci
 from core.services.stati import cambia_stato
-from portale.views import notifica
+from portale.views import notifica, notifica_quartiere
+from portale.views_account import ricalcola_attivazione
 
 
 def moderatore_richiesto(vista):
@@ -36,7 +37,9 @@ def dashboard(request):
                 .select_related("autore", "segnalazione").order_by("-creato_il")[:30])
     da_presentare = con_conteggi(base.filter(stato_id=APPROVATA, nascosta=False)).order_by("-n_sostegni", "-creata_il")
     verifiche = (VerificaIdentita.objects.filter(esito_ia="da_rivedere", revisore__isnull=True).select_related("utente"))
+    richieste = RichiestaRevisione.objects.filter(stato="aperta").select_related("richiedente", "segnalazione", "verifica__utente")
     return render(request, "moderazione/dashboard.html", {
+        "richieste": richieste,
         "in_attesa": in_attesa, "segnalate": segnalate, "commenti": commenti, "da_presentare": da_presentare,
         "verifiche": verifiche, "candidati": Candidato.objects.all()})
 
@@ -58,6 +61,7 @@ def _esegui(request, pk, azione):
         if azione == "approva":
             cambia_stato(s, APPROVATA, u, "Approvata dal moderatore")
             notifica(s.autore, "stato_segnalazione", f"La tua segnalazione «{s.titolo}» è stata approvata ed è ora pubblica.", reverse("dettaglio", args=[s.id]))
+            notifica_quartiere(s)
             messages.success(request, "Segnalazione approvata e pubblicata.")
         elif azione == "rifiuta":
             if not motivo:
@@ -136,11 +140,70 @@ def decidi_verifica(request, vid):
     with transaction.atomic():
         v.revisore, v.esito_finale, v.motivo_revisione, v.revisionata_il = request.user, esito, motivo, now
         v.save(update_fields=["revisore", "esito_finale", "motivo_revisione", "revisionata_il"])
-        if esito == "approvata":
-            u = v.utente
-            u.stato_account, u.email_verificata_il = "attivo", u.email_verificata_il or now
-            u.save(update_fields=["stato_account", "email_verificata_il"])
+    if esito == "approvata":
+        ricalcola_attivazione(v.utente)  # attivo solo se anche l'email è confermata
     log.registra(request.user, "revisione_moderatore", "verifiche_identita", v.id, {"esito_ia": v.esito_ia}, {"esito_finale": esito, "motivo": motivo})
-    notifica(v.utente, "verifica_account", "La verifica del tuo documento è stata rivista: " + ("approvata, il tuo account è attivo." if esito == "approvata" else "non superata."), "/profilo/")
+    notifica(v.utente, "verifica_account", "La verifica del tuo documento è stata rivista: " + ("approvata." if esito == "approvata" else "non superata."), "/profilo/")
     messages.success(request, "Verifica rivista.")
     return redirect("moderazione")
+
+
+@require_POST
+@moderatore_richiesto
+def decidi_richiesta(request, rid):
+    """Accoglie o respinge una richiesta di revisione (segnalazione bloccata dall'IA o verifica rifiutata)."""
+    r = get_object_or_404(RichiestaRevisione.objects.select_related("richiedente", "segnalazione", "verifica__utente"),
+                          pk=rid, stato="aperta")
+    esito = request.POST.get("esito")
+    risposta = request.POST.get("risposta", "").strip()
+    if esito not in ("accolta", "respinta") or not risposta:
+        messages.error(request, "Scegli l'esito e scrivi la risposta per l'utente.")
+        return redirect("moderazione")
+    u, now = request.user, timezone.now()
+    try:
+        with transaction.atomic():
+            if r.segnalazione_id:
+                s = r.segnalazione
+                if esito == "accolta":
+                    cambia_stato(s, APPROVATA, u, f"Approvata dopo revisione: {risposta}")
+                    notifica_quartiere(s)
+                else:
+                    cambia_stato(s, RIFIUTATA, u, f"Rifiutata dopo revisione: {risposta}")
+                notifica(r.richiedente, "stato_segnalazione", f"Revisione della segnalazione «{s.titolo}»: {risposta}", reverse("dettaglio", args=[s.id]))
+            elif r.verifica_id:
+                v = r.verifica
+                v.revisore, v.esito_finale, v.motivo_revisione, v.revisionata_il = u, "approvata" if esito == "accolta" else "rifiutata", risposta, now
+                v.save(update_fields=["revisore", "esito_finale", "motivo_revisione", "revisionata_il"])
+                if esito == "accolta":
+                    ricalcola_attivazione(v.utente)
+                notifica(r.richiedente, "verifica_account", f"Revisione della verifica: {risposta}", "/profilo/")
+            r.stato, r.moderatore, r.risposta, r.chiusa_il = esito, u, risposta, now
+            r.save(update_fields=["stato", "moderatore", "risposta", "chiusa_il"])
+    except RegolaViolata as e:
+        messages.error(request, str(e))
+    except DatabaseError as e:
+        messages.error(request, str(traduci(e)))
+    else:
+        log.registra(u, "revisione_moderatore", "richieste_revisione", r.id, {"stato": "aperta"}, {"stato": esito, "risposta": risposta})
+        messages.success(request, "Richiesta di revisione chiusa.")
+    return redirect("moderazione")
+
+
+@require_POST
+@moderatore_richiesto
+def azione_utente(request, uid, azione):
+    """Il moderatore può sospendere e riattivare gli account (non vede l'elenco completo degli utenti)."""
+    u = get_object_or_404(Utente, pk=uid)
+    try:
+        if azione == "sospendi":
+            g = request.POST.get("giorni", "")
+            servizio_utenti.sospendi(u, request.user, request.POST.get("motivo", ""), int(g) if g.isdigit() and int(g) > 0 else None)
+            messages.success(request, f"Account di {u.nome_pubblico} sospeso.")
+        elif azione == "riattiva":
+            servizio_utenti.riattiva(u, request.user)
+            messages.success(request, f"Account di {u.nome_pubblico} riattivato.")
+        else:
+            raise Http404()
+    except RegolaViolata as e:
+        messages.error(request, str(e))
+    return redirect(request.POST.get("next") or "moderazione")

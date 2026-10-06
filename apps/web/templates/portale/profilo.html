@@ -5,6 +5,10 @@
   <section class="riquadro"><h2>I miei dati</h2>
     <p><strong>{{ user.nome }} {{ user.cognome }}</strong><br>{{ user.email }}<br><span class="piccolo">Accesso: {{ user.metodo_registrazione|upper }} · account {{ user.stato_account }}</span></p>
     <p class="piccolo">Nome, cognome e data di nascita non sono modificabili: corrispondono all'identità verificata.</p>
+    <p>{% if user.email_verificata_il %}<span class="badge badge-3">Email confermata</span>{% else %}<span class="badge badge-2">Email da confermare</span>
+      <form class="in-linea" method="post" action="{% url 'reinvia_conferma' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Invia di nuovo il link</button></form>{% endif %}</p>
+    <form method="post" action="{% url 'cambia_email' %}">{% csrf_token %}<div class="campo"><label for="nuova-email">Cambia indirizzo email</label><input id="nuova-email" name="email" type="email" required><p class="aiuto">Ti mandiamo un link di conferma al nuovo indirizzo: cambia solo dopo la conferma.</p></div><button class="btn btn-lieve btn-piccolo" type="submit">Invia il link</button></form>
+    <p style="margin-top:12px"><a href="{% url 'preferenze_notifica' %}">Scegli quali notifiche ricevere</a></p>
     <form method="post">{% csrf_token %}
       <div class="campo"><label for="quartiere">Quartiere di residenza</label><select id="quartiere" name="quartiere"><option value="">— nessuno —</option>{% for q in quartieri %}<option value="{{ q.id }}" {% if user.quartiere_id == q.id %}selected{% endif %}>{{ q.nome_leggibile }}</option>{% endfor %}</select></div>
       <div class="campo"><label class="spunta"><input type="checkbox" name="profilo_pubblico" {% if user.profilo_pubblico %}checked{% endif %}> <span>Profilo pubblico: compaio nelle classifiche con nome e iniziale del cognome.</span></label></div>
@@ -16,8 +20,12 @@
       <li style="display:block"><span class="contatore">{{ n_commenti }}</span><br>commenti scritti</li>
       <li style="display:block"><span class="contatore">{{ n_sostegni_dati }}</span><br>sostegni dati</li></ul></section>
 </div>
+{% if verifica_rifiutata %}<section class="riquadro"><h2>Verifica dell'identità non superata</h2>
+  <p>La verifica del tuo documento è stata rifiutata{% if verifica_rifiutata.motivo %}: {{ verifica_rifiutata.motivo }}{% endif %}. Puoi chiedere la revisione di una persona.</p>
+  {% if richiesta_verifica_aperta %}<p class="piccolo">Richiesta già inviata: attendi la risposta di un moderatore.</p>{% else %}
+  <form method="post" action="{% url 'revisione_verifica' verifica_rifiutata.id %}">{% csrf_token %}<div class="campo"><label for="mot-ver">Perché chiedi la revisione</label><textarea id="mot-ver" name="motivo" rows="2" required></textarea></div><button class="btn btn-primario btn-piccolo" type="submit">Chiedi la revisione</button></form>{% endif %}</section>{% endif %}
 <h2>Le mie segnalazioni</h2>
 {% if mie %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Titolo</th><th scope="col">Stato</th><th scope="col">Sostegni</th><th scope="col">Data</th></tr></thead><tbody>
-{% for s in mie %}<tr><td><a href="{% url 'dettaglio' s.id %}">{{ s.titolo }}</a></td><td><span class="badge badge-{{ s.stato_id }}">{{ s.stato.nome }}</span></td><td>{{ s.n_sostegni }}</td><td>{{ s.creata_il|date:"j M Y" }}</td></tr>{% endfor %}</tbody></table></div>
+{% for s in mie %}<tr><td><a href="{% url 'dettaglio' s.id %}">{{ s.titolo }}</a>{% if s.modificabile %} <a class="piccolo" href="{% url 'modifica' s.id %}">modifica</a>{% endif %}</td><td><span class="badge badge-{{ s.stato_id }}">{{ s.stato.nome }}</span></td><td>{{ s.n_sostegni }}</td><td>{{ s.creata_il|date:"j M Y" }}</td></tr>{% endfor %}</tbody></table></div>
 {% else %}<p class="vuoto-msg">Non hai ancora inserito segnalazioni.</p>{% endif %}
 {% endblock %}

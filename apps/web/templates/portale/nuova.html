@@ -1,8 +1,9 @@
 {% extends "base.html" %}{% load static %}
-{% block titolo %}Nuova segnalazione{% endblock %}
+{% load portale_extra %}{% block titolo %}{% if modifica %}Modifica segnalazione{% else %}Nuova segnalazione{% endif %}{% endblock %}
 {% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endblock %}
 {% block contenuto %}
-<h1>Nuova segnalazione</h1>
+<h1>{% if modifica %}Modifica la segnalazione{% else %}Nuova segnalazione{% endif %}</h1>
+{% if modifica %}<p class="piccolo">Puoi modificarla finché è Ricevuta o In attesa. La versione precedente resta nel registro delle attività e la segnalazione ripassa dai controlli automatici.</p>{% endif %}
 <form method="post" enctype="multipart/form-data" class="accesso" style="max-width:760px" novalidate id="form-segnalazione">{% csrf_token %}
   {% if form.non_field_errors %}<p class="avviso avviso-error" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
   <fieldset><legend>{{ form.tipo.label }}</legend>{{ form.tipo }}{% for e in form.tipo.errors %}<p class="errore">{{ e }}</p>{% endfor %}</fieldset>
@@ -25,12 +26,16 @@
     {% include "_campo.html" with campo=form.indirizzo %}
   </fieldset>
   <fieldset><legend>Foto e video</legend>
-    <div class="campo"><label for="media">Allega da 1 a 10 file</label>
-      <input id="media" name="media" type="file" multiple required accept="image/jpeg,image/png,video/mp4,video/quicktime">
+    {% if modifica and media_esistenti %}<p class="aiuto">File attuali: spunta quelli da togliere. Il primo file rimasto diventa la copertina.</p>
+    <div class="galleria" style="margin-bottom:12px">{% for m in media_esistenti %}<label class="spunta" style="flex-direction:column;align-items:stretch">
+      {% if m.tipo == 'video' %}<video preload="metadata" src="{{ m.percorso|url_media }}" aria-label="Video {{ forloop.counter }}"></video>{% else %}<img src="{{ m.percorso|url_media }}" alt="Foto {{ forloop.counter }}">{% endif %}
+      <span><input type="checkbox" name="rimuovi_media" value="{{ m.id }}"> Rimuovi il file {{ forloop.counter }}</span></label>{% endfor %}</div>{% endif %}
+    <div class="campo"><label for="media">{% if modifica %}Aggiungi altri file (facoltativo){% else %}Allega da 1 a 10 file{% endif %}</label>
+      <input id="media" name="media" type="file" multiple {% if not modifica %}required{% endif %} accept="image/jpeg,image/png,video/mp4,video/quicktime">
       <p class="aiuto">Foto JPG o PNG fino a 10 MB. Video MP4 o MOV fino a 50 MB e 60 secondi. I metadati (posizione GPS del dispositivo) vengono rimossi prima della pubblicazione. La prima immagine sarà la copertina.</p></div>
   </fieldset>
   <p class="piccolo">Massimo 5 segnalazioni al giorno. Dopo l'invio i controlli automatici (simulati in questa versione) e un moderatore valutano la segnalazione.</p>
-  <button class="btn btn-primario" type="submit">Invia la segnalazione</button>
+  <button class="btn btn-primario" type="submit">{% if modifica %}Salva le modifiche{% else %}Invia la segnalazione{% endif %}</button>{% if modifica %} <a class="btn btn-lieve" href="{% url 'dettaglio' s.id %}">Annulla</a>{% endif %}
 </form>
 {% endblock %}
 {% block scripts %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block titolo %}Normative{% endblock %}
+{% block contenuto %}<h1>Testi normativi</h1>{% include "amministrazione/_menu.html" %}
+<p class="piccolo">Quando pubblichi una nuova versione, ogni utente riceve una notifica e deve accettarla al primo accesso successivo per continuare a interagire.</p>
+<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Documento</th><th scope="col">Versione</th><th scope="col">Pubblicato</th><th scope="col">Consensi</th></tr></thead><tbody>
+{% for d in documenti %}<tr><td>{{ d.tipo }}</td><td>{{ d.versione }}</td><td>{{ d.pubblicato_il|date:"j M Y" }}</td><td>{{ d.consensi.count }}</td></tr>{% endfor %}</tbody></table></div>
+<section class="riquadro" style="margin-top:18px"><h2>Pubblica una nuova versione</h2><form method="post">{% csrf_token %}
+<div class="campo"><label for="tipo">Documento</label><select id="tipo" name="tipo">{% for t in tipi %}<option value="{{ t }}">{{ t }}</option>{% endfor %}</select></div>
+<div class="campo"><label for="versione">Numero di versione</label><input id="versione" name="versione" maxlength="20" required placeholder="Es. 2"></div>
+<div class="campo"><label for="testo">Testo</label><textarea id="testo" name="testo" rows="6" required></textarea></div><button class="btn btn-primario" type="submit">Pubblica</button></form></section>
+{% endblock %}

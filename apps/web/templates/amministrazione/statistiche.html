@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block titolo %}Statistiche complete{% endblock %}
+{% block contenuto %}<h1>Statistiche complete</h1>{% include "amministrazione/_menu.html" %}
+<form class="filtri" method="get"><div><label for="periodo">Periodo per «utenti più attivi»</label><select id="periodo" name="periodo"><option value="7" {% if periodo == '7' %}selected{% endif %}>Ultimi 7 giorni</option><option value="30" {% if periodo == '30' %}selected{% endif %}>Ultimi 30 giorni</option><option value="tutto" {% if periodo == 'tutto' %}selected{% endif %}>Dall'inizio</option></select></div><div><button class="btn btn-primario" type="submit">Applica</button></div></form>
+<div class="due-colonne">{% for nome, d in dati.items %}
+<section class="riquadro"><h2 style="font-size:1.1rem">{{ d.titolo }}</h2>
+<div class="scorri"><table class="tabella"><thead><tr>{% for h in d.intestazioni %}<th scope="col">{{ h }}</th>{% endfor %}</tr></thead><tbody>
+{% for riga in d.righe %}<tr>{% for c in riga %}<td>{{ c }}</td>{% endfor %}</tr>{% empty %}<tr><td colspan="{{ d.intestazioni|length }}">Nessun dato.</td></tr>{% endfor %}</tbody></table></div>
+<p><a class="btn btn-lieve btn-piccolo" href="{% url 'amm_csv' nome %}?periodo={{ periodo }}" download>⬇ Esporta CSV</a></p></section>{% endfor %}</div>
+{% endblock %}

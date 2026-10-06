@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, views_account, views_autore
 
 urlpatterns = [
     path("", views.home, name="home"),
@@ -9,6 +9,10 @@ urlpatterns = [
     path("segnalazioni/<int:pk>/sostieni/", views.sostieni, name="sostieni"),
     path("segnalazioni/<int:pk>/commenta/", views.commenta, name="commenta"),
     path("segnalazioni/<int:pk>/commenti/<int:cid>/elimina/", views.elimina_commento, name="elimina_commento"),
+    path("segnalazioni/<int:pk>/modifica/", views_autore.modifica, name="modifica"),
+    path("segnalazioni/<int:pk>/elimina/", views_autore.elimina, name="elimina"),
+    path("segnalazioni/<int:pk>/revisione/", views_autore.richiedi_revisione_segnalazione, name="revisione_segnalazione"),
+    path("profilo/verifiche/<int:vid>/revisione/", views_autore.richiedi_revisione_verifica, name="revisione_verifica"),
     path("api/segnalazioni.geojson", views.geojson, name="geojson"),
     path("api/suggerisci-categorie/", views.suggerisci_categorie, name="suggerisci_categorie"),
     path("api/quartiere/", views.quartiere_da_posizione, name="quartiere_da_posizione"),
@@ -17,7 +21,16 @@ urlpatterns = [
     path("esci/", views.esci, name="esci"),
     path("registrati/", views.registrati, name="registrati"),
     path("profilo/", views.profilo, name="profilo"),
+    path("profilo/notifiche/", views_account.preferenze_notifica, name="preferenze_notifica"),
+    path("profilo/email/", views_account.cambia_email, name="cambia_email"),
+    path("profilo/email/conferma/<str:tok>/", views_account.conferma_nuova_email, name="conferma_nuova_email"),
+    path("profilo/conferma/", views_account.reinvia_conferma, name="reinvia_conferma"),
+    path("conferma-email/<str:tok>/", views_account.conferma_email, name="conferma_email"),
+    path("password-dimenticata/", views_account.password_dimenticata, name="password_dimenticata"),
+    path("reset-password/<str:tok>/", views_account.reset_password, name="reset_password"),
     path("notifiche/", views.notifiche, name="notifiche"),
+    path("normative/", views.pagina_normative, name="normative"),
+    path("normative/accetta/", views.accetta_normative, name="accetta_normative"),
     path("statistiche/", views.statistiche, name="statistiche"),
     path("media/<path:path>", views.media_file, name="media"),
 ]

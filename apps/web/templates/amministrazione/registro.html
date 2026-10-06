@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block titolo %}Registro attività{% endblock %}
+{% block contenuto %}<h1>Registro delle attività</h1>{% include "amministrazione/_menu.html" %}
+<p class="piccolo">Solo l'amministratore lo consulta e nessuno può modificarlo o cancellarlo (lo impediscono i trigger del database).</p>
+<form class="filtri" method="get" aria-label="Filtra il registro">
+  <div><label for="operazione">Operazione</label><select id="operazione" name="operazione"><option value="">Tutte</option>{% for o in operazioni %}<option value="{{ o }}" {% if filtri.operazione == o %}selected{% endif %}>{{ o }}</option>{% endfor %}</select></div>
+  <div><label for="tabella">Elemento</label><select id="tabella" name="tabella"><option value="">Tutti</option>{% for t in tabelle %}<option value="{{ t }}" {% if filtri.tabella == t %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+  <div><label for="attore">Autore</label><select id="attore" name="attore"><option value="">Tutti</option><option value="utente" {% if filtri.attore == 'utente' %}selected{% endif %}>Utenti</option><option value="sistema" {% if filtri.attore == 'sistema' %}selected{% endif %}>Sistema / IA</option></select></div>
+  <div><label for="utente">Utente (email o cognome)</label><input id="utente" name="utente" value="{{ filtri.utente }}"></div>
+  <div><button class="btn btn-primario" type="submit">Filtra</button> <a class="btn btn-lieve" href="{% url 'amm_registro' %}">Azzera</a></div>
+</form>
+<p class="piccolo"><strong>{{ pagina.paginator.count }}</strong> voci</p>
+<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Quando</th><th scope="col">Autore</th><th scope="col">Operazione</th><th scope="col">Oggetto</th><th scope="col">Prima → dopo</th></tr></thead><tbody>
+{% for l in pagina %}<tr><td>{{ l.avvenuto_il|date:"j M Y H:i:s" }}</td><td>{% if l.utente %}<a href="{% url 'amm_utente' l.utente_id %}">{{ l.utente.nome }} {{ l.utente.cognome }}</a>{% else %}sistema (IA){% endif %}</td><td>{{ l.operazione }}</td><td>{{ l.tabella }} #{{ l.id_oggetto }}</td><td class="piccolo">{% if l.dati_precedenti %}{{ l.dati_precedenti }} → {% endif %}{{ l.dati_nuovi|default_if_none:"" }}</td></tr>{% endfor %}</tbody></table></div>
+{% if pagina.paginator.num_pages > 1 %}<nav class="paginazione" aria-label="Pagine">
+  {% if pagina.has_previous %}<a class="btn btn-lieve" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.previous_page_number }}">← Precedente</a>{% endif %}
+  <span>Pagina {{ pagina.number }} di {{ pagina.paginator.num_pages }}</span>
+  {% if pagina.has_next %}<a class="btn btn-lieve" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.next_page_number }}">Successiva →</a>{% endif %}</nav>{% endif %}
+{% endblock %}

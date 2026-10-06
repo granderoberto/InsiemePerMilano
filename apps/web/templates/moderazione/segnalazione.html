@@ -29,6 +29,13 @@
       {% else %}<form method="post" action="{% url 'azione_segnalazione' s.id 'nascondi' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
         <div class="campo"><label for="motivo-n">Nascondi con motivo</label><input id="motivo-n" name="motivo" required></div><button class="btn btn-pericolo btn-piccolo" type="submit">Nascondi</button></form>{% endif %}
     </section>
+    <section class="riquadro"><h2>Autore: {{ s.autore.nome }} {{ s.autore.cognome }}</h2>
+      <p class="piccolo">Account {{ s.autore.stato_account }}</p>
+      {% if s.autore.stato_account == 'sospeso' %}<form method="post" action="{% url 'moderazione_utente' s.autore_id 'riattiva' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn btn-lieve btn-piccolo" type="submit">Riattiva l'account</button></form>
+      {% elif s.autore.stato_account == 'attivo' and s.autore_id != user.id %}<form method="post" action="{% url 'moderazione_utente' s.autore_id 'sospendi' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+        <div class="campo"><label for="sosp-mot">Sospendi l'account: motivo</label><input id="sosp-mot" name="motivo" required></div>
+        <div class="campo"><label for="sosp-gg">Durata in giorni (vuoto = indeterminata)</label><input id="sosp-gg" name="giorni" type="number" min="1" max="365"></div>
+        <button class="btn btn-pericolo btn-piccolo" type="submit">Sospendi</button></form>{% endif %}</section>
     <section class="riquadro"><h2>Cronologia</h2><ol class="cronologia">{% for c in cronologia %}<li><strong>{{ c.stato_a.nome }}</strong>{% if c.operatore %} · {{ c.operatore.nome }}{% else %} · sistema{% endif %}<br><time class="piccolo">{{ c.avvenuto_il|date:"j M Y, H:i" }}</time>{% if c.nota %}<br><span class="piccolo">{{ c.nota }}</span>{% endif %}</li>{% endfor %}</ol></section>
   </aside>
 </div>

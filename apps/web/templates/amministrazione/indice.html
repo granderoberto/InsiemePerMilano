@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% block titolo %}Amministrazione{% endblock %}
+{% block contenuto %}<h1>Amministrazione</h1>{% include "amministrazione/_menu.html" %}
+<div class="due-colonne">
+  <section class="riquadro"><h2>Utenti</h2><p><span class="contatore">{{ n_utenti }}</span> registrati · {{ n_in_attesa }} in attesa di verifica · {{ n_sospesi }} sospesi</p><a class="btn btn-primario btn-piccolo" href="{% url 'amm_utenti' %}">Apri l'elenco</a></section>
+  <section class="riquadro"><h2>Segnalazioni</h2><p><span class="contatore">{{ n_segnalazioni }}</span> in totale</p><a class="btn btn-lieve btn-piccolo" href="{% url 'moderazione' %}">Code di moderazione</a></section>
+  <section class="riquadro"><h2>Registro e statistiche</h2><p>Il registro delle attività non è modificabile da nessuno. Le statistiche complete si possono esportare in CSV.</p><a class="btn btn-lieve btn-piccolo" href="{% url 'amm_registro' %}">Registro</a> <a class="btn btn-lieve btn-piccolo" href="{% url 'amm_statistiche' %}">Statistiche</a></section>
+  <section class="riquadro"><h2>Configurazione</h2><p>Categorie e testi normativi.</p><a class="btn btn-lieve btn-piccolo" href="{% url 'amm_categorie' %}">Categorie</a> <a class="btn btn-lieve btn-piccolo" href="{% url 'amm_documenti' %}">Normative</a></section>
+</div>{% endblock %}

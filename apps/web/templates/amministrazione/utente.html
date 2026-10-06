@@ -1,0 +1,40 @@
+{% extends "base.html" %}{% block titolo %}{{ u.nome }} {{ u.cognome }}{% endblock %}
+{% block contenuto %}<p><a href="{% url 'amm_utenti' %}">← Elenco utenti</a></p>
+<h1>{{ u.nome }} {{ u.cognome }}</h1>{% include "amministrazione/_menu.html" %}
+<div class="due-colonne">
+ <section class="riquadro"><h2>Dati</h2>
+  <p>{{ u.email }}<br>Nato il {{ u.data_nascita|date:"j F Y" }} · {{ u.metodo_registrazione|upper }} · iscritto il {{ u.creato_il|date:"j M Y" }}<br>Quartiere: {{ u.quartiere.nome_leggibile|default:"—" }} · profilo {% if u.profilo_pubblico %}pubblico{% else %}privato{% endif %}</p>
+  <p><span class="badge badge-{% if u.stato_account == 'attivo' %}3{% elif u.stato_account == 'sospeso' %}4{% else %}2{% endif %}">{{ u.stato_account }}</span> <span class="badge badge-5">{{ u.ruolo }}</span></p>
+  <p class="piccolo">{{ n_segnalazioni }} segnalazioni · {{ n_commenti }} commenti · {{ n_sostegni }} sostegni dati</p>
+  {% if u.stato_account != 'eliminato' %}
+  <h3>Correggi i dati</h3>
+  <form method="post" action="{% url 'amm_azione_utente' u.id 'modifica' %}">{% csrf_token %}
+   <div class="campo"><label for="f-nome">Nome</label><input id="f-nome" name="nome" value="{{ u.nome }}" required maxlength="50"></div>
+   <div class="campo"><label for="f-cognome">Cognome</label><input id="f-cognome" name="cognome" value="{{ u.cognome }}" required maxlength="50"></div>
+   <div class="campo"><label for="f-email">Email</label><input id="f-email" name="email" type="email" value="{{ u.email }}" required></div>
+   <div class="campo"><label for="f-data">Data di nascita</label><input id="f-data" name="data_nascita" type="date" value="{{ u.data_nascita|date:'Y-m-d' }}" required></div>
+   <div class="campo"><label for="f-q">Quartiere</label><select id="f-q" name="quartiere"><option value="">— nessuno —</option>{% for q in quartieri %}<option value="{{ q.id }}" {% if u.quartiere_id == q.id %}selected{% endif %}>{{ q.nome_leggibile }}</option>{% endfor %}</select></div>
+   <div class="campo"><label for="f-mot">Motivo della modifica (obbligatorio, finisce nel registro)</label><input id="f-mot" name="motivo" required></div>
+   <button class="btn btn-primario btn-piccolo" type="submit">Salva</button></form>{% endif %}
+ </section>
+ <div>
+  {% if u.stato_account != 'eliminato' %}
+  <section class="riquadro"><h2>Ruolo</h2>
+   {% if u.id == user.id %}<p class="piccolo">Nessuno può cambiare il proprio ruolo.</p>{% else %}
+   <form method="post" action="{% url 'amm_azione_utente' u.id 'ruolo' %}">{% csrf_token %}<div class="campo"><label for="f-ruolo">Nuovo ruolo</label><select id="f-ruolo" name="ruolo">{% for v in ruoli %}<option value="{{ v }}" {% if u.ruolo == v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div><button class="btn btn-primario btn-piccolo" type="submit">Cambia ruolo</button></form>{% endif %}</section>
+  <section class="riquadro"><h2>Sospensione</h2>
+   {% if u.stato_account == 'sospeso' %}<form method="post" action="{% url 'amm_azione_utente' u.id 'riattiva' %}">{% csrf_token %}<button class="btn btn-primario btn-piccolo" type="submit">Riattiva l'account</button></form>
+   {% elif u.stato_account == 'attivo' and u.id != user.id %}<form method="post" action="{% url 'amm_azione_utente' u.id 'sospendi' %}">{% csrf_token %}
+    <div class="campo"><label for="s-mot">Motivo</label><input id="s-mot" name="motivo" required></div>
+    <div class="campo"><label for="s-giorni">Durata in giorni (vuoto = a tempo indeterminato)</label><input id="s-giorni" name="giorni" type="number" min="1" max="365"></div>
+    <button class="btn btn-pericolo btn-piccolo" type="submit">Sospendi</button></form>{% else %}<p class="piccolo">Non disponibile per questo account.</p>{% endif %}
+   {% for s in sospensioni %}<p class="piccolo">{{ s.inizio|date:"j M Y" }}{% if s.fine %} → {{ s.fine|date:"j M Y" }}{% endif %} · {{ s.motivo }} {% if s.revocata_il %}(revocata {{ s.revocata_il|date:"j M Y" }}){% endif %}</p>{% endfor %}</section>{% endif %}
+  <section class="riquadro"><h2>Verifica d'identità e consensi</h2>
+   {% for v in verifiche %}<p class="piccolo">Tentativo {{ v.tentativo }}: punteggio <strong>{{ v.punteggio }}</strong> → {{ v.esito_ia }}{% if v.esito_finale %}, rivista: {{ v.esito_finale }}{% endif %}</p>{% empty %}<p class="piccolo">Nessuna verifica (accesso con identità digitale).</p>{% endfor %}
+   <p class="piccolo">Consensi: {% for c in consensi %}{{ c.documento.tipo }} v{{ c.documento.versione }}{% if not forloop.last %}, {% endif %}{% empty %}nessuno{% endfor %}</p></section>
+ </div>
+</div>
+<section class="riquadro"><h2>Segnalazioni recenti</h2>{% for s in segnalazioni %}<p><a href="{% url 'dettaglio' s.id %}">{{ s.titolo }}</a> <span class="badge badge-{{ s.stato_id }}">{{ s.stato.nome }}</span></p>{% empty %}<p class="piccolo">Nessuna.</p>{% endfor %}</section>
+<section class="riquadro"><h2>Cronologia delle azioni</h2><div class="scorri"><table class="tabella"><thead><tr><th scope="col">Quando</th><th scope="col">Operazione</th><th scope="col">Oggetto</th><th scope="col">Dettagli</th></tr></thead><tbody>
+{% for l in log %}<tr><td>{{ l.avvenuto_il|date:"j M Y H:i" }}</td><td>{{ l.operazione }}</td><td>{{ l.tabella }} #{{ l.id_oggetto }}</td><td class="piccolo">{% if l.dati_nuovi %}{{ l.dati_nuovi }}{% endif %}</td></tr>{% endfor %}</tbody></table></div></section>
+{% endblock %}

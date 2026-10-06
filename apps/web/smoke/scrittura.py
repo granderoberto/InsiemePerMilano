@@ -74,7 +74,10 @@ if not Utente.objects.filter(email=form["email"]).exists():
     r = C.post("/registrati/", {**form, "data_nascita": "2020-01-01", "email": "minorenne@example.org"}); esito("under 14 rifiutato", not Utente.objects.filter(email="minorenne@example.org").exists())
     r = C.post("/registrati/", {**form, "password": "debole", "password2": "debole", "email": "debole@example.org"}); esito("password debole rifiutata", not Utente.objects.filter(email="debole@example.org").exists())
     r = C.post("/registrati/", form, follow=True); u = Utente.objects.filter(email=form["email"]).first()
-    esito("registrazione con verifica simulata -> attivo", u is not None and u.stato_account == "attivo" and u.verifiche.count() == 1 and u.consensi.count() == 6, f"consensi={u.consensi.count() if u else 0}")
+    esito("registrazione: verifica simulata ok ma account in attesa della conferma email", u is not None and u.stato_account == "in_attesa_verifica" and u.verifiche.count() == 1 and u.consensi.count() == 6, f"consensi={u.consensi.count() if u else 0}")
+    from core.services import token
+    r = C.get("/conferma-email/token-sbagliato/", follow=True); esito("link di conferma non valido rifiutato", u.stato_account == "in_attesa_verifica" and Utente.objects.get(pk=u.pk).email_verificata_il is None)
+    C.get(f"/conferma-email/{token.crea('conferma', u)}/", follow=True); u.refresh_from_db(); esito("conferma email -> account attivo", u.stato_account == "attivo" and u.email_verificata_il is not None)
     esito("utente già autenticato dopo registrazione", "_auth_user_id" in C.session)
 D = Client(); r = D.post("/accedi/", {"email": form["email"], "password": "sbagliata"}); esito("password errata: messaggio", "non corretti" in r.content.decode())
 r = D.post("/accedi/", {"email": form["email"], "password": form["password"]}); esito("login con le credenziali registrate", r.status_code == 302)
