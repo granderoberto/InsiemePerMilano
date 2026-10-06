@@ -158,7 +158,7 @@ Note sui dati:
 
 ## Prossimi passi suggeriti
 
-1. Completare l'app (`apps/web/README.md`, elenco "Non c'è ancora"): caricamento di documento e selfie in registrazione, eliminazione dell'account. Poi l'adesione dell'ente a SPID/CIE.
+1. Completare l'app (`apps/web/README.md`, elenco "Non c'è ancora"): eliminazione dell'account (documento e selfie in registrazione: fatti, con controllo IA simulato). Poi l'adesione dell'ente a SPID/CIE.
 2. Sostituire i controlli IA simulati con servizi veri (vedi "Passi per l'IA vera" in `docs/architettura_ia.md`).
 3. Decidere sulla colonna spaziale per `confine` e sul filtro della vista `v_statistiche_utenti`.
 4. Cambiare la password dell'utente `avnadmin` su Aiven (è stata condivisa in chiaro in chat).

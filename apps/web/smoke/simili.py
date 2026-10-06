@@ -5,7 +5,7 @@ from core.models import *
 from core.services import simili
 PW="DemoMilano2026!"
 def esito(n, c, e=""): print(("OK  " if c else "!!  ")+n+(f"  [{e}]" if e else ""))
-base = Segnalazione.objects.filter(stato_id=3, nascosta=False, eliminata_il__isnull=True).order_by("-id").first()
+base = Segnalazione.objects.filter(stato_id=3, nascosta=False, eliminata_il__isnull=True, autore_id__lte=154).order_by("-id").first()
 lat, lon = float(base.latitudine), float(base.longitudine)
 r = simili.trova_simili(lat, lon, base.titolo, base.descrizione)
 esito("la stessa segnalazione, nella stessa posizione, è la prima", r and r[0]["id"] == base.id and r[0]["distanza_m"] <= 10, f"{len(r)} risultati")

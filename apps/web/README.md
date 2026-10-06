@@ -30,7 +30,7 @@ Database usato: `DJANGO_DB_NAME` (default `la_nostra_citta_test`, stessi dati de
 
 ## Simulato (da sostituire)
 
-- **Verifica del documento IA** in registrazione: approvata in automatico (`portale/views.py`, `registrati`).
+- **Verifica del documento IA** in registrazione: documento (fronte e retro) e selfie dal vivo si caricano davvero (controllo dei byte, max 5 MB, JPG/PNG/PDF), passano da un archivio temporaneo cifrato e vengono cancellati a fine verifica; fino a 3 tentativi. Il controllo è **simulato** (`core/services/verifica_documento.py`): un documento con il lato corto sotto 600 px va in revisione del moderatore, un selfie sotto 240 px viene rifiutato.
 - **Controlli IA** su testi, categorie, coerenza: `core/services/ia_simulata.py` (stessa interfaccia dei servizi veri).
 - **Accesso SPID/CIE**: vero protocollo OpenID Connect con federazione tramite il servizio `apps/spid` (README dedicato), oggi sull'**ambiente di prova** ufficiale (gestore di identità finto). Per l'uso reale serve l'adesione di un ente.
 - **Email**: senza `EMAIL_HOST` in `.env` escono sulla console del server e il link compare a schermo (solo sviluppo). Con un server SMTP vero si configurano in `.env`: `EMAIL_HOST`, `EMAIL_PORT` (587 con STARTTLS, oppure 465 con `EMAIL_SSL=1`), `EMAIL_USER`, `EMAIL_PASSWORD`, `EMAIL_FROM` e `SITE_URL` (l'indirizzo pubblico del sito, usato nei link). Il link non compare mai a schermo con SMTP vero. Limiti: 3 email all'ora per indirizzo e tipo, 10 richieste di recupero all'ora per IP.
@@ -63,5 +63,9 @@ Regole sullo schema: vedi "Regola di convivenza" in `CLAUDE.md`. I modelli rispe
 # .venv/bin/python smoke/mfa.py        # 2FA: attivazione, accesso in due passaggi, blocco, azzeramento
 # .venv/bin/python smoke/simili.py     # segnalazioni simili in zona e sostegno diretto
 # .venv/bin/python smoke/posta.py      # email via SMTP vero (locale), password, recupero, limiti (serve requirements-dev.txt)
+# .venv/bin/python smoke/verifica.py   # documento e selfie: file, esiti, tentativi, cancellazione
+# .venv/bin/python smoke/spid.py       # sicurezza del ritorno SPID/CIE (e reindirizzamenti)
+# .venv/bin/python smoke/spid_e2e.py   # SPID/CIE di punta a punta (servizio acceso: apps/spid/demo/avvia.sh)
+# I controlli creano utenti (email con suffisso casuale): dopo averli lanciati si ripristinano i dati demo.
 # poi ripristinare i dati demo: tools/.venv/bin/python tools/seed/seed.py la_nostra_citta_test
 ```

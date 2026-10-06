@@ -5,6 +5,7 @@ from PIL import Image
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client
 from core.models import *
+from smoke._aiuti import SFX, UTENTI_DEMO_MAX_ID, campi_documento
 PW="DemoMilano2026!"
 def esito(nome, cond, extra=""): print(("OK  " if cond else "!!  ")+nome+(f"  [{extra}]" if extra else ""))
 def msgs(r): return [str(m) for m in r.context["messages"]] if r.context else []
@@ -17,8 +18,8 @@ def foto(exif=True, nome="f.jpg"):
     return SimpleUploadedFile(nome, b.getvalue(), content_type="image/jpeg")
 
 mod = Utente.objects.filter(ruolo="moderatore").first()
-autore = Utente.objects.filter(ruolo="utente", stato_account="attivo", password__startswith="$2b$").order_by("id").first()
-altro = Utente.objects.filter(ruolo="utente", stato_account="attivo", password__startswith="$2b$").exclude(pk=autore.pk).order_by("-id").first()
+autore = Utente.objects.filter(ruolo="utente", stato_account="attivo", password__startswith="$2b$", id__lte=UTENTI_DEMO_MAX_ID).order_by("id").first()
+altro = Utente.objects.filter(ruolo="utente", stato_account="attivo", password__startswith="$2b$", id__lte=UTENTI_DEMO_MAX_ID).exclude(pk=autore.pk).order_by("-id").first()
 pub = Segnalazione.objects.filter(stato_id=3, nascosta=False).exclude(autore=altro).exclude(autore=autore).first()
 A, B, M = Client(), Client(), Client()
 A.login(email=autore.email, password=PW); B.login(email=altro.email, password=PW); M.login(email=mod.email, password=PW)
@@ -67,13 +68,13 @@ r = A.post("/segnalazioni/nuova/", {**dati, "titolo": "Pdf finto", "media": [Sim
 for i in range(6): A.post("/segnalazioni/nuova/", {**dati, "titolo": f"Limite giornaliero {i}", "media": [foto(False)]})
 oggi_n = Segnalazione.objects.filter(autore=autore, titolo__startswith="Limite giornaliero").count(); esito("limite di 5 segnalazioni al giorno", Segnalazione.objects.filter(autore=autore, creata_il__date=date.today()).count() <= 5, f"create nel test={oggi_n}")
 # --- registrazione
-Utente.objects.filter(email="nuovo.prova@example.org").delete() if False else None
-C = Client(); form = {"nome": "Prova", "cognome": "Registrato", "email": "nuovo.prova@example.org", "password": "Prova!2345", "password2": "Prova!2345", "data_nascita": "1995-05-05",
+Utente.objects.filter(email=f"nuovo.prova{SFX}@example.org").delete() if False else None
+C = Client(); form = {"nome": "Prova", "cognome": "Registrato", "email": f"nuovo.prova{SFX}@example.org", "password": "Ombrello-Verde7!", "password2": "Ombrello-Verde7!", "data_nascita": "1995-05-05",
       **{k: "on" for k in ["privacy", "biometrici", "intelligenza_artificiale", "termini_uso", "cookie", "eta_minima"]}}
 if not Utente.objects.filter(email=form["email"]).exists():
-    r = C.post("/registrati/", {**form, "data_nascita": "2020-01-01", "email": "minorenne@example.org"}); esito("under 14 rifiutato", not Utente.objects.filter(email="minorenne@example.org").exists())
-    r = C.post("/registrati/", {**form, "password": "debole", "password2": "debole", "email": "debole@example.org"}); esito("password debole rifiutata", not Utente.objects.filter(email="debole@example.org").exists())
-    r = C.post("/registrati/", form, follow=True); u = Utente.objects.filter(email=form["email"]).first()
+    r = C.post("/registrati/", {**form, **campi_documento(), "data_nascita": "2020-01-01", "email": f"minorenne{SFX}@example.org"}); esito("under 14 rifiutato", not Utente.objects.filter(email=f"minorenne{SFX}@example.org").exists())
+    r = C.post("/registrati/", {**form, **campi_documento(), "password": "debole", "password2": "debole", "email": f"debole{SFX}@example.org"}); esito("password debole rifiutata", not Utente.objects.filter(email=f"debole{SFX}@example.org").exists())
+    r = C.post("/registrati/", {**form, **campi_documento()}, follow=True); u = Utente.objects.filter(email=form["email"]).first()
     esito("registrazione: verifica simulata ok ma account in attesa della conferma email", u is not None and u.stato_account == "in_attesa_verifica" and u.verifiche.count() == 1 and u.consensi.count() == 6, f"consensi={u.consensi.count() if u else 0}")
     from core.services import token
     r = C.get("/conferma-email/token-sbagliato/", follow=True); esito("link di conferma non valido rifiutato", u.stato_account == "in_attesa_verifica" and Utente.objects.get(pk=u.pk).email_verificata_il is None)

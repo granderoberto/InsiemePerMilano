@@ -15,6 +15,7 @@ import django; django.setup()
 from django.conf import settings
 from django.test import Client
 from core.models import *
+from smoke._aiuti import SFX, campi_documento
 from core.services import token
 PW = "DemoMilano2026!"
 def esito(n, c, e=""): print(("OK  " if c else "!!  ")+n+(f"  [{e}]" if e else ""))
@@ -27,14 +28,14 @@ def html(m):
 def link_in(m): return re.search(r"https://lanostracitta\.test(/[^\s\"<]+)", testo(m)).group(1)
 def nuovi(da): return raccolta.msg[da:]
 esito("backend SMTP attivo (non la console)", "smtp" in settings.EMAIL_BACKEND and settings.SITE_URL == "https://lanostracitta.test")
-base = {"nome": "Giada", "cognome": "Ferretti", "email": "giada.ferretti.prova@example.org", "data_nascita": "1998-04-12", **{k: "on" for k in ["privacy","biometrici","intelligenza_artificiale","termini_uso","cookie","eta_minima"]}}
+base = {"nome": "Giada", "cognome": "Ferretti", "email": f"giada.ferretti.prova{SFX}@example.org", "data_nascita": "1998-04-12", **{k: "on" for k in ["privacy","biometrici","intelligenza_artificiale","termini_uso","cookie","eta_minima"]}}
 c = Client()
 # --- criteri password in registrazione
 for pw, nota in [("corta1!", "troppo corta"), ("senzanumeroA!", "senza numero"), ("Password1!", "troppo comune"), ("Giada-Ferretti9!", "contiene il nome"), ("Zq7!"*30, "troppo lunga")]:
-    r = c.post("/registrati/", {**base, "password": pw, "password2": pw}); esito(f"password rifiutata: {nota}", r.status_code == 200 and not Utente.objects.filter(email=base["email"]).exists())
-r = c.post("/registrati/", {**base, "password": "Tr4ghetto-Blu!", "password2": "Diversa-Blu!9"}); esito("le due password devono coincidere", not Utente.objects.filter(email=base["email"]).exists())
+    r = c.post("/registrati/", {**base, **campi_documento(), "password": pw, "password2": pw}); esito(f"password rifiutata: {nota}", r.status_code == 200 and not Utente.objects.filter(email=base["email"]).exists())
+r = c.post("/registrati/", {**base, **campi_documento(), "password": "Tr4ghetto-Blu!", "password2": "Diversa-Blu!9"}); esito("le due password devono coincidere", not Utente.objects.filter(email=base["email"]).exists())
 # --- registrazione e conferma
-n0 = len(raccolta.msg); r = c.post("/registrati/", {**base, "password": "Tr4ghetto-Blu!", "password2": "Tr4ghetto-Blu!"}, follow=True)
+n0 = len(raccolta.msg); r = c.post("/registrati/", {**base, **campi_documento(), "password": "Tr4ghetto-Blu!", "password2": "Tr4ghetto-Blu!"}, follow=True)
 m = nuovi(n0); u = Utente.objects.get(email=base["email"])
 esito("registrazione: UN'email di conferma, al destinatario giusto", len(m) == 1 and m[0][0] == [base["email"]] and "Conferma" in m[0][1]["Subject"])
 esito("l'email ha parte testo e parte HTML, mittente configurato", m and testo(m[0][1]) and html(m[0][1]) and "noreply@test.example" in m[0][1]["From"])
@@ -72,13 +73,13 @@ esito("cambio: password nuova salvata e avviso via email", u.check_password("Nuo
 esito("la sessione corrente resta attiva", a.get("/profilo/").status_code == 200)
 esito("le altre sessioni si chiudono", altra.get("/profilo/").status_code == 302)
 # --- cambio email
-n1 = len(raccolta.msg); a.post("/profilo/email/", {"email": "giada.nuova.prova@example.org"}); m = nuovi(n1)
-esito("cambio email: il link va al NUOVO indirizzo", len(m) == 1 and m[0][0] == ["giada.nuova.prova@example.org"])
-a.get(link_in(m[0][1])); u.refresh_from_db(); esito("dopo la conferma l'email cambia", u.email == "giada.nuova.prova@example.org")
+n1 = len(raccolta.msg); a.post("/profilo/email/", {"email": f"giada.nuova.prova{SFX}@example.org"}); m = nuovi(n1)
+esito("cambio email: il link va al NUOVO indirizzo", len(m) == 1 and m[0][0] == [f"giada.nuova.prova{SFX}@example.org"])
+a.get(link_in(m[0][1])); u.refresh_from_db(); esito("dopo la conferma l'email cambia", u.email == f"giada.nuova.prova{SFX}@example.org")
 # --- password lunghissima al login: nessun errore del server
 r = Client().post("/accedi/", {"email": u.email, "password": "x" * 200}); esito("login con password di 200 caratteri: nessun errore 500", r.status_code == 200 and "non corretti" in r.content.decode())
 # --- server di posta che non risponde
 srv.stop(); n_errori = 0
-r = Client().post("/registrati/", {**base, "email": "giada.errore.prova@example.org", "password": "Tr4ghetto-Blu!", "password2": "Tr4ghetto-Blu!"}, follow=True)
-esito("posta non raggiungibile: la registrazione riesce e avvisa di rinviare il link", Utente.objects.filter(email="giada.errore.prova@example.org").exists() and "non siamo riusciti" in r.content.decode().lower())
+r = Client().post("/registrati/", {**base, **campi_documento(), "email": f"giada.errore.prova{SFX}@example.org", "password": "Tr4ghetto-Blu!", "password2": "Tr4ghetto-Blu!"}, follow=True)
+esito("posta non raggiungibile: la registrazione riesce e avvisa di rinviare il link", Utente.objects.filter(email=f"giada.errore.prova{SFX}@example.org").exists() and "non siamo riusciti" in r.content.decode().lower())
 r = Client().post("/password-dimenticata/", {"email": u.email}); esito("posta non raggiungibile: il recupero non rivela nulla", r.status_code == 200 and "Se l'indirizzo" in r.content.decode())

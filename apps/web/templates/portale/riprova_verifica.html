@@ -1,0 +1,8 @@
+{% extends "base.html" %}{% load static %}{% block titolo %}Nuovo tentativo di verifica{% endblock %}
+{% block contenuto %}<div class="accesso"><p><a href="{% url 'profilo' %}">← Profilo</a></p>
+<h1>Verifica del documento: tentativo {{ tentativo }} di 3</h1>
+<form method="post" enctype="multipart/form-data" class="riquadro" novalidate>{% csrf_token %}
+{% if form.non_field_errors %}<p class="avviso avviso-error" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+{% include "portale/_documenti.html" %}
+<button class="btn btn-primario" type="submit">Invia per la verifica</button></form></div>{% endblock %}
+{% block scripts %}<script src="{% static 'js/selfie.js' %}"></script>{% endblock %}

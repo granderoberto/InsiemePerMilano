@@ -4,7 +4,11 @@ from datetime import date
 from django import forms
 
 from core.models import Categoria, Quartiere, Utente
-from core.services import password
+import time
+
+from django.core import signing
+
+from core.services import file_documento, password
 
 MESSAGGI_CONSENSI = {
     "privacy": "Ho letto l'informativa sulla privacy (GDPR, art. 13)",
@@ -45,7 +49,50 @@ class SegnalazioneForm(forms.Form):
 _NUOVA = {"data-password": "nuova", "autocomplete": "new-password"}
 
 
-class RegistrazioneForm(forms.Form):
+SALT_SFIDA = "lnc-sfida-selfie"
+
+
+def nuova_sfida() -> str:
+    """Il selfie deve arrivare dalla fotocamera della nostra pagina: la pagina riceve una sfida firmata e a scadenza e la rimanda."""
+    return signing.dumps({"t": time.time()}, salt=SALT_SFIDA)
+
+
+class DocumentiForm(forms.Form):
+    """Documento d'identità (fronte e retro) e selfie dal vivo: par. 3.2. Si usa in registrazione e nei nuovi tentativi."""
+    tipo_documento = forms.ChoiceField(label="Tipo di documento", choices=[("carta_identita", "Carta d'identità"), ("patente", "Patente"), ("passaporto", "Passaporto")],
+                                       initial="carta_identita")
+    fronte = forms.FileField(label="Documento: fronte", help_text="JPG, PNG o PDF, al massimo 5 MB.",
+                             widget=forms.ClearableFileInput(attrs={"accept": "image/jpeg,image/png,application/pdf"}))
+    retro = forms.FileField(label="Documento: retro", required=False, help_text="JPG, PNG o PDF, al massimo 5 MB. Per il passaporto non serve.",
+                            widget=forms.ClearableFileInput(attrs={"accept": "image/jpeg,image/png,application/pdf"}))
+    selfie = forms.FileField(label="Selfie", widget=forms.FileInput(attrs={"hidden": True, "accept": "image/jpeg"}),
+                             error_messages={"required": "Scatta il selfie con la fotocamera."})
+    sfida = forms.CharField(widget=forms.HiddenInput, required=False)
+
+    def clean_sfida(self):
+        try:
+            signing.loads(self.cleaned_data.get("sfida", ""), salt=SALT_SFIDA, max_age=20 * 60)
+        except signing.BadSignature:
+            raise forms.ValidationError("Il selfie va scattato con la fotocamera dalla pagina (non si può caricare dalla galleria) ed entro 20 minuti: scattalo di nuovo.")
+        return self.cleaned_data["sfida"]
+
+    def clean(self):
+        d = super().clean()
+        try:
+            if d.get("fronte"):
+                d["_fronte"] = file_documento.leggi(d["fronte"], "Fronte del documento")
+            if d.get("retro"):
+                d["_retro"] = file_documento.leggi(d["retro"], "Retro del documento")
+            elif d.get("tipo_documento") and d["tipo_documento"] != "passaporto":
+                self.add_error("retro", "Carica anche il retro del documento.")
+            if d.get("selfie"):
+                d["_selfie"] = file_documento.leggi(d["selfie"], "Selfie", ammetti_pdf=False)
+        except file_documento.FileNonValido as e:
+            self.add_error(None, str(e))
+        return d
+
+
+class RegistrazioneForm(DocumentiForm):
     nome = forms.CharField(label="Nome", max_length=50)
     cognome = forms.CharField(label="Cognome", max_length=50)
     email = forms.EmailField(label="Email", max_length=254)

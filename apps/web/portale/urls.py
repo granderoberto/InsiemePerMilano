@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views, views_account, views_autore, views_mfa, views_spid
+from . import views, views_account, views_autore, views_mfa, views_spid, views_verifica
 
 urlpatterns = [
     path("", views.home, name="home"),
@@ -30,6 +30,7 @@ urlpatterns = [
     path("registrati/", views.registrati, name="registrati"),
     path("profilo/", views.profilo, name="profilo"),
     path("profilo/notifiche/", views_account.preferenze_notifica, name="preferenze_notifica"),
+    path("profilo/verifica/", views_verifica.riprova, name="riprova_verifica"),
     path("profilo/password/", views_account.cambia_password, name="cambia_password"),
     path("profilo/email/", views_account.cambia_email, name="cambia_email"),
     path("profilo/email/conferma/<str:tok>/", views_account.conferma_nuova_email, name="conferma_nuova_email"),

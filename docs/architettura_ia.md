@@ -131,7 +131,7 @@ Le soglie vanno **tarate sui dati reali**: per questo ogni punteggio è salvato 
 | Registro | `log_attivita` con operazione `decisione_ia` |
 | Code del moderatore | `/moderazione/` in `apps/web` |
 | Controlli IA | **simulati** in `apps/web/core/services/ia_simulata.py` (parole chiave ed espressioni regolari): stessa forma di risposta dei servizi veri |
-| Verifica del documento | **simulata**: in registrazione risulta sempre approvata (`portale/views.py`, `registrati`) |
+| Verifica del documento | caricamento **vero** (fronte, retro, selfie dalla fotocamera, JPG/PNG/PDF fino a 5 MB, controlli sui byte dei file), archivio temporaneo cifrato (`core/services/temporaneo.py`) con cancellazione a fine verifica, massimo 3 tentativi; il controllo è **simulato** in `core/services/verifica_documento.py` (qualità delle immagini al posto di OCR, dati, validità, autenticità e volto) |
 
 ## Passi per l'IA vera
 

@@ -27,7 +27,8 @@ from core.services import geo, ia_simulata, log, media as servizio_media, normat
 from core.services.errori import RegolaViolata, traduci
 from core.services.stati import cambia_stato
 
-from .forms import RegistrazioneForm, SegnalazioneForm
+from . import verifica as verifica_identita
+from .forms import RegistrazioneForm, SegnalazioneForm, nuova_sfida
 
 PER_PAGINA = 12
 
@@ -413,7 +414,9 @@ def registra_consensi(utente, tipi, log_extra=()):
 
 
 def registrati(request):
-    form = RegistrazioneForm(request.POST or None)
+    if request.user.is_authenticated:
+        return redirect("home")
+    form = RegistrazioneForm(request.POST or None, request.FILES or None)
     if request.method == "POST" and form.is_valid():
         d = form.cleaned_data
         try:
@@ -423,15 +426,9 @@ def registrati(request):
                            stato_account="in_attesa_verifica")
                 u.set_password(d["password"])
                 u.save(force_insert=True)
-                # SIMULAZIONE della verifica IA del documento (OCR, dati, validità, autenticità, volto)
-                VerificaIdentita.objects.create(utente=u, tentativo=1, tipo_documento="carta_identita", ok_lettura_ocr=True,
-                                                ok_corrispondenza_dati=True, ok_validita=True, ok_autenticita=True,
-                                                ok_confronto_volto=True, punteggio=92, esito_ia="approvata")
-                registra_consensi(u, ["privacy", "biometrici", "intelligenza_artificiale", "termini_uso", "cookie", "eta_minima"], [
-                    (u, "verifica_identita", "utenti", u.id, None, {"tentativo": 1, "simulata": True}),
-                    (None, "decisione_ia", "utenti", u.id, None, {"punteggio": 92, "esito_ia": "approvata", "simulata": True})])
-                Notifica.objects.create(utente=u, tipo="verifica_account", link="/profilo/",
-                                        messaggio="Verifica dell'identità completata (simulata). Per attivare l'account conferma anche l'indirizzo email.")
+                registra_consensi(u, ["privacy", "biometrici", "intelligenza_artificiale", "termini_uso", "cookie", "eta_minima"])
+                # verifica del documento (controlli IA simulati): file in area temporanea cifrata, cancellati a fine verifica
+                verifica = verifica_identita.esegui(u, 1, d["tipo_documento"], d["_fronte"], d.get("_retro"), d["_selfie"])
         except DatabaseError as e:
             form.add_error(None, str(traduci(e)))
         else:
@@ -442,8 +439,12 @@ def registrati(request):
                 messages.success(request, "Registrazione completata. Ti abbiamo inviato un'email: conferma l'indirizzo per attivare l'account (controlla anche lo spam).")
             else:
                 messages.warning(request, "Registrazione completata, ma non siamo riusciti a spedire l'email di conferma: usa «Invia di nuovo il link» qui sotto.")
+            if verifica.esito_ia == "da_rivedere":
+                messages.info(request, "La verifica del documento è in revisione: un moderatore la controllerà.")
+            elif verifica.esito_ia == "rifiutata":
+                messages.error(request, f"La verifica del documento non è stata superata ({verifica.motivo}). Puoi riprovare dal profilo (3 tentativi in totale).")
             return redirect("profilo")
-    return render(request, "portale/registrati.html", {"form": form})
+    return render(request, "portale/registrati.html", {"form": form, "sfida": nuova_sfida()})
 
 
 # ------------------------------------------------------------------ profilo, notifiche
@@ -462,6 +463,7 @@ def profilo(request):
     rifiutata = ultima if ultima and ultima.esito_ia == "rifiutata" and ultima.revisore_id is None else None
     return render(request, "portale/profilo.html", {
         "verifica_rifiutata": rifiutata,
+        "tentativi_usati": u.verifiche.count(),
         "richiesta_verifica_aperta": bool(rifiutata) and RichiestaRevisione.objects.filter(verifica=rifiutata, stato="aperta").exists(),
         "mie": mie, "quartieri": Quartiere.objects.all(),
         "n_segnalazioni": mie.count(), "n_commenti": u.commenti.filter(eliminato_il__isnull=True).count(),

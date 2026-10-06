@@ -1,0 +1,21 @@
+{# Blocco «Documento e selfie»: usato in registrazione e nei nuovi tentativi. Serve static/js/selfie.js #}
+<fieldset><legend>Documento d'identità e selfie</legend>
+  <p class="piccolo">Servono per verificare che tu sia una persona reale. Le immagini vengono usate <strong>solo per la verifica</strong>, tenute in un'area temporanea cifrata e <strong>cancellate appena finita</strong>: di te restano solo l'esito, il punteggio e la data.</p>
+  {% include "_campo.html" with campo=form.tipo_documento %}
+  {% include "_campo.html" with campo=form.fronte %}
+  {% include "_campo.html" with campo=form.retro %}
+  <div class="campo{% if form.selfie.errors %} campo-errore{% endif %}" id="selfie-box">
+    <span class="etichetta-gruppo"><strong>Selfie</strong></span>
+    <p class="aiuto">Va scattato adesso con la fotocamera: non si può caricare dalla galleria. Inquadra il viso, ben illuminato e senza occhiali scuri.</p>
+    {{ form.selfie }}
+    <input type="hidden" name="sfida" value="{{ sfida }}">
+    <video id="selfie-video" playsinline muted hidden aria-label="Anteprima della fotocamera" style="width:100%;max-width:320px;border-radius:8px;background:#000"></video>
+    <canvas id="selfie-canvas" hidden></canvas>
+    <img id="selfie-anteprima" alt="Il selfie scattato" hidden style="width:100%;max-width:240px;border-radius:8px">
+    <p><button type="button" class="btn btn-lieve btn-piccolo" id="selfie-apri">📷 Apri la fotocamera</button>
+       <button type="button" class="btn btn-primario btn-piccolo" id="selfie-scatta" hidden>Scatta</button>
+       <button type="button" class="btn btn-lieve btn-piccolo" id="selfie-rifai" hidden>Rifai</button></p>
+    <p class="aiuto" id="selfie-stato" role="status">Nessun selfie scattato.</p>
+    {% for e in form.selfie.errors %}<p class="errore" role="alert">{{ e }}</p>{% endfor %}{% for e in form.sfida.errors %}<p class="errore" role="alert">{{ e }}</p>{% endfor %}
+  </div>
+</fieldset>

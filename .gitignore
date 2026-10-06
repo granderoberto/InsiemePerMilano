@@ -18,3 +18,6 @@ apps/spid/demo/.sdk/
 apps/spid/demo/.ambiente/
 apps/spid/demo/log/
 apps/spid/demo/rp_federazione.json
+
+# file temporanei della verifica del documento (cifrati, cancellati a fine verifica)
+apps/web/tmp_verifiche/

@@ -28,7 +28,9 @@
       <li style="display:block"><span class="contatore">{{ n_sostegni_dati }}</span><br>sostegni dati</li></ul></section>
 </div>
 {% if verifica_rifiutata %}<section class="riquadro"><h2>Verifica dell'identità non superata</h2>
-  <p>La verifica del tuo documento è stata rifiutata{% if verifica_rifiutata.motivo %}: {{ verifica_rifiutata.motivo }}{% endif %}. Puoi chiedere la revisione di una persona.</p>
+  <p>La verifica del tuo documento è stata rifiutata{% if verifica_rifiutata.motivo %}: {{ verifica_rifiutata.motivo }}{% endif %}.</p>
+  {% if tentativi_usati < 3 %}<p>Puoi riprovare: hai usato {{ tentativi_usati }} tentativi su 3. <a class="btn btn-primario btn-piccolo" href="{% url 'riprova_verifica' %}">Riprova con nuove foto</a></p>{% else %}<p>Hai usato tutti e 3 i tentativi.</p>{% endif %}
+  <p>Puoi anche chiedere la revisione di una persona.</p>
   {% if richiesta_verifica_aperta %}<p class="piccolo">Richiesta già inviata: attendi la risposta di un moderatore.</p>{% else %}
   <form method="post" action="{% url 'revisione_verifica' verifica_rifiutata.id %}">{% csrf_token %}<div class="campo"><label for="mot-ver">Perché chiedi la revisione</label><textarea id="mot-ver" name="motivo" rows="2" required></textarea></div><button class="btn btn-primario btn-piccolo" type="submit">Chiedi la revisione</button></form>{% endif %}</section>{% endif %}
 <h2>Le mie segnalazioni</h2>
