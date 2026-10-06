@@ -18,13 +18,13 @@
 
 ## Prossimo passo
 
-Il sito gira (`apps/web/`, vedi il suo README): portale pubblico, area utente (registrazione con conferma email, recupero password, preferenze), autore (modifica/elimina/revisione), moderazione, amministrazione (utenti, ruoli, sospensioni, registro, statistiche con CSV, categorie, normative). Mancano eliminazione account, il servizio SPID/CIE separato e l'IA vera (oggi simulata), oltre allo schema a blocchi dell'IA (materiale 3).
+Il sito gira (`apps/web/`, vedi il suo README): portale pubblico, area utente (registrazione con conferma email, recupero password, preferenze), autore (modifica/elimina/revisione), moderazione, amministrazione (utenti, ruoli, sospensioni, registro, statistiche con CSV, categorie, normative). Mancano eliminazione account, l'IA vera (oggi simulata); il servizio SPID/CIE c'è (`apps/spid/`) e funziona sull'ambiente di prova, per l'uso reale serve l'adesione di un ente, oltre allo schema a blocchi dell'IA (materiale 3).
 
 Attenzione: il servizio Aiven Free si spegne dopo pochi giorni di inattività e può cambiare stato; se `nslookup` dell'host dà NXDOMAIN, riaccenderlo dalla console.
 
 ## Aperto
 
-1. **SPID/CIE reali** (obiettivo didattico): serve un ente che aderisca (probabilmente la scuola) o un soggetto aggregatore; non avviato. Sviluppo con il demo locale dell'SDK. Non provato: far usare `utenti` all'RP dell'SDK (`user_reunification` è sovrascrivibile).
+1. **SPID/CIE reali**: il flusso è costruito e provato su ambiente di prova (`apps/spid/README.md`). Per la produzione serve un ente che aderisca (probabilmente la scuola) o un soggetto aggregatore, più chiavi e trust mark veri.
 2. Materiale 3 della traccia (schema a blocchi dell'IA): **fatto** in `docs/architettura_ia.md`. Da fare: sostituire i controlli IA simulati con servizi veri.
 3. Colonna spaziale per `quartieri.confine`: rinviata; 2 poligoni (`CASCINA MERLATA`, `ASSIANO`) invalidi per MySQL.
 4. Filtro per tabella nella vista `v_statistiche_utenti`: da valutare (nuova migrazione).

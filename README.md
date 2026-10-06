@@ -41,7 +41,8 @@ Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua d
 │   └── prompt/
 │       └── 01_database.md     prompt operativo della fase database (fase 1, conclusa)
 ├── apps/
-│   └── web/                   sito Django: portale pubblico, area utente, moderazione (README con avvio)
+│   ├── web/                   sito Django: portale pubblico, area utente, moderazione (README con avvio)
+│   └── spid/                  servizio SPID/CIE (OpenID Connect) e ponte verso il sito; demo/ = ambiente di prova
 ├── db/
 │   ├── README.md              come ricreare il database da zero
 │   ├── schema.sql             schema completo di riferimento (tabelle, trigger, viste, dati iniziali)

@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block titolo %}Completa il profilo{% endblock %}
+{% block contenuto %}
+<div class="accesso">
+  <h1>Benvenuto, {{ n.nome }}</h1>
+  <p>L'identità è stata verificata dal tuo gestore. Ancora un passo per creare l'account.</p>
+  <div class="riquadro"><h2 style="font-size:1.05rem">Dati forniti dal gestore di identità</h2>
+    <p style="margin:0">{{ n.nome }} {{ n.cognome }}{% if nascita_idp %} · nato/a il {{ nascita_idp|date:"j F Y" }}{% endif %}<br><span class="piccolo">Accesso con {{ n.metodo|upper }}. Questi dati non si modificano: corrispondono all'identità certificata.</span></p></div>
+  <form method="post" class="riquadro" novalidate>{% csrf_token %}
+    {% if form.non_field_errors %}<p class="errore" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+    {% for campo in form %}{% if campo.name in "email data_nascita quartiere" %}{% include "_campo.html" %}{% endif %}{% endfor %}
+    <fieldset><legend>Normative</legend><p class="piccolo">Ogni consenso ha la sua casella, mai preselezionata. Con SPID/CIE non serve il consenso biometrico: non c'è il confronto del volto.</p>
+      {% for campo in form %}{% if campo.name not in "email data_nascita quartiere" %}{% include "_campo.html" %}{% endif %}{% endfor %}</fieldset>
+    <button class="btn btn-primario" type="submit">Crea l'account</button>
+  </form>
+</div>
+{% endblock %}

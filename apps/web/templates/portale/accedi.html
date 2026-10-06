@@ -11,8 +11,8 @@
   </form>
   <section class="riquadro"><h2>Hai SPID o CIE?</h2>
     <p>Entra con la tua identità digitale: non serve caricare documenti.</p>
-    <a class="btn btn-lieve" href="{% url 'spid' %}">Entra con SPID o CIE</a>
-    {% if SIMULAZIONE_SPID_CIE %}<p class="piccolo">Versione dimostrativa: l'accesso è simulato.</p>{% endif %}
+    <a class="btn btn-lieve" href="{% url 'spid' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Entra con SPID o CIE</a>
+    {% if SPID_AMBIENTE_PROVA %}<p class="piccolo">Ambiente di prova: gestore di identità di test.</p>{% endif %}
   </section>
   <p>Non hai un account? <a href="{% url 'registrati' %}">Registrati</a>.</p>
 </div>

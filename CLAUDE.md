@@ -13,7 +13,7 @@ Autore: Roberto Grande (GitHub: Bertox0). Lingua del progetto: **italiano** (doc
 | 2b. Schema logico normalizzato | fatto (MySQL 8) | `db/schema.sql`, `db/schema.dbml` |
 | Database su Aiven (MySQL) | **fatto** (fase 1 completata: migrazioni, 88 NIL, dati demo, verifica) | `db/migrations/`, `db/README.md` |
 | 3. Architettura di integrazione IA (schema a blocchi) | **fatto** | `docs/architettura_ia.md`, `docs/architettura_ia.png` (generato da `tools/ia/schema_blocchi.py`) |
-| Implementazione della web app | **in corso**: prima versione funzionante (Django 5.2), SPID/CIE e IA simulati | `apps/web/`, `docs/spike_django_spid.md` |
+| Implementazione della web app | **in corso**: sito funzionante (Django 5.2); SPID/CIE con protocollo vero su ambiente di prova; IA simulata | `apps/web/`, `apps/spid/`, `docs/spike_django_spid.md` |
 
 ## Struttura
 
@@ -32,6 +32,7 @@ db/
 docs/prompt/
   01_database.md         prompt operativo per la fase database su Aiven
 apps/web/                sito Django (README con avvio, funzioni e parti simulate)
+apps/spid/               servizio SPID/CIE (Relying Party OpenID Connect con SDK) + ponte verso il sito; demo/ = ambiente di prova
 tools/db/migrate.sh      applica le migrazioni a un database (idempotente, tabella schema_migrations)
 tools/geo/import_quartieri.py   importa gli 88 NIL in `quartieri`
 tools/ia/schema_blocchi.py   genera lo schema a blocchi dell'IA (docs/architettura_ia.{svg,png})
@@ -66,6 +67,10 @@ tools/db/migrate.sh defaultdb                   # database principale
 
 # Sito web (vedi apps/web/README.md)
 cd apps/web && .venv/bin/python manage.py runserver   # http://127.0.0.1:8000
+
+# Servizio SPID/CIE (ambiente di prova: trust anchor :8010, RP :8011, gestore di prova :8012). Vedi apps/spid/README.md
+apps/spid/demo/prepara.sh   # una tantum
+apps/spid/demo/avvia.sh     # ogni volta (ferma.sh per fermare). In .env: SPID_BRIDGE_SECRET e SPID_SERVIZIO_URL
 
 # Quartieri (88 NIL) e dati demo
 tools/.venv/bin/python tools/geo/import_quartieri.py defaultdb
@@ -115,9 +120,9 @@ pip install cairosvg && tools/er/run.sh
 ## Stack applicativo (deciso 2026-09-29)
 
 - **App principale: Django 5.2 LTS** (supporto di sicurezza fino al 2028-04-30), Python 3.12+, MySQL 8.4 su Aiven con `mysqlclient`, template server-side + HTMX + Leaflet.
-- **SPID/CIE: SDK `spid-cie-oidc-django` isolato in un servizio separato** (progetto Django e database/schema propri), non nello stesso progetto dell'app. L'SDK dichiara `Django<5.0` (4.2 è fuori supporto): va eseguito su Django 5.2 con vincolo forzato e con `max_length` 1024 → 700 nelle sue migrazioni per MySQL. Dopo il login il servizio passa all'app gli attributi verificati (il codice fiscale si salva solo come hash SHA-256). In sviluppo si usa il demo locale dell'SDK (TA, Provider di test, RP). Dettagli e prove: `docs/spike_django_spid.md`.
+- **SPID/CIE: realizzato** in `apps/spid/` (SDK `spid-cie-oidc-django` isolato in un servizio separato, con database proprio). Il sito lo raggiunge con un token firmato (segreto condiviso, 120 s, monouso, legato al browser che ha iniziato l'accesso); il codice fiscale si salva solo come hash SHA-256. L'SDK dichiara `Django<5.0` (4.2 fuori supporto): gira su Django 5.2 con l'SDK installato senza dipendenze; su MySQL servono `max_length` 1024 → 700 nelle sue migrazioni. Oggi funziona con la federazione di **prova** dell'SDK (protocollo e codice veri, gestore di identità finto). L'uso reale richiede l'adesione di un ente: README di `apps/spid` («Passare alla produzione»). Prove: `docs/spike_django_spid.md`, `apps/web/smoke/spid.py` e `spid_e2e.py`.
 - Fallback: Node.js (SDK solo RP) se l'RP non regge su un ambiente di test SPID/CIE vero.
-- Accesso reale a SPID/CIE (didattico): serve un ente che aderisca come Fornitore di Servizi (probabilmente la scuola) o un soggetto aggregatore; non ancora avviato.
+- Accesso reale a SPID/CIE: serve un ente che aderisca come Fornitore di Servizi (probabilmente la scuola) o un soggetto aggregatore; non ancora avviato.
 
 ### Regola di convivenza migrazioni SQL / migrazioni Django
 
@@ -153,7 +158,7 @@ Note sui dati:
 
 ## Prossimi passi suggeriti
 
-1. Completare l'app (`apps/web/README.md`, elenco "Non c'è ancora") e creare il servizio SPID/CIE separato con l'SDK.
+1. Completare l'app (`apps/web/README.md`, elenco "Non c'è ancora"): caricamento di documento e selfie in registrazione, eliminazione dell'account. Poi l'adesione dell'ente a SPID/CIE.
 2. Sostituire i controlli IA simulati con servizi veri (vedi "Passi per l'IA vera" in `docs/architettura_ia.md`).
 3. Decidere sulla colonna spaziale per `confine` e sul filtro della vista `v_statistiche_utenti`.
 4. Cambiare la password dell'utente `avnadmin` su Aiven (è stata condivisa in chiaro in chat).

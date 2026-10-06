@@ -2,11 +2,17 @@
 {% block contenuto %}
 <div class="accesso">
   <h1>Entra con SPID o CIE</h1>
-  <p class="avviso avviso-simulazione"><strong>Simulazione per lo sviluppo.</strong> Qui compili i dati che restituirebbe il gestore di identità. Nella versione definitiva questa pagina sarà sostituita dal vero accesso (servizio con l'SDK <em>spid-cie-oidc</em>). Usa dati fittizi.</p>
-  <form method="post" class="riquadro" novalidate>{% csrf_token %}
-    {% if form.non_field_errors %}<p class="errore" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
-    {% for campo in form %}{% if campo.name == 'metodo' %}<fieldset><legend>{{ campo.label }}</legend>{{ campo }}</fieldset>{% else %}{% include "_campo.html" %}{% endif %}{% endfor %}
-    <button class="btn btn-primario" type="submit">Continua</button>
-  </form>
+  <p>Accedi con la tua identità digitale: il gestore ci conferma chi sei, quindi <strong>non devi caricare documenti</strong> e l'account è subito attivo. Del tuo codice fiscale conserviamo solo un'impronta cifrata (hash), per garantire un account per persona.</p>
+  {% if SPID_AMBIENTE_PROVA %}<p class="avviso avviso-simulazione"><strong>Ambiente di prova.</strong> L'accesso usa il vero protocollo SPID/CIE (OpenID Connect con federazione) ma un gestore di identità di <em>prova</em>: le credenziali sono quelle del gestore di test e i dati non sono di persone reali. Per l'uso reale serve l'adesione dell'ente a SPID e CIE.</p>{% endif %}
+  {% if attivo %}
+  <div class="riquadro" style="display:grid;gap:12px">
+    <a class="btn btn-primario" href="{% url 'spid_avvia' 'spid' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}">Entra con SPID</a>
+    <a class="btn btn-primario" href="{% url 'spid_avvia' 'cie' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}">Entra con CIE</a>
+  </div>
+  <p class="piccolo">Verrai portato al sito del tuo gestore di identità e poi riportato qui. Non condividiamo la tua password con nessuno.</p>
+  {% else %}
+  <p class="avviso avviso-warning" role="status">L'accesso con SPID e CIE non è configurato in questo ambiente. Puoi accedere con email e password.</p>
+  {% endif %}
+  <p><a href="{% url 'accedi' %}">← Accedi con email e password</a></p>
 </div>
 {% endblock %}

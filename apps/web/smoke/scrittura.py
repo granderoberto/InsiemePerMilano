@@ -81,7 +81,3 @@ if not Utente.objects.filter(email=form["email"]).exists():
     esito("utente già autenticato dopo registrazione", "_auth_user_id" in C.session)
 D = Client(); r = D.post("/accedi/", {"email": form["email"], "password": "sbagliata"}); esito("password errata: messaggio", "non corretti" in r.content.decode())
 r = D.post("/accedi/", {"email": form["email"], "password": form["password"]}); esito("login con le credenziali registrate", r.status_code == 302)
-S = Client(); sp = {"metodo": "spid", "nome": "Mario", "cognome": "Rossi", "data_nascita": "1980-03-03", "codice_fiscale": "RSSMRA80C03F205X", "email": "spid.prova@example.org",
-      **{k: "on" for k in ["privacy", "intelligenza_artificiale", "termini_uso", "cookie", "eta_minima"]}}
-r = S.post("/accedi/spid/", sp, follow=True); u2 = Utente.objects.filter(codice_fiscale_hash=hashlib.sha256(b"RSSMRA80C03F205X").hexdigest()).first()
-esito("accesso SPID simulato: utente con solo hash del CF", u2 is not None and u2.metodo_registrazione == "spid" and u2.password is None and u2.stato_account == "attivo")

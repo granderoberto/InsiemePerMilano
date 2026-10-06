@@ -32,7 +32,7 @@ Database usato: `DJANGO_DB_NAME` (default `la_nostra_citta_test`, stessi dati de
 
 - **Verifica del documento IA** in registrazione: approvata in automatico (`portale/views.py`, `registrati`).
 - **Controlli IA** su testi, categorie, coerenza: `core/services/ia_simulata.py` (stessa interfaccia dei servizi veri).
-- **Accesso SPID/CIE**: form `/accedi/spid/` che riproduce i dati dell'identity provider; sarà il servizio con l'SDK `spid-cie-oidc-django`.
+- **Accesso SPID/CIE**: vero protocollo OpenID Connect con federazione tramite il servizio `apps/spid` (README dedicato), oggi sull'**ambiente di prova** ufficiale (gestore di identità finto). Per l'uso reale serve l'adesione di un ente.
 - **Email**: senza `EMAIL_HOST` in `.env` escono sulla console del server e il link compare a schermo (solo sviluppo). Con un server SMTP vero si configurano in `.env`: `EMAIL_HOST`, `EMAIL_PORT` (587 con STARTTLS, oppure 465 con `EMAIL_SSL=1`), `EMAIL_USER`, `EMAIL_PASSWORD`, `EMAIL_FROM` e `SITE_URL` (l'indirizzo pubblico del sito, usato nei link). Il link non compare mai a schermo con SMTP vero. Limiti: 3 email all'ora per indirizzo e tipo, 10 richieste di recupero all'ora per IP.
 - **Password** (`core/services/password.py`): almeno 8 caratteri con maiuscola, numero e simbolo (specifica), al massimo 72 byte (limite di bcrypt), non una password comune nemmeno con sostituzioni (`P4ssw0rd!`), non basata su nome, cognome o email, niente sequenze (`12345678A!`). Il profilo permette di cambiarla (serve quella attuale; le altre sessioni si chiudono e arriva un avviso via email).
 - Recupero password: link a scadenza (2 ore) e monouso, risposta identica se l'indirizzo non esiste, avviso di sicurezza dopo il cambio.

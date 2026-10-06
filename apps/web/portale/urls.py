@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views, views_account, views_autore, views_mfa
+from . import views, views_account, views_autore, views_mfa, views_spid
 
 urlpatterns = [
     path("", views.home, name="home"),
@@ -22,7 +22,10 @@ urlpatterns = [
     path("accedi/2fa/", views_mfa.secondo_passo, name="accedi_2fa"),
     path("profilo/2fa/", views_mfa.attiva, name="mfa_attiva"),
     path("profilo/2fa/disattiva/", views_mfa.disattiva, name="mfa_disattiva"),
-    path("accedi/spid/", views.spid_simulato, name="spid"),
+    path("accedi/spid/", views_spid.pagina, name="spid"),
+    path("accedi/spid/avvia/<str:metodo>/", views_spid.avvia, name="spid_avvia"),
+    path("accedi/spid/ritorno/", views_spid.ritorno, name="spid_ritorno"),
+    path("accedi/spid/completa/", views_spid.completa, name="spid_completa"),
     path("esci/", views.esci, name="esci"),
     path("registrati/", views.registrati, name="registrati"),
     path("profilo/", views.profilo, name="profilo"),

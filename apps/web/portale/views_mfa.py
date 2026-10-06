@@ -74,13 +74,13 @@ def secondo_passo(request):
         if mfa.verifica_utente(u, request.POST.get("codice", "")):
             u.tentativi_falliti, u.bloccato_fino = 0, None
             u.save(update_fields=["tentativi_falliti", "bloccato_fino"])
-            dest = request.session.pop("mfa_next", "") or "home"
+            dest = request.session.pop("mfa_next", "") or "/"
             for k in ("mfa_utente", "mfa_scade"):
                 request.session.pop(k, None)
             u.backend = "core.backends.UtenteBackend"
             login(request, u)
             log.registra(u, "accesso", "utenti", u.id, None, {"metodo": "credenziali", "secondo_fattore": True})
-            return redirect(dest if dest.startswith("/") else "home")
+            return redirect(dest)
         u.tentativi_falliti += 1
         if u.tentativi_falliti >= 5:
             u.bloccato_fino, u.tentativi_falliti = timezone.now() + timedelta(minutes=15), 0

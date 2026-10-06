@@ -8,3 +8,13 @@ node_modules/
 spike/
 apps/web/media/
 *.sqlite3
+
+# servizio SPID/CIE
+apps/spid/.venv/
+apps/spid/db.sqlite3
+apps/spid/logs/
+apps/spid/static_raccolti/
+apps/spid/demo/.sdk/
+apps/spid/demo/.ambiente/
+apps/spid/demo/log/
+apps/spid/demo/rp_federazione.json

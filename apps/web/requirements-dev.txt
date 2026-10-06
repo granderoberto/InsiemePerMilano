@@ -1,2 +1,3 @@
 # solo per i controlli in smoke/ (non servono per far girare il sito)
 aiosmtpd>=1.4
+requests>=2.32

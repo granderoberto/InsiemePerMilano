@@ -109,12 +109,20 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # Sessioni su database con una cache davanti: le letture non costano un giro verso il database remoto
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+# Tutti i servizi locali stanno su 127.0.0.1 e i cookie non distinguono le porte: nomi propri per non sovrascriversi
+SESSION_COOKIE_NAME = "lnc_sessione"
+CSRF_COOKIE_NAME = "lnc_csrf"
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
 DATA_UPLOAD_MAX_MEMORY_SIZE = 60 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
-# Simulazioni in attesa dell'SDK SPID/CIE e dei servizi IA (mostrate nel sito)
-SIMULAZIONE_SPID_CIE = True
+# Accesso SPID/CIE: il sito parla con il servizio apps/spid (SDK OpenID Connect) tramite un token firmato
+SPID_SERVIZIO_URL = os.environ.get("SPID_SERVIZIO_URL") or _env.get("SPID_SERVIZIO_URL", "")
+SPID_BRIDGE_SECRET = os.environ.get("SPID_BRIDGE_SECRET") or _env.get("SPID_BRIDGE_SECRET", "")
+SPID_CIE_ATTIVO = bool(SPID_SERVIZIO_URL and SPID_BRIDGE_SECRET)
+SPID_AMBIENTE_PROVA = (os.environ.get("SPID_AMBIENTE_PROVA") or _env.get("SPID_AMBIENTE_PROVA", "1")) == "1"  # 0 solo con l'adesione reale
+
+# Ancora simulata: verifica del documento con l'IA (servizi IA da collegare)
 SIMULAZIONE_VERIFICA_DOCUMENTO = True
 
 # Email: con EMAIL_HOST in .env si usa un server SMTP vero; senza, escono sulla console del server (solo sviluppo)

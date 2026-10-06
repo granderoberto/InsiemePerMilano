@@ -19,6 +19,7 @@ def sito(request):
     return {
         "versione_css": _versione_css(),
         "notifiche_non_lette": non_lette,
-        "SIMULAZIONE_SPID_CIE": settings.SIMULAZIONE_SPID_CIE,
+        "SPID_CIE_ATTIVO": settings.SPID_CIE_ATTIVO,
+        "SPID_AMBIENTE_PROVA": settings.SPID_AMBIENTE_PROVA,
         "SIMULAZIONE_VERIFICA_DOCUMENTO": settings.SIMULAZIONE_VERIFICA_DOCUMENTO,
     }

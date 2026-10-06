@@ -88,34 +88,38 @@ class RegistrazioneForm(forms.Form):
         return d
 
 
-class SpidSimulatoForm(forms.Form):
-    metodo = forms.ChoiceField(label="Identità digitale", choices=[("spid", "SPID"), ("cie", "CIE")], widget=forms.RadioSelect, initial="spid")
-    nome = forms.CharField(max_length=50, label="Nome")
-    cognome = forms.CharField(max_length=50, label="Cognome")
-    data_nascita = forms.DateField(label="Data di nascita", widget=forms.DateInput(attrs={"type": "date"}))
-    codice_fiscale = forms.CharField(label="Codice fiscale (fittizio)", min_length=16, max_length=16,
-                                     help_text="Sedici caratteri. Viene salvato solo come impronta (hash).")
-    email = forms.EmailField(label="Email")
+class SpidCompletaForm(forms.Form):
+    """Primo accesso con SPID/CIE: nome, cognome e codice fiscale arrivano dal gestore di identità e non si modificano."""
+    email = forms.EmailField(label="Email", max_length=254)
+    data_nascita = forms.DateField(label="Data di nascita", required=False, widget=forms.DateInput(attrs={"type": "date"}))
+    quartiere = forms.ModelChoiceField(label="Quartiere di residenza (facoltativo)", queryset=Quartiere.objects.all(), required=False, empty_label="— nessuno —")
     privacy = forms.BooleanField(label=MESSAGGI_CONSENSI["privacy"])
     intelligenza_artificiale = forms.BooleanField(label=MESSAGGI_CONSENSI["intelligenza_artificiale"])
     termini_uso = forms.BooleanField(label=MESSAGGI_CONSENSI["termini_uso"])
     cookie = forms.BooleanField(label=MESSAGGI_CONSENSI["cookie"])
     eta_minima = forms.BooleanField(label=MESSAGGI_CONSENSI["eta_minima"])
 
-    def clean_data_nascita(self):
-        n = self.cleaned_data["data_nascita"]
-        if n > date.today() or eta_anni(n) < 14:
-            raise forms.ValidationError("Per accedere devi avere almeno 14 anni.")
-        return n
-
-    def clean_codice_fiscale(self):
-        cf = self.cleaned_data["codice_fiscale"].strip().upper()
-        if not re.fullmatch(r"[A-Z0-9]{16}", cf):
-            raise forms.ValidationError("Il codice fiscale deve avere 16 caratteri alfanumerici.")
-        return cf
+    def __init__(self, *a, nascita_idp=None, **kw):
+        super().__init__(*a, **kw)
+        self.nascita_idp = nascita_idp  # se il gestore la fornisce, non si chiede e non si può cambiare
+        if nascita_idp:
+            del self.fields["data_nascita"]
 
     def clean_email(self):
-        return self.cleaned_data["email"].strip().lower()
+        e = self.cleaned_data["email"].strip().lower()
+        if Utente.objects.filter(email=e).exists():
+            raise forms.ValidationError("Esiste già un account con questa email: accedi con le credenziali o recupera la password.")
+        return e
+
+    def clean(self):
+        d = super().clean()
+        n = self.nascita_idp or d.get("data_nascita")
+        if not n:
+            self.add_error("data_nascita", "Inserisci la data di nascita.")
+        elif n > date.today() or eta_anni(n) < 14:
+            self.add_error(None if self.nascita_idp else "data_nascita", "Per usare la piattaforma devi avere almeno 14 anni.")
+        d["nascita"] = n
+        return d
 
 
 _NUOVA = {"data-password": "nuova", "autocomplete": "new-password"}

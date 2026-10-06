@@ -16,6 +16,7 @@ from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from core.models import (APPROVATA, PRESENTATA, Candidato, Categoria, Classificazione, Commento, Consenso,
@@ -26,7 +27,7 @@ from core.services import geo, ia_simulata, log, media as servizio_media, normat
 from core.services.errori import RegolaViolata, traduci
 from core.services.stati import cambia_stato
 
-from .forms import RegistrazioneForm, SegnalazioneForm, SpidSimulatoForm
+from .forms import RegistrazioneForm, SegnalazioneForm
 
 PER_PAGINA = 12
 
@@ -45,6 +46,13 @@ def attivo_richiesto(vista):
         return vista(request, *a, **kw)
     _v.__name__ = vista.__name__
     return _v
+
+
+def destinazione_sicura(request, dest):
+    """Il parametro `next` si accetta solo se resta su questo sito: «//sito-esterno.it» o «https://altro.it» non valgono."""
+    if dest and url_has_allowed_host_and_scheme(dest, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return dest
+    return "/"
 
 
 def notifica(utente, tipo, messaggio, link=None):
@@ -372,16 +380,16 @@ def accedi(request):
             else:
                 user.tentativi_falliti, user.bloccato_fino = 0, None
                 user.save(update_fields=["tentativi_falliti", "bloccato_fino"])
-                dest = request.POST.get("next") or request.GET.get("next") or "home"
+                dest = destinazione_sicura(request, request.POST.get("next") or request.GET.get("next"))
                 if user.mfa_attiva:  # password giusta ma non ancora autenticato: manca il codice dell'app
                     request.session.flush()
                     request.session["mfa_utente"] = user.id
                     request.session["mfa_scade"] = (timezone.now() + timedelta(minutes=5)).timestamp()
-                    request.session["mfa_next"] = dest if dest.startswith("/") else ""
+                    request.session["mfa_next"] = dest
                     return redirect("accedi_2fa")
                 login(request, user)
                 log.registra(user, "accesso", "utenti", user.id, None, {"metodo": "credenziali"})
-                return redirect(dest if dest.startswith("/") else "home")
+                return redirect(dest)
     return render(request, "portale/accedi.html", {"errore": errore, "next": request.GET.get("next", "")})
 
 
@@ -436,32 +444,6 @@ def registrati(request):
                 messages.warning(request, "Registrazione completata, ma non siamo riusciti a spedire l'email di conferma: usa «Invia di nuovo il link» qui sotto.")
             return redirect("profilo")
     return render(request, "portale/registrati.html", {"form": form})
-
-
-def spid_simulato(request):
-    """SIMULAZIONE dell'accesso SPID/CIE: riproduce i dati che restituirebbe l'identity provider.
-    Verrà sostituita dal servizio con l'SDK spid-cie-oidc-django."""
-    form = SpidSimulatoForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        d = form.cleaned_data
-        cf_hash = hashlib.sha256(d["codice_fiscale"].upper().encode()).hexdigest()
-        u = Utente.objects.filter(codice_fiscale_hash=cf_hash).first()
-        try:
-            with transaction.atomic():
-                if u is None:
-                    u = Utente(nome=d["nome"], cognome=d["cognome"], email=d["email"], data_nascita=d["data_nascita"],
-                               metodo_registrazione=d["metodo"], codice_fiscale_hash=cf_hash, stato_account="attivo",
-                               email_verificata_il=timezone.now())
-                    u.save(force_insert=True)
-                    registra_consensi(u, ["privacy", "intelligenza_artificiale", "termini_uso", "cookie", "eta_minima"])
-        except DatabaseError as e:
-            form.add_error(None, str(traduci(e)))
-        else:
-            login(request, u)
-            log.registra(u, "accesso", "utenti", u.id, None, {"metodo": d["metodo"], "simulato": True})
-            messages.success(request, f"Accesso con {d['metodo'].upper()} (simulato) riuscito.")
-            return redirect("home")
-    return render(request, "portale/spid.html", {"form": form})
 
 
 # ------------------------------------------------------------------ profilo, notifiche
