@@ -25,6 +25,11 @@
     {% for e in form.latitudine.errors %}<p class="errore" role="alert">{{ e }}</p>{% endfor %}
     {% include "_campo.html" with campo=form.indirizzo %}
   </fieldset>
+  <section id="simili" class="riquadro" hidden aria-labelledby="t-simili" aria-live="polite">
+    <h2 id="t-simili" style="font-size:1.1rem">Segnalazioni simili in zona</h2>
+    <p class="piccolo">Se il problema è già stato segnalato, sostienilo invece di crearne un doppione: più sostegni contano di più.</p>
+    <ul id="elenco-simili" class="simili"></ul>
+  </section>
   <fieldset><legend>Foto e video</legend>
     {% if modifica and media_esistenti %}<p class="aiuto">File attuali: spunta quelli da togliere. Il primo file rimasto diventa la copertina.</p>
     <div class="galleria" style="margin-bottom:12px">{% for m in media_esistenti %}<label class="spunta" style="flex-direction:column;align-items:stretch">
@@ -40,6 +45,6 @@
 {% endblock %}
 {% block scripts %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>window.URL_SUGGERISCI = "{% url 'suggerisci_categorie' %}"; window.URL_QUARTIERE = "{% url 'quartiere_da_posizione' %}";</script>
+<script>window.URL_SUGGERISCI = "{% url 'suggerisci_categorie' %}"; window.URL_QUARTIERE = "{% url 'quartiere_da_posizione' %}"; window.URL_SIMILI = "{% url 'segnalazioni_simili' %}"; window.ESCLUDI_ID = {% if modifica %}{{ s.id }}{% else %}null{% endif %};</script>
 <script src="{% static 'js/posizione.js' %}"></script>
 {% endblock %}

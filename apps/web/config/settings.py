@@ -107,6 +107,8 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_ROOT = BASE_DIR / "media"
 
+# Sessioni su database con una cache davanti: le letture non costano un giro verso il database remoto
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 14
 DATA_UPLOAD_MAX_MEMORY_SIZE = 60 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024

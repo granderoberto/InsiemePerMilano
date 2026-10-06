@@ -11,6 +11,7 @@
 
   async function imposta(la, lo, centra) {
     lat.value = la.toFixed(6); lon.value = lo.toFixed(6);
+    pianificaSimili();
     if (!segnaposto) {
       segnaposto = L.marker([la, lo], { draggable: true }).addTo(mappa);
       segnaposto.on('dragend', () => { const p = segnaposto.getLatLng(); imposta(p.lat, p.lng, false); });
@@ -60,4 +61,49 @@
   }
   [titolo, descr].forEach(x => x.addEventListener('input', () => { clearTimeout(t); t = setTimeout(suggerisci, 700); }));
   document.querySelectorAll('input[name="categorie"]').forEach(c => c.addEventListener('change', () => { c.dataset.scelta = '1'; }));
+  // Segnalazioni simili in zona (par. 5.3): si cercano quando cambiano posizione, testo o categorie
+  const pannello = document.getElementById('simili'), elenco = document.getElementById('elenco-simili');
+  const token = () => (document.querySelector('input[name=csrfmiddlewaretoken]') || {}).value;
+  var ts; // var: la funzione può partire (in modifica) prima di questa riga
+  function pianificaSimili() { clearTimeout(ts); ts = setTimeout(cercaSimili, 900); }
+  function riga(x, puo) {
+    const li = document.createElement('li');
+    const a = document.createElement('a'); a.href = x.url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = x.titolo;
+    a.style.fontWeight = '700';
+    const info = document.createElement('div'); info.className = 'piccolo';
+    const scrivi = () => { info.textContent = `${x.quartiere} · a ${x.distanza_m} m · ${x.stato} · ${x.sostegni} sostegni · ${x.commenti} commenti`; };
+    scrivi();
+    li.append(a, info);
+    if (puo && !x.propria) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-lieve btn-piccolo';
+      const testo = () => { b.textContent = x.sostenuta ? '✓ Sostenuta · ritira' : '👍 Sostieni questa'; b.setAttribute('aria-pressed', String(x.sostenuta)); };
+      testo();
+      b.addEventListener('click', async () => {
+        b.disabled = true;
+        try {
+          const r = await fetch(`/api/segnalazioni/${x.id}/sostieni/`, { method: 'POST', headers: { 'X-CSRFToken': token() } });
+          const j = await r.json();
+          if (r.ok) { x.sostenuta = j.sostenuta; x.sostegni = j.sostegni; scrivi(); testo(); }
+          else { info.textContent = j.errore || 'Non è stato possibile registrare il sostegno.'; }
+        } catch { info.textContent = 'Connessione non riuscita: riprova.'; }
+        b.disabled = false;
+      });
+      li.append(b);
+    }
+    return li;
+  }
+  async function cercaSimili() {
+    if (!pannello || !lat.value || !lon.value) return;
+    const cat = [...document.querySelectorAll('input[name="categorie"]:checked')].map(c => c.value).join(',');
+    const p = new URLSearchParams({ lat: lat.value, lon: lon.value, titolo: titolo.value, descrizione: descr.value, categorie: cat });
+    if (window.ESCLUDI_ID) p.set('escludi', window.ESCLUDI_ID);
+    try {
+      const j = await (await fetch(`${window.URL_SIMILI}?${p}`)).json();
+      elenco.replaceChildren(...j.simili.map(x => riga(x, j.puo_sostenere)));
+      pannello.hidden = j.simili.length === 0;
+    } catch { /* la ricerca è solo un aiuto: se non risponde si prosegue */ }
+  }
+  [titolo, descr].forEach(x => x.addEventListener('input', pianificaSimili));
+  document.querySelectorAll('input[name="categorie"]').forEach(c => c.addEventListener('change', pianificaSimili));
+  if (lat.value && lon.value) pianificaSimili();
 })();

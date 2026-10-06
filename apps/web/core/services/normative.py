@@ -11,12 +11,14 @@ def ultime_versioni():
 
 def da_accettare(utente):
     """Documenti (ultima versione di ogni tipo) che l'utente non ha ancora accettato.
-    Il consenso biometrico riguarda solo chi si è registrato con le credenziali."""
+    Il consenso biometrico riguarda solo chi ha fatto il confronto del selfie: chi si è registrato con le credenziali
+    e ha una verifica d'identità (non SPID/CIE, non l'amministratore creato all'installazione)."""
     accettati = set(Consenso.objects.filter(utente=utente).values_list("documento_id", flat=True))
     out = []
     for tipo, d in ultime_versioni().items():
-        if tipo == "biometrici" and utente.metodo_registrazione != "credenziali":
+        if d.id in accettati:
             continue
-        if d.id not in accettati:
-            out.append(d)
+        if tipo == "biometrici" and (utente.metodo_registrazione != "credenziali" or not utente.verifiche.exists()):
+            continue
+        out.append(d)
     return out

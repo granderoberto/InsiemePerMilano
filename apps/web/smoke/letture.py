@@ -25,3 +25,5 @@ get("/moderazione/", u, atteso=404)
 # moderatore (hash bcrypt come gli altri utenti con credenziali)
 m = Client(); print("login moderatore:", m.login(email=mod.email, password="DemoMilano2026!"))
 get("/moderazione/", m); get(f"/moderazione/segnalazioni/{nonpub.id}/", m); get(f"/segnalazioni/{nonpub.id}/", m)
+# amministratore creato all'installazione (senza verifica del documento): può interagire senza consenso biometrico
+adm = Utente.objects.get(ruolo="amministratore"); a = Client(); a.login(email=adm.email, password="DemoMilano2026!"); get("/segnalazioni/nuova/", a)

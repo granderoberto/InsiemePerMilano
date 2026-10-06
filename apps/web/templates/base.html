@@ -54,6 +54,16 @@
     <p class="piccolo">Versione dimostrativa: verifica del documento, controlli di intelligenza artificiale e accesso SPID/CIE sono <strong>simulati</strong>. Dati e persone sono fittizi. Confini dei quartieri: Comune di Milano, CC BY.</p>
   </div>
 </footer>
+<script>
+/* Dopo il primo clic il pulsante si blocca: i passaggi verso il database richiedono qualche secondo e un secondo invio creerebbe doppioni. */
+document.querySelectorAll('form[method="post"]').forEach(f => f.addEventListener('submit', e => {
+  const b = e.submitter || f.querySelector('button[type=submit]');
+  if (!b || f.dataset.libero !== undefined) return;
+  if (f.dataset.inviato) { e.preventDefault(); return; }
+  f.dataset.inviato = '1'; b.dataset.testo = b.textContent; b.textContent = 'Attendi…'; b.setAttribute('aria-busy', 'true');
+  setTimeout(() => { delete f.dataset.inviato; b.textContent = b.dataset.testo; b.removeAttribute('aria-busy'); }, 30000);
+}));
+</script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

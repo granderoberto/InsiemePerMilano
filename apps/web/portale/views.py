@@ -22,7 +22,7 @@ from core.models import (APPROVATA, PRESENTATA, Candidato, Categoria, Classifica
                          DocumentoNormativo, Media, Notifica, PreferenzaNotifica, Quartiere, RichiestaRevisione, Segnalazione, Sostegno, Stato,
                          Utente, VerificaIdentita)
 from core.queries import con_conteggi
-from core.services import geo, ia_simulata, log, media as servizio_media, normative
+from core.services import geo, ia_simulata, log, media as servizio_media, normative, simili
 from core.services.errori import RegolaViolata, traduci
 from core.services.stati import cambia_stato
 
@@ -164,22 +164,60 @@ def dettaglio(request, pk):
     })
 
 
+def imposta_sostegno(utente, s):
+    """Aggiunge o ritira il sostegno. -> (sostenuta: bool, numero di sostegni). Solleva RegolaViolata se un trigger lo vieta."""
+    esistente = Sostegno.objects.filter(utente=utente, segnalazione=s)
+    if esistente.exists():
+        esistente.delete()
+        sostenuta = False
+    else:
+        try:
+            with transaction.atomic():
+                Sostegno.objects.create(utente=utente, segnalazione=s)
+        except DatabaseError as e:
+            raise traduci(e) from e
+        log.registra(utente, "sostegno", "sostegni", s.id, None, {"id_utente": utente.id, "id_segnalazione": s.id})
+        sostenuta = True
+    return sostenuta, s.sostegni.count()
+
+
+@require_POST
+@attivo_richiesto
+def sostieni_json(request, pk):
+    """Come `sostieni`, ma per la pagina «Nuova segnalazione»: risponde in JSON, senza spostare l'utente."""
+    s = get_object_or_404(Segnalazione, pk=pk)
+    try:
+        sostenuta, n = imposta_sostegno(request.user, s)
+    except RegolaViolata as e:
+        return JsonResponse({"errore": str(e)}, status=400)
+    return JsonResponse({"sostenuta": sostenuta, "sostegni": n})
+
+
+def segnalazioni_simili(request):
+    try:
+        lat, lon = float(request.GET["lat"]), float(request.GET["lon"])
+    except (KeyError, ValueError):
+        return JsonResponse({"simili": []})
+    cat = [c for c in request.GET.get("categorie", "").split(",") if c.isdigit()]
+    escludi = int(request.GET["escludi"]) if request.GET.get("escludi", "").isdigit() else None
+    elenco = simili.trova_simili(lat, lon, request.GET.get("titolo", ""), request.GET.get("descrizione", ""), cat, escludi)
+    u = request.user
+    sostenute = set(Sostegno.objects.filter(utente=u, segnalazione_id__in=[x["id"] for x in elenco]).values_list("segnalazione_id", flat=True)) if u.is_authenticated and elenco else set()
+    for x in elenco:
+        x["propria"] = u.is_authenticated and x.pop("autore_id") == u.id
+        x["sostenuta"] = x["id"] in sostenute
+    return JsonResponse({"simili": elenco, "puo_sostenere": u.is_authenticated and u.puo_interagire})
+
+
 @require_POST
 @attivo_richiesto
 def sostieni(request, pk):
     s = get_object_or_404(Segnalazione, pk=pk)
-    esistente = Sostegno.objects.filter(utente=request.user, segnalazione=s)
-    if esistente.exists():
-        esistente.delete()
-        messages.info(request, "Hai ritirato il tuo sostegno.")
-    else:
-        try:
-            with transaction.atomic():
-                Sostegno.objects.create(utente=request.user, segnalazione=s)
-            log.registra(request.user, "sostegno", "sostegni", s.id, None, {"id_utente": request.user.id, "id_segnalazione": s.id})
-            messages.success(request, "Grazie, hai sostenuto questa segnalazione.")
-        except DatabaseError as e:
-            messages.error(request, str(traduci(e)))
+    try:
+        sostenuta, _ = imposta_sostegno(request.user, s)
+        messages.success(request, "Grazie, hai sostenuto questa segnalazione.") if sostenuta else messages.info(request, "Hai ritirato il tuo sostegno.")
+    except RegolaViolata as e:
+        messages.error(request, str(e))
     return redirect("dettaglio", pk=pk)
 
 
@@ -357,13 +395,13 @@ def _documenti():
     return {d.tipo: d for d in DocumentoNormativo.objects.all()}
 
 
-def registra_consensi(utente, tipi):
-    docs = _documenti()
-    for t in tipi:
-        d = docs.get(t)
-        if d:
-            Consenso.objects.create(utente=utente, documento=d)
-            log.registra(utente, "accettazione_normativa", "documenti_normativi", d.id, None, {"versione": d.versione})
+def registra_consensi(utente, tipi, log_extra=()):
+    """Salva i consensi e le relative righe di registro con due soli inserimenti. log_extra: altre voci di registro."""
+    per_tipo = _documenti()  # una sola lettura
+    docs = [per_tipo[t] for t in tipi if t in per_tipo]
+    Consenso.objects.bulk_create([Consenso(utente=utente, documento=d) for d in docs])
+    log.registra_molti([(utente, "accettazione_normativa", "documenti_normativi", d.id, None, {"versione": d.versione}) for d in docs]
+                       + list(log_extra))
 
 
 def registrati(request):
@@ -377,14 +415,15 @@ def registrati(request):
                            stato_account="in_attesa_verifica")
                 u.set_password(d["password"])
                 u.save(force_insert=True)
-                registra_consensi(u, ["privacy", "biometrici", "intelligenza_artificiale", "termini_uso", "cookie", "eta_minima"])
                 # SIMULAZIONE della verifica IA del documento (OCR, dati, validità, autenticità, volto)
                 VerificaIdentita.objects.create(utente=u, tentativo=1, tipo_documento="carta_identita", ok_lettura_ocr=True,
                                                 ok_corrispondenza_dati=True, ok_validita=True, ok_autenticita=True,
                                                 ok_confronto_volto=True, punteggio=92, esito_ia="approvata")
-            log.registra(u, "verifica_identita", "utenti", u.id, None, {"tentativo": 1, "simulata": True})
-            log.registra(None, "decisione_ia", "utenti", u.id, None, {"punteggio": 92, "esito_ia": "approvata", "simulata": True})
-            notifica(u, "verifica_account", "Verifica dell'identità completata (simulata). Per attivare l'account conferma anche l'indirizzo email.", "/profilo/")
+                registra_consensi(u, ["privacy", "biometrici", "intelligenza_artificiale", "termini_uso", "cookie", "eta_minima"], [
+                    (u, "verifica_identita", "utenti", u.id, None, {"tentativo": 1, "simulata": True}),
+                    (None, "decisione_ia", "utenti", u.id, None, {"punteggio": 92, "esito_ia": "approvata", "simulata": True})])
+                Notifica.objects.create(utente=u, tipo="verifica_account", link="/profilo/",
+                                        messaggio="Verifica dell'identità completata (simulata). Per attivare l'account conferma anche l'indirizzo email.")
         except DatabaseError as e:
             form.add_error(None, str(traduci(e)))
         else:
