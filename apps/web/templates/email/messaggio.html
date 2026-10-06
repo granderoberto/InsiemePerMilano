@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="it"><body style="margin:0;background:#f6f4ef;font-family:system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;color:#1c2630">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f4ef;padding:24px 12px"><tr><td align="center">
+<table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #d9d4c8">
+<tr><td style="background:#0a5a78;color:#ffffff;padding:18px 24px;font-size:18px;font-weight:700">La Nostra Città <span style="font-weight:400;opacity:.85">· Insieme per Milano</span></td></tr>
+<tr><td style="padding:24px">
+<h1 style="font-size:20px;margin:0 0 14px">{{ titolo }}</h1>
+{% for p in paragrafi %}<p style="font-size:15px;line-height:1.55;margin:0 0 14px">{{ p }}</p>{% endfor %}
+{% if link %}<p style="margin:22px 0"><a href="{{ link }}" style="background:#0a5a78;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:700;display:inline-block">{{ pulsante }}</a></p>
+<p style="font-size:13px;color:#4b5865;margin:0 0 14px">Se il pulsante non funziona, copia questo indirizzo nel browser:<br><span style="word-break:break-all">{{ link }}</span></p>{% endif %}
+{% if nota %}<p style="font-size:13px;color:#4b5865;margin:14px 0 0;border-top:1px solid #d9d4c8;padding-top:14px">{{ nota }}</p>{% endif %}
+</td></tr></table>
+<p style="font-size:12px;color:#4b5865;margin:14px 0 0">Progetto d'esame · versione dimostrativa</p>
+</td></tr></table></body></html>

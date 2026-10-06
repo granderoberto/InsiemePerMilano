@@ -428,9 +428,12 @@ def registrati(request):
             form.add_error(None, str(traduci(e)))
         else:
             from .views_account import invia_conferma
-            invia_conferma(request, u)
+            esito_posta = invia_conferma(request, u)
             login(request, u)
-            messages.success(request, "Registrazione completata. Ti abbiamo inviato un'email: conferma l'indirizzo per attivare l'account.")
+            if esito_posta:
+                messages.success(request, "Registrazione completata. Ti abbiamo inviato un'email: conferma l'indirizzo per attivare l'account (controlla anche lo spam).")
+            else:
+                messages.warning(request, "Registrazione completata, ma non siamo riusciti a spedire l'email di conferma: usa «Invia di nuovo il link» qui sotto.")
             return redirect("profilo")
     return render(request, "portale/registrati.html", {"form": form})
 

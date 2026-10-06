@@ -8,6 +8,7 @@
     <p>{% if user.email_verificata_il %}<span class="badge badge-3">Email confermata</span>{% else %}<span class="badge badge-2">Email da confermare</span>
       <form class="in-linea" method="post" action="{% url 'reinvia_conferma' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Invia di nuovo il link</button></form>{% endif %}</p>
     <form method="post" action="{% url 'cambia_email' %}">{% csrf_token %}<div class="campo"><label for="nuova-email">Cambia indirizzo email</label><input id="nuova-email" name="email" type="email" required><p class="aiuto">Ti mandiamo un link di conferma al nuovo indirizzo: cambia solo dopo la conferma.</p></div><button class="btn btn-lieve btn-piccolo" type="submit">Invia il link</button></form>
+    {% if user.metodo_registrazione == 'credenziali' %}<p><a class="btn btn-lieve btn-piccolo" href="{% url 'cambia_password' %}">Cambia password</a></p>{% endif %}
     <h3>Autenticazione a due fattori</h3>
     {% if user.metodo_registrazione != 'credenziali' %}<p class="piccolo">Con SPID o CIE la sicurezza dell'accesso è gestita dal tuo gestore di identità.</p>
     {% elif user.mfa_attiva %}<p><span class="badge badge-3">Attiva</span></p>

@@ -117,6 +117,15 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 SIMULAZIONE_SPID_CIE = True
 SIMULAZIONE_VERIFICA_DOCUMENTO = True
 
-# Email: in sviluppo escono sulla console del server (in produzione: SMTP)
-EMAIL_BACKEND = os.environ.get("DJANGO_EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
-DEFAULT_FROM_EMAIL = "La Nostra Città <noreply@insiemepermilano.example>"
+# Email: con EMAIL_HOST in .env si usa un server SMTP vero; senza, escono sulla console del server (solo sviluppo)
+_e = lambda k, d="": os.environ.get(k) or _env.get(k, d)
+EMAIL_HOST = _e("EMAIL_HOST")
+EMAIL_BACKEND = ("django.core.mail.backends.smtp.EmailBackend" if EMAIL_HOST else "django.core.mail.backends.console.EmailBackend")
+EMAIL_PORT = int(_e("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = _e("EMAIL_USER")
+EMAIL_HOST_PASSWORD = _e("EMAIL_PASSWORD")
+EMAIL_USE_SSL = _e("EMAIL_SSL", "0") == "1"                 # porta 465
+EMAIL_USE_TLS = not EMAIL_USE_SSL and _e("EMAIL_TLS", "1") == "1"  # porta 587 (STARTTLS)
+EMAIL_TIMEOUT = 15
+DEFAULT_FROM_EMAIL = _e("EMAIL_FROM", "La Nostra Città <noreply@insiemepermilano.example>")
+SITE_URL = _e("SITE_URL")  # es. https://lanostracitta.example : usato nei link delle email (obbligatorio in produzione)

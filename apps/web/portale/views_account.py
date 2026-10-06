@@ -9,10 +9,12 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from core.models import Notifica, PreferenzaNotifica, Utente
+from django.contrib.auth import update_session_auth_hash
+
 from core.services import email as posta, log, token
 from core.services.errori import traduci
 
-from .forms import PasswordForm
+from .forms import CambioPasswordForm, PasswordForm
 
 TIPI_NOTIFICA = [
     ("verifica_account", "Esito della verifica del tuo account", True),
@@ -54,8 +56,23 @@ def ricalcola_attivazione(u):
 
 
 def invia_conferma(request, u):
-    link = request.build_absolute_uri(reverse("conferma_email", args=[token.crea("conferma", u)]))
-    posta.invia(request, u.email, "Conferma il tuo indirizzo email", "Conferma l'indirizzo per completare la registrazione.", link)
+    """-> True se spedita, False se il server di posta non l'ha accettata, None se si sono chiesti troppi invii."""
+    if not posta.consentito(f"conferma:{u.id}", 3):
+        return None
+    link = posta.link_assoluto(request, reverse("conferma_email", args=[token.crea("conferma", u)]))
+    return posta.invia(request, u.email, "Conferma il tuo indirizzo email", "Conferma il tuo indirizzo email",
+                       [f"Ciao {u.nome}, grazie per esserti registrato su La Nostra Città.",
+                        "Per attivare l'account conferma che questo indirizzo è tuo. Il link vale 72 ore."],
+                       "Conferma l'indirizzo", link, "Se non sei stato tu a registrarti, ignora questo messaggio: senza conferma l'account non si attiva.")
+
+
+def messaggio_invio(request, esito, ok="Ti abbiamo inviato un'email: controlla anche la cartella spam."):
+    if esito is True:
+        messages.success(request, ok)
+    elif esito is None:
+        messages.warning(request, "Hai chiesto troppi invii: riprova tra un'ora.")
+    else:
+        messages.error(request, "Non siamo riusciti a inviare l'email: riprova tra poco.")
 
 
 def conferma_email(request, tok):
@@ -79,8 +96,7 @@ def reinvia_conferma(request):
     if request.user.email_verificata_il:
         messages.info(request, "L'email è già confermata.")
     else:
-        invia_conferma(request, request.user)
-        messages.success(request, "Ti abbiamo inviato un nuovo link di conferma.")
+        messaggio_invio(request, invia_conferma(request, request.user), "Ti abbiamo inviato un nuovo link di conferma.")
     return redirect("profilo")
 
 
@@ -93,10 +109,15 @@ def cambia_email(request):
         messages.error(request, "Inserisci un indirizzo email valido.")
     elif Utente.objects.filter(email=nuova).exists():
         messages.error(request, "Esiste già un account con questa email.")
+    elif not posta.consentito(f"cambio-email:{request.user.id}", 3):
+        messages.warning(request, "Hai chiesto troppi invii: riprova tra un'ora.")
     else:
-        link = request.build_absolute_uri(reverse("conferma_nuova_email", args=[token.crea("email", request.user, nuova)]))
-        posta.invia(request, nuova, "Conferma il nuovo indirizzo email", "Conferma il nuovo indirizzo: finché non lo fai resta valido quello attuale.", link)
-        messages.success(request, f"Abbiamo inviato un link di conferma a {nuova}. L'indirizzo cambia solo dopo la conferma.")
+        link = posta.link_assoluto(request, reverse("conferma_nuova_email", args=[token.crea("email", request.user, nuova)]))
+        ok = posta.invia(request, nuova, "Conferma il nuovo indirizzo email", "Conferma il nuovo indirizzo email",
+                         [f"Ciao {request.user.nome}, hai chiesto di usare questo indirizzo per il tuo account.",
+                          "Finché non lo confermi resta valido quello attuale. Il link vale 48 ore."], "Conferma il nuovo indirizzo", link,
+                         "Se non sei stato tu, ignora questo messaggio: l'indirizzo non cambia.")
+        messaggio_invio(request, ok, f"Abbiamo inviato un link di conferma a {nuova}. L'indirizzo cambia solo dopo la conferma.")
     return redirect("profilo")
 
 
@@ -127,9 +148,13 @@ def password_dimenticata(request):
     inviata = False
     if request.method == "POST":
         u = Utente.objects.filter(email=request.POST.get("email", "").strip().lower(), metodo_registrazione="credenziali").exclude(stato_account="eliminato").first()
-        if u:  # la risposta è identica anche se l'email non esiste: non si rivela chi è registrato
-            link = request.build_absolute_uri(reverse("reset_password", args=[token.crea("reset", u)]))
-            posta.invia(request, u.email, "Reimposta la password", "Hai chiesto di reimpostare la password. Il link vale 2 ore.", link)
+        # la risposta è identica in ogni caso (email inesistente, troppi tentativi, errore di posta): non si rivela chi è registrato
+        if u and posta.consentito(f"reset:{u.id}", 3) and posta.consentito(f"reset-ip:{posta.ip_di(request)}", 10):
+            link = posta.link_assoluto(request, reverse("reset_password", args=[token.crea("reset", u)]))
+            posta.invia(request, u.email, "Reimposta la password", "Reimposta la password",
+                        [f"Ciao {u.nome}, abbiamo ricevuto una richiesta per reimpostare la password del tuo account.",
+                         "Il link vale 2 ore e si può usare una volta sola."], "Scegli una nuova password", link,
+                         "Se non sei stato tu, ignora questo messaggio: la tua password non cambia. Se il problema si ripete, scrivici.")
         inviata = True
     return render(request, "portale/password_dimenticata.html", {"inviata": inviata})
 
@@ -139,12 +164,13 @@ def reset_password(request, tok):
     u = Utente.objects.filter(pk=d["u"]).first() if d else None
     if u is None or d.get("p") != token.impronta_password(u) or u.metodo_registrazione != "credenziali":
         return render(request, "portale/reset_password.html", {"non_valido": True})
-    form = PasswordForm(request.POST or None)
+    form = PasswordForm(request.POST or None, utente=u)
     if request.method == "POST" and form.is_valid():
         u.set_password(form.cleaned_data["password"])
         u.tentativi_falliti, u.bloccato_fino = 0, None
         u.save(update_fields=["password", "tentativi_falliti", "bloccato_fino"])
         log.registra(u, "modifica", "utenti", u.id, None, {"password": "reimpostata"})
+        avviso_password(request, u, "reimpostata")
         messages.success(request, "Password aggiornata: ora puoi accedere.")
         return redirect("accedi")
     return render(request, "portale/reset_password.html", {"form": form})
@@ -161,3 +187,29 @@ def preferenze_notifica(request):
         return redirect("preferenze_notifica")
     pref = preferenze(request.user)
     return render(request, "portale/preferenze.html", {"righe": [(t, e, ob, *pref[t]) for t, e, ob in TIPI_NOTIFICA]})
+
+
+def avviso_password(request, u, come):
+    """Avviso di sicurezza: se la modifica non è opera sua, l'utente se ne accorge subito."""
+    posta.invia(request, u.email, "La tua password è stata cambiata", "La tua password è stata cambiata",
+                [f"Ciao {u.nome}, la password del tuo account è stata {come}."],
+                nota="Se non sei stato tu, reimposta subito la password dalla pagina di accesso («Password dimenticata?») e scrivici.")
+
+
+@login_required
+def cambia_password(request):
+    """Il profilo permette di cambiare la password (serve quella attuale)."""
+    u = request.user
+    if u.metodo_registrazione != "credenziali":
+        messages.info(request, "Con SPID o CIE non hai una password su questo sito.")
+        return redirect("profilo")
+    form = CambioPasswordForm(request.POST or None, utente=u)
+    if request.method == "POST" and form.is_valid():
+        u.set_password(form.cleaned_data["password"])
+        u.save(update_fields=["password"])
+        update_session_auth_hash(request, u)  # le altre sessioni aperte con la vecchia password si chiudono
+        log.registra(u, "modifica", "utenti", u.id, None, {"password": "cambiata"})
+        avviso_password(request, u, "cambiata")
+        messages.success(request, "Password cambiata. Le altre sessioni aperte sono state chiuse.")
+        return redirect("profilo")
+    return render(request, "portale/cambia_password.html", {"form": form})

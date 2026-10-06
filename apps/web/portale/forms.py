@@ -4,6 +4,7 @@ from datetime import date
 from django import forms
 
 from core.models import Categoria, Quartiere, Utente
+from core.services import password
 
 MESSAGGI_CONSENSI = {
     "privacy": "Ho letto l'informativa sulla privacy (GDPR, art. 13)",
@@ -41,13 +42,16 @@ class SegnalazioneForm(forms.Form):
         return d
 
 
+_NUOVA = {"data-password": "nuova", "autocomplete": "new-password"}
+
+
 class RegistrazioneForm(forms.Form):
     nome = forms.CharField(label="Nome", max_length=50)
     cognome = forms.CharField(label="Cognome", max_length=50)
     email = forms.EmailField(label="Email", max_length=254)
-    password = forms.CharField(label="Password", widget=forms.PasswordInput,
+    password = forms.CharField(label="Password", widget=forms.PasswordInput(attrs=_NUOVA),
                                help_text="Almeno 8 caratteri, con una maiuscola, un numero e un simbolo.")
-    password2 = forms.CharField(label="Ripeti la password", widget=forms.PasswordInput)
+    password2 = forms.CharField(label="Ripeti la password", widget=forms.PasswordInput(attrs={"autocomplete": "new-password", "data-conferma": "password"}))
     data_nascita = forms.DateField(label="Data di nascita", widget=forms.DateInput(attrs={"type": "date"}),
                                    help_text="Età minima: 14 anni.")
     quartiere = forms.ModelChoiceField(label="Quartiere di residenza (facoltativo)", queryset=Quartiere.objects.all(),
@@ -67,12 +71,6 @@ class RegistrazioneForm(forms.Form):
             raise forms.ValidationError("Esiste già un account con questa email.")
         return e
 
-    def clean_password(self):
-        p = self.cleaned_data["password"]
-        if not (len(p) >= 8 and re.search(r"[A-Z]", p) and re.search(r"\d", p) and re.search(r"[^\w\s]", p)):
-            raise forms.ValidationError("La password deve avere almeno 8 caratteri, una maiuscola, un numero e un simbolo.")
-        return p
-
     def clean_data_nascita(self):
         n = self.cleaned_data["data_nascita"]
         if n > date.today() or eta_anni(n) < 14:
@@ -81,6 +79,10 @@ class RegistrazioneForm(forms.Form):
 
     def clean(self):
         d = super().clean()
+        if d.get("password"):
+            err = password.valida(d["password"], d.get("nome", ""), d.get("cognome", ""), d.get("email", ""))
+            if err:
+                self.add_error("password", err)
         if d.get("password") and d.get("password2") and d["password"] != d["password2"]:
             self.add_error("password2", "Le due password non coincidono.")
         return d
@@ -116,19 +118,37 @@ class SpidSimulatoForm(forms.Form):
         return self.cleaned_data["email"].strip().lower()
 
 
+_NUOVA = {"data-password": "nuova", "autocomplete": "new-password"}
+
+
 class PasswordForm(forms.Form):
-    password = forms.CharField(label="Nuova password", widget=forms.PasswordInput,
+    password = forms.CharField(label="Nuova password", widget=forms.PasswordInput(attrs=_NUOVA),
                                help_text="Almeno 8 caratteri, con una maiuscola, un numero e un simbolo.")
-    password2 = forms.CharField(label="Ripeti la password", widget=forms.PasswordInput)
+    password2 = forms.CharField(label="Ripeti la password", widget=forms.PasswordInput(attrs={"autocomplete": "new-password", "data-conferma": "password"}))
+
+    def __init__(self, *a, utente=None, **kw):
+        super().__init__(*a, **kw)
+        self.utente = utente  # per non accettare password basate sui propri dati
 
     def clean_password(self):
-        p = self.cleaned_data["password"]
-        if not (len(p) >= 8 and re.search(r"[A-Z]", p) and re.search(r"\d", p) and re.search(r"[^\w\s]", p)):
-            raise forms.ValidationError("La password deve avere almeno 8 caratteri, una maiuscola, un numero e un simbolo.")
-        return p
+        u = self.utente
+        err = password.valida(self.cleaned_data["password"], getattr(u, "nome", ""), getattr(u, "cognome", ""), getattr(u, "email", ""))
+        if err:
+            raise forms.ValidationError(err)
+        return self.cleaned_data["password"]
 
     def clean(self):
         d = super().clean()
         if d.get("password") and d.get("password2") and d["password"] != d["password2"]:
             self.add_error("password2", "Le due password non coincidono.")
         return d
+
+
+class CambioPasswordForm(PasswordForm):
+    attuale = forms.CharField(label="Password attuale", widget=forms.PasswordInput(attrs={"autocomplete": "current-password"}))
+    field_order = ["attuale", "password", "password2"]
+
+    def clean_attuale(self):
+        if not (self.utente and self.utente.check_password(self.cleaned_data["attuale"])):
+            raise forms.ValidationError("La password attuale non è corretta.")
+        return self.cleaned_data["attuale"]

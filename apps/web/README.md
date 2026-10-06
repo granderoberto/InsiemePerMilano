@@ -33,7 +33,9 @@ Database usato: `DJANGO_DB_NAME` (default `la_nostra_citta_test`, stessi dati de
 - **Verifica del documento IA** in registrazione: approvata in automatico (`portale/views.py`, `registrati`).
 - **Controlli IA** su testi, categorie, coerenza: `core/services/ia_simulata.py` (stessa interfaccia dei servizi veri).
 - **Accesso SPID/CIE**: form `/accedi/spid/` che riproduce i dati dell'identity provider; sarà il servizio con l'SDK `spid-cie-oidc-django`.
-- Le email in sviluppo escono sulla console del server e il link compare anche a schermo (`DJANGO_EMAIL_BACKEND` per usare SMTP).
+- **Email**: senza `EMAIL_HOST` in `.env` escono sulla console del server e il link compare a schermo (solo sviluppo). Con un server SMTP vero si configurano in `.env`: `EMAIL_HOST`, `EMAIL_PORT` (587 con STARTTLS, oppure 465 con `EMAIL_SSL=1`), `EMAIL_USER`, `EMAIL_PASSWORD`, `EMAIL_FROM` e `SITE_URL` (l'indirizzo pubblico del sito, usato nei link). Il link non compare mai a schermo con SMTP vero. Limiti: 3 email all'ora per indirizzo e tipo, 10 richieste di recupero all'ora per IP.
+- **Password** (`core/services/password.py`): almeno 8 caratteri con maiuscola, numero e simbolo (specifica), al massimo 72 byte (limite di bcrypt), non una password comune nemmeno con sostituzioni (`P4ssw0rd!`), non basata su nome, cognome o email, niente sequenze (`12345678A!`). Il profilo permette di cambiarla (serve quella attuale; le altre sessioni si chiudono e arriva un avviso via email).
+- Recupero password: link a scadenza (2 ore) e monouso, risposta identica se l'indirizzo non esiste, avviso di sicurezza dopo il cambio.
 - Non c'è ancora: richiesta di revisione per i commenti bloccati, eliminazione dell'account, esportazione delle statistiche personali. `/gestione/` è l'admin standard di Django (non usato).
 
 ## Struttura
@@ -60,5 +62,6 @@ Regole sullo schema: vedi "Regola di convivenza" in `CLAUDE.md`. I modelli rispe
 # .venv/bin/python smoke/account.py    # recupero password, cambio email, preferenze, attivazione
 # .venv/bin/python smoke/mfa.py        # 2FA: attivazione, accesso in due passaggi, blocco, azzeramento
 # .venv/bin/python smoke/simili.py     # segnalazioni simili in zona e sostegno diretto
+# .venv/bin/python smoke/posta.py      # email via SMTP vero (locale), password, recupero, limiti (serve requirements-dev.txt)
 # poi ripristinare i dati demo: tools/.venv/bin/python tools/seed/seed.py la_nostra_citta_test
 ```
