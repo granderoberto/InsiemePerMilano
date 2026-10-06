@@ -25,7 +25,7 @@ Attenzione: il servizio Aiven Free si spegne dopo pochi giorni di inattività e 
 ## Aperto
 
 1. **SPID/CIE reali** (obiettivo didattico): serve un ente che aderisca (probabilmente la scuola) o un soggetto aggregatore; non avviato. Sviluppo con il demo locale dell'SDK. Non provato: far usare `utenti` all'RP dell'SDK (`user_reunification` è sovrascrivibile).
-2. Materiale 3 della traccia: schema a blocchi dell'architettura IA (non iniziato).
+2. Materiale 3 della traccia (schema a blocchi dell'IA): **fatto** in `docs/architettura_ia.md`. Da fare: sostituire i controlli IA simulati con servizi veri.
 3. Colonna spaziale per `quartieri.confine`: rinviata; 2 poligoni (`CASCINA MERLATA`, `ASSIANO`) invalidi per MySQL.
 4. Filtro per tabella nella vista `v_statistiche_utenti`: da valutare (nuova migrazione).
 5. **Cambiare la password di `avnadmin` su Aiven** (condivisa in chiaro in chat).

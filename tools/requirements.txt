@@ -2,3 +2,4 @@ PyMySQL>=1.1
 shapely>=2.0
 Faker>=25
 bcrypt>=4.1
+cairosvg>=2.7

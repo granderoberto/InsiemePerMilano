@@ -12,7 +12,7 @@ Autore: Roberto Grande (GitHub: Bertox0). Lingua del progetto: **italiano** (doc
 | 2a. Modello ER (Chen) | fatto | `docs/modello_er.pdf`, `docs/modello_er.md` |
 | 2b. Schema logico normalizzato | fatto (MySQL 8) | `db/schema.sql`, `db/schema.dbml` |
 | Database su Aiven (MySQL) | **fatto** (fase 1 completata: migrazioni, 88 NIL, dati demo, verifica) | `db/migrations/`, `db/README.md` |
-| 3. Architettura di integrazione IA (schema a blocchi) | **da fare** | |
+| 3. Architettura di integrazione IA (schema a blocchi) | **fatto** | `docs/architettura_ia.md`, `docs/architettura_ia.png` (generato da `tools/ia/schema_blocchi.py`) |
 | Implementazione della web app | **in corso**: prima versione funzionante (Django 5.2), SPID/CIE e IA simulati | `apps/web/`, `docs/spike_django_spid.md` |
 
 ## Struttura
@@ -34,6 +34,7 @@ docs/prompt/
 apps/web/                sito Django (README con avvio, funzioni e parti simulate)
 tools/db/migrate.sh      applica le migrazioni a un database (idempotente, tabella schema_migrations)
 tools/geo/import_quartieri.py   importa gli 88 NIL in `quartieri`
+tools/ia/schema_blocchi.py   genera lo schema a blocchi dell'IA (docs/architettura_ia.{svg,png})
 tools/seed/              seed.py (dati demo deterministici) + README con password demo e scelte
 tools/requirements.txt   dipendenze Python (venv in tools/.venv, ignorato da git)
 .env, certs/ca.pem       credenziali e certificato Aiven: NON versionati (.gitignore)
@@ -144,7 +145,7 @@ Note sui dati:
 ## Prossimi passi suggeriti
 
 1. Completare l'app (`apps/web/README.md`, elenco "Non c'è ancora") e creare il servizio SPID/CIE separato con l'SDK.
-2. Materiale 3: schema a blocchi dell'architettura IA (dove si innestano verifica documento, classificazione, moderazione testo/immagini, coerenza nel flusso web app → API → DB).
+2. Sostituire i controlli IA simulati con servizi veri (vedi "Passi per l'IA vera" in `docs/architettura_ia.md`).
 3. Decidere sulla colonna spaziale per `confine` e sul filtro della vista `v_statistiche_utenti`.
 4. Cambiare la password dell'utente `avnadmin` su Aiven (è stata condivisa in chiaro in chat).
 
