@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block titolo %}Attiva la verifica in due passaggi{% endblock %}
+{% block contenuto %}<div class="accesso"><p><a href="{% url 'profilo' %}">← Profilo</a></p><h1>Verifica in due passaggi</h1>
+<ol><li>Installa un'app di autenticazione (per esempio Google Authenticator, Microsoft Authenticator o Aegis).</li>
+<li>Inquadra il codice QR con l'app, oppure inserisci a mano la chiave qui sotto.</li>
+<li>Scrivi il codice di 6 cifre che l'app mostra, per confermare.</li></ol>
+<div class="riquadro" style="text-align:center"><div style="max-width:240px;margin:auto;background:#fff;padding:8px;border-radius:8px" role="img" aria-label="Codice QR per l'app di autenticazione">{{ qr|safe }}</div>
+<p class="piccolo" style="margin-top:12px">Chiave per l'inserimento manuale:<br><code style="font-size:1.05rem;letter-spacing:.08em;word-break:break-all">{{ segreto }}</code></p></div>
+<form method="post" class="riquadro">{% csrf_token %}<div class="campo"><label for="codice">Codice di 6 cifre</label><input id="codice" name="codice" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required autofocus></div>
+<button class="btn btn-primario" type="submit">Conferma e attiva</button></form>
+<p class="avviso avviso-warning">Se perdi il telefono non potrai accedere: in quel caso un amministratore può azzerare la verifica in due passaggi, dopo aver controllato la tua identità.</p></div>{% endblock %}

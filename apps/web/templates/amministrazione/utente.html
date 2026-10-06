@@ -29,6 +29,10 @@
     <div class="campo"><label for="s-giorni">Durata in giorni (vuoto = a tempo indeterminato)</label><input id="s-giorni" name="giorni" type="number" min="1" max="365"></div>
     <button class="btn btn-pericolo btn-piccolo" type="submit">Sospendi</button></form>{% else %}<p class="piccolo">Non disponibile per questo account.</p>{% endif %}
    {% for s in sospensioni %}<p class="piccolo">{{ s.inizio|date:"j M Y" }}{% if s.fine %} → {{ s.fine|date:"j M Y" }}{% endif %} · {{ s.motivo }} {% if s.revocata_il %}(revocata {{ s.revocata_il|date:"j M Y" }}){% endif %}</p>{% endfor %}</section>{% endif %}
+  <section class="riquadro"><h2>Verifica in due passaggi</h2>
+   {% if u.mfa_attiva %}<p><span class="badge badge-3">Attiva</span></p>
+   <form method="post" action="{% url 'amm_azione_utente' u.id 'mfa_reset' %}">{% csrf_token %}<div class="campo"><label for="mfa-mot">Azzera (telefono perso): motivo</label><input id="mfa-mot" name="motivo" required></div><button class="btn btn-pericolo btn-piccolo" type="submit">Azzera la 2FA</button></form>
+   {% else %}<p class="piccolo">Non attiva.</p>{% endif %}</section>
   <section class="riquadro"><h2>Verifica d'identità e consensi</h2>
    {% for v in verifiche %}<p class="piccolo">Tentativo {{ v.tentativo }}: punteggio <strong>{{ v.punteggio }}</strong> → {{ v.esito_ia }}{% if v.esito_finale %}, rivista: {{ v.esito_finale }}{% endif %}</p>{% empty %}<p class="piccolo">Nessuna verifica (accesso con identità digitale).</p>{% endfor %}
    <p class="piccolo">Consensi: {% for c in consensi %}{{ c.documento.tipo }} v{{ c.documento.versione }}{% if not forloop.last %}, {% endif %}{% empty %}nessuno{% endfor %}</p></section>

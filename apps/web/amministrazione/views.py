@@ -92,6 +92,16 @@ def azione_utente(request, pk, azione):
             giorni = int(p["giorni"]) if p.get("giorni", "").isdigit() and int(p["giorni"]) > 0 else None
             servizio.sospendi(u, me, p.get("motivo", ""), giorni)
             messages.success(request, "Account sospeso.")
+        elif azione == "mfa_reset":
+            if not u.mfa_attiva:
+                raise RegolaViolata("L'utente non ha la verifica in due passaggi attiva.")
+            if not p.get("motivo", "").strip():
+                raise RegolaViolata("Indica il motivo (per esempio: telefono perso, identità verificata).")
+            u.mfa_attiva, u.mfa_segreto = False, None
+            u.save(update_fields=["mfa_attiva", "mfa_segreto"])
+            log.registra(me, "modifica", "utenti", u.id, {"mfa_attiva": True}, {"mfa_attiva": False, "motivo": p["motivo"].strip()})
+            Notifica.objects.create(utente=u, tipo="stato_account", messaggio="La verifica in due passaggi del tuo account è stata azzerata da un amministratore.", link="/profilo/")
+            messages.success(request, "Verifica in due passaggi azzerata.")
         elif azione == "riattiva":
             servizio.riattiva(u, me)
             messages.success(request, "Account riattivato.")

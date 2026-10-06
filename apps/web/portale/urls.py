@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views, views_account, views_autore
+from . import views, views_account, views_autore, views_mfa
 
 urlpatterns = [
     path("", views.home, name="home"),
@@ -17,6 +17,9 @@ urlpatterns = [
     path("api/suggerisci-categorie/", views.suggerisci_categorie, name="suggerisci_categorie"),
     path("api/quartiere/", views.quartiere_da_posizione, name="quartiere_da_posizione"),
     path("accedi/", views.accedi, name="accedi"),
+    path("accedi/2fa/", views_mfa.secondo_passo, name="accedi_2fa"),
+    path("profilo/2fa/", views_mfa.attiva, name="mfa_attiva"),
+    path("profilo/2fa/disattiva/", views_mfa.disattiva, name="mfa_disattiva"),
     path("accedi/spid/", views.spid_simulato, name="spid"),
     path("esci/", views.esci, name="esci"),
     path("registrati/", views.registrati, name="registrati"),

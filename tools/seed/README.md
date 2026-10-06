@@ -18,6 +18,8 @@ tools/.venv/bin/python tools/seed/seed.py <database> [--oggi AAAA-MM-GG]
 **Password demo di tutti gli utenti con credenziali: `DemoMilano2026!`** (bcrypt costo 12, stesso hash
 per tutti, salt fisso per riproducibilità: solo per la demo).
 
+Nei dati demo la **2FA è spenta** per tutti (`mfa_attiva = 0`, `mfa_segreto` vuoto): non esistono segreti demo.
+
 ## Contenuto
 
 | Cosa | Quantità |

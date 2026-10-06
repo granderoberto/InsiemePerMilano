@@ -128,6 +128,7 @@ Table utenti {
   id_quartiere smallint [ref: > quartieri.id]
   profilo_pubblico boolean [not null, default: false]
   mfa_attiva boolean [not null, default: false]
+  mfa_segreto varchar(255) [note: 'segreto TOTP cifrato dall\'applicazione; NULL se la 2FA non è attiva']
   tentativi_falliti smallint [not null, default: 0]
   bloccato_fino datetime
   email_verificata_il datetime

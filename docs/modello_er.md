@@ -8,7 +8,7 @@ Notazione: ● attributo chiave (PK), ○ attributo semplice. Le chiavi esterne 
 
 ### UTENTE
 - **PK:** id
-- **Attributi:** nome, cognome, email, password_hash, codice_fiscale_hash, data_nascita, metodo_registrazione, ruolo, stato_account, profilo_pubblico, mfa_attiva, tentativi_falliti, bloccato_fino, email_verificata_il, creato_il, eliminato_il
+- **Attributi:** nome, cognome, email, password_hash, codice_fiscale_hash, data_nascita, metodo_registrazione, ruolo, stato_account, profilo_pubblico, mfa_attiva, mfa_segreto, mfa_segreto, tentativi_falliti, bloccato_fino, email_verificata_il, creato_il, eliminato_il
 
 ### QUARTIERE
 - **PK:** id

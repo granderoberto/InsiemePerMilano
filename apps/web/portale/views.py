@@ -334,9 +334,15 @@ def accedi(request):
             else:
                 user.tentativi_falliti, user.bloccato_fino = 0, None
                 user.save(update_fields=["tentativi_falliti", "bloccato_fino"])
+                dest = request.POST.get("next") or request.GET.get("next") or "home"
+                if user.mfa_attiva:  # password giusta ma non ancora autenticato: manca il codice dell'app
+                    request.session.flush()
+                    request.session["mfa_utente"] = user.id
+                    request.session["mfa_scade"] = (timezone.now() + timedelta(minutes=5)).timestamp()
+                    request.session["mfa_next"] = dest if dest.startswith("/") else ""
+                    return redirect("accedi_2fa")
                 login(request, user)
                 log.registra(user, "accesso", "utenti", user.id, None, {"metodo": "credenziali"})
-                dest = request.POST.get("next") or request.GET.get("next") or "home"
                 return redirect(dest if dest.startswith("/") else "home")
     return render(request, "portale/accedi.html", {"errore": errore, "next": request.GET.get("next", "")})
 

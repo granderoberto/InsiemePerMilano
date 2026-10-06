@@ -29,6 +29,7 @@ CREATE TABLE utenti (
   id_quartiere         SMALLINT,
   profilo_pubblico     BOOLEAN NOT NULL DEFAULT FALSE,
   mfa_attiva           BOOLEAN NOT NULL DEFAULT FALSE,
+  mfa_segreto          VARCHAR(255),  -- segreto TOTP cifrato dall'applicazione
   tentativi_falliti    SMALLINT NOT NULL DEFAULT 0,
   bloccato_fino        DATETIME(3),
   email_verificata_il  DATETIME(3),
@@ -41,6 +42,7 @@ CREATE TABLE utenti (
     CHECK ((metodo_registrazione = 'credenziali') = (password_hash IS NOT NULL)),
   CONSTRAINT chk_cf_solo_spid_cie
     CHECK ((metodo_registrazione IN ('spid','cie')) = (codice_fiscale_hash IS NOT NULL)),
+  CONSTRAINT chk_mfa_segreto CHECK (NOT mfa_attiva OR mfa_segreto IS NOT NULL),
   CONSTRAINT chk_eliminato
     CHECK ((stato_account = 'eliminato') = (eliminato_il IS NOT NULL))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

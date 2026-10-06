@@ -58,6 +58,7 @@ SELECT COUNT(*) FROM information_schema.triggers WHERE trigger_schema = DATABASE
 | `db/schema.sql` | schema completo di riferimento (tabelle, trigger, viste, dati iniziali) |
 | `db/migrations/001_schema.sql` | schema senza dati iniziali |
 | `db/migrations/002_dati_riferimento.sql` | stati, transizioni ammesse, categorie |
+| `db/migrations/003_mfa_segreto.sql` | colonna `utenti.mfa_segreto` e vincolo per l'autenticazione a due fattori |
 | `db/schema.dbml` | per dbdiagram.io (solo tabelle e relazioni) |
 | `db/test_vincoli.sql` | casi di test dei vincoli |
 | `db/data/` | GeoJSON dei NIL e dei Municipi, con fonte e licenza |

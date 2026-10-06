@@ -26,7 +26,7 @@ db/
   schema.sql             MySQL 8.0+: tabelle, ENUM, CHECK, trigger, viste, seed (riferimento completo)
   schema.dbml            stesso schema per dbdiagram.io (solo tabelle e relazioni)
   test_vincoli.sql       casi di test dei vincoli (righe "ERRORE ATTESO" devono fallire)
-  migrations/            001_schema.sql, 002_dati_riferimento.sql (applicate da tools/db/migrate.sh)
+  migrations/            001_schema.sql, 002_dati_riferimento.sql, 003_mfa_segreto.sql (applicate da tools/db/migrate.sh)
   data/                  GeoJSON sorgente dei NIL e dei Municipi (Comune di Milano, CC BY) + README fonti
   README.md              come ricreare il database da zero
 docs/prompt/
@@ -77,7 +77,8 @@ mysql --force la_nostra_citta_test < db/test_vincoli.sql   # devono fallire solo
 # Validare il DBML
 npm i @dbml/core && node -e "const{Parser}=require('@dbml/core');new Parser().parse(require('fs').readFileSync('db/schema.dbml','utf8'),'dbml');console.log('ok')"
 
-# Rigenerare il diagramma ER (dopo aver modificato tools/er/gen.py)
+# Rigenerare il diagramma ER (dopo aver modificato tools/er/gen.py). Su macOS serve la libreria Cairo (brew install cairo):
+# se l'ultimo passo fallisce con "no library called cairo", eseguire il blocco cairosvg a mano con DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib
 pip install cairosvg && tools/er/run.sh
 ```
 
@@ -121,7 +122,7 @@ pip install cairosvg && tools/er/run.sh
 ### Regola di convivenza migrazioni SQL / migrazioni Django
 
 1. Le migrazioni SQL (`db/migrations/`, `tools/db/migrate.sh`) sono l'unica fonte dello schema del dominio. I modelli Django sulle tabelle del dominio sono sempre `managed = False`: Django non le crea né le modifica.
-2. Chi cambia una tabella con una nuova migrazione SQL aggiorna nello stesso commit il modello Django e ne genera la migrazione (nessun effetto sul DB). `makemigrations --check` non deve trovare differenze.
+2. Chi cambia una tabella con una nuova migrazione SQL aggiorna nello stesso commit il modello Django. Per i modelli `managed = False` Django **non** rileva né registra le modifiche ai campi: `makemigrations` non produce nulla e lo stato nelle migrazioni di Django resta indietro senza conseguenze. La fonte di verità sono il file SQL e il codice del modello: si verificano a mano (e con gli script in `apps/web/smoke/`).
 3. Le tabelle di Django (`django_*`, `auth_*`, `<app>_*`) le crea solo `manage.py migrate`; le migrazioni SQL non le citano e non compaiono in `schema_migrations`.
 4. Ordine di deploy: prima `tools/db/migrate.sh`, poi `manage.py migrate` (`django_admin_log` ha una FK verso `utenti`).
 5. Un solo progetto Django per database (si condividono `django_migrations`, `django_content_type`, `auth_*`): il servizio SPID/CIE usa un database o uno schema separato.
@@ -131,6 +132,14 @@ pip install cairosvg && tools/er/run.sh
 9. Errori del DB: `OperationalError` con errno 1644 = regola dei trigger (da tradurre in messaggio all'utente); `IntegrityError` 3819 = CHECK violato.
 10. Le migrazioni Django su MySQL non sono atomiche: se una fallisce a metà, ripulire le tabelle create prima di riprovare. Provarle prima su `la_nostra_citta_test`.
 11. Utente di autenticazione: modello personalizzato su `utenti` (`managed=False`, `password` con `db_column="password_hash"`, `last_login = None`, permessi derivati da `ruolo`), backend che verifica gli hash bcrypt con `bcrypt.checkpw`. Niente `auth_user`.
+
+## Autenticazione a due fattori (TOTP)
+
+- Solo per chi accede con credenziali (con SPID/CIE la sicurezza è del gestore di identità). App di autenticazione standard (RFC 6238), `pyotp`.
+- `utenti.mfa_segreto` (migrazione 003) contiene il segreto **cifrato** (Fernet, chiave derivata da `SECRET_KEY`): se cambia `SECRET_KEY` i segreti non si leggono più e l'amministratore deve azzerare la 2FA degli utenti. `CHECK`: il flag acceso richiede un segreto.
+- Accesso in due passaggi: dopo la password l'utente non è ancora autenticato; ha 5 minuti per il codice; 5 errori bloccano l'account 15 minuti.
+- Recupero: se l'utente perde il telefono, l'amministratore azzera la 2FA dalla scheda utente (motivo obbligatorio, finisce nel registro). Non ci sono codici di recupero.
+- I dati demo hanno la 2FA spenta (non esistono segreti demo).
 
 ## Stato del database (fase 1 conclusa)
 

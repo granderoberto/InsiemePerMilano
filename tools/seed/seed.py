@@ -232,7 +232,7 @@ def genera(anchor, categorie, nil):
         u = dict(nome=nome, cognome=cognome, email=email, metodo=metodo, ruolo_finale=ruolo_finale, scenario=scenario,
                  nascita=(reg.date() - timedelta(days=int(eta * 365.25))), creato=reg, stato="in_attesa_verifica",
                  quartiere=rng.choices(quartieri, qpesi)[0][0] if rng.random() < 0.7 else None,
-                 pubblico=rng.random() < 0.40, mfa=rng.random() < 0.10, tentativi=rng.choice([0] * 9 + [1, 2]),
+                 pubblico=rng.random() < 0.40, mfa=bool(rng.random() < 0.10) and False, tentativi=rng.choice([0] * 9 + [1, 2]),
                  pwd=hash_pw if metodo == "credenziali" else None, cf=None, email_ver=None, attivo_da=None,
                  verifiche=[], richieste_verifica=[], peso=rng.lognormvariate(0, 1.0))
         if metodo != "credenziali":

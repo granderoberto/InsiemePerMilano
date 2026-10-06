@@ -73,7 +73,7 @@ a:hover { color: var(--primario-scuro); }
 
 /* campi */
 label { font-weight: 600; display: block; margin-bottom: 4px; }
-input[type=text], input[type=email], input[type=password], input[type=date], input[type=search], select, textarea {
+input:not([type]), input[type=text], input[type=email], input[type=password], input[type=date], input[type=number], input[type=search], select, textarea {
   width: 100%; font: inherit; padding: 9px 11px; border: 1px solid var(--attenuato); border-radius: 8px; background: var(--superficie); color: var(--testo); min-height: 42px; }
 textarea { resize: vertical; }
 .campo { margin-bottom: 16px; }

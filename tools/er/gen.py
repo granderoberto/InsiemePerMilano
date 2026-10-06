@@ -1,5 +1,5 @@
 E = {
- "UTENTE": ["id","nome","cognome","email","password_hash","codice_fiscale_hash","data_nascita","metodo_registrazione","ruolo","stato_account","profilo_pubblico","mfa_attiva","tentativi_falliti","bloccato_fino","email_verificata_il","creato_il","eliminato_il"],
+ "UTENTE": ["id","nome","cognome","email","password_hash","codice_fiscale_hash","data_nascita","metodo_registrazione","ruolo","stato_account","profilo_pubblico","mfa_attiva","mfa_segreto","tentativi_falliti","bloccato_fino","email_verificata_il","creato_il","eliminato_il"],
  "QUARTIERE": ["id","nome","municipio","confine"],
  "VERIFICA_IDENTITA": ["id","tentativo","tipo_documento","ok_lettura_ocr","ok_corrispondenza_dati","ok_validita","ok_autenticita","ok_confronto_volto","punteggio","esito_ia","motivo","esito_finale","motivo_revisione","revisionata_il","creata_il"],
  "SOSPENSIONE": ["id","motivo","inizio","fine","revocata_il"],

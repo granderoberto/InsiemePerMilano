@@ -14,11 +14,11 @@
 - Modelli Django sul dominio: `managed=False`; utente di autenticazione su `utenti` (niente `auth_user`); vedi le 11 regole in `CLAUDE.md`.
 - `quartieri.id` = `ID_NIL`; `municipio` approssimato per 16 NIL su 88.
 - Contenuto bloccato dall'IA: resta non pubblico; revisione accolta = approvato con `esito_moderazione` ancora `bloccato`.
-- Modifiche allo schema: nuova migrazione `003_...`, non si toccano 001/002.
+- Modifiche allo schema: nuova migrazione, non si toccano quelle già applicate. Ultima: `003_mfa_segreto.sql` (2FA TOTP, applicata su `defaultdb` e `la_nostra_citta_test`).
 
 ## Prossimo passo
 
-Il sito gira (`apps/web/`, vedi il suo README): portale pubblico, area utente (registrazione con conferma email, recupero password, preferenze), autore (modifica/elimina/revisione), moderazione, amministrazione (utenti, ruoli, sospensioni, registro, statistiche con CSV, categorie, normative). Mancano 2FA (richiede una colonna nuova), segnalazioni simili, eliminazione account, il servizio SPID/CIE separato e l'IA vera (oggi simulata), oltre allo schema a blocchi dell'IA (materiale 3).
+Il sito gira (`apps/web/`, vedi il suo README): portale pubblico, area utente (registrazione con conferma email, recupero password, preferenze), autore (modifica/elimina/revisione), moderazione, amministrazione (utenti, ruoli, sospensioni, registro, statistiche con CSV, categorie, normative). Mancano segnalazioni simili, eliminazione account, il servizio SPID/CIE separato e l'IA vera (oggi simulata), oltre allo schema a blocchi dell'IA (materiale 3).
 
 Attenzione: il servizio Aiven Free si spegne dopo pochi giorni di inattività e può cambiare stato; se `nslookup` dell'host dà NXDOMAIN, riaccenderlo dalla console.
 

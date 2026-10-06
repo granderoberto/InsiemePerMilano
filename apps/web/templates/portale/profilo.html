@@ -8,6 +8,12 @@
     <p>{% if user.email_verificata_il %}<span class="badge badge-3">Email confermata</span>{% else %}<span class="badge badge-2">Email da confermare</span>
       <form class="in-linea" method="post" action="{% url 'reinvia_conferma' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Invia di nuovo il link</button></form>{% endif %}</p>
     <form method="post" action="{% url 'cambia_email' %}">{% csrf_token %}<div class="campo"><label for="nuova-email">Cambia indirizzo email</label><input id="nuova-email" name="email" type="email" required><p class="aiuto">Ti mandiamo un link di conferma al nuovo indirizzo: cambia solo dopo la conferma.</p></div><button class="btn btn-lieve btn-piccolo" type="submit">Invia il link</button></form>
+    <h3>Autenticazione a due fattori</h3>
+    {% if user.metodo_registrazione != 'credenziali' %}<p class="piccolo">Con SPID o CIE la sicurezza dell'accesso è gestita dal tuo gestore di identità.</p>
+    {% elif user.mfa_attiva %}<p><span class="badge badge-3">Attiva</span></p>
+      <form method="post" action="{% url 'mfa_disattiva' %}">{% csrf_token %}<div class="campo"><label for="m-pw">Per disattivarla: password</label><input id="m-pw" name="password" type="password" autocomplete="current-password" required></div>
+        <div class="campo"><label for="m-cod">e codice dell'app</label><input id="m-cod" name="codice" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required></div><button class="btn btn-pericolo btn-piccolo" type="submit">Disattiva</button></form>
+    {% else %}<p class="piccolo">Aggiunge un codice monouso dell'app di autenticazione ogni volta che accedi.</p><a class="btn btn-primario btn-piccolo" href="{% url 'mfa_attiva' %}">Attiva</a>{% endif %}
     <p style="margin-top:12px"><a href="{% url 'preferenze_notifica' %}">Scegli quali notifiche ricevere</a></p>
     <form method="post">{% csrf_token %}
       <div class="campo"><label for="quartiere">Quartiere di residenza</label><select id="quartiere" name="quartiere"><option value="">— nessuno —</option>{% for q in quartieri %}<option value="{{ q.id }}" {% if user.quartiere_id == q.id %}selected{% endif %}>{{ q.nome_leggibile }}</option>{% endfor %}</select></div>

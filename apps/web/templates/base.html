@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titolo %}La Nostra Città, Il Nostro Futuro{% endblock %} · Insieme per Milano</title>
   <meta name="description" content="Segnalazioni e proposte dei cittadini sui quartieri di Milano.">
-  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}?v={{ versione_css }}">
   {% block head %}{% endblock %}
 </head>
 <body>

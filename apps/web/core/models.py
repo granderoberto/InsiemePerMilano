@@ -50,6 +50,7 @@ class Utente(AbstractBaseUser):
     quartiere = models.ForeignKey(Quartiere, models.DO_NOTHING, db_column="id_quartiere", blank=True, null=True)
     profilo_pubblico = models.BooleanField(db_default=False)
     mfa_attiva = models.BooleanField(db_default=False)
+    mfa_segreto = models.CharField(max_length=255, blank=True, null=True)  # segreto TOTP cifrato (core.services.mfa)
     tentativi_falliti = models.SmallIntegerField(db_default=0)
     bloccato_fino = models.DateTimeField(blank=True, null=True)
     email_verificata_il = models.DateTimeField(blank=True, null=True)
