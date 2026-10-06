@@ -1,0 +1,49 @@
+{% extends "base.html" %}{% load static portale_extra %}
+{% block titolo %}Segnalazioni dei cittadini{% endblock %}
+{% block head %}{% if vista == 'mappa' %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endif %}{% endblock %}
+{% block contenuto %}
+<h1>Le segnalazioni dei cittadini</h1>
+<p class="piccolo">Problemi e proposte sui quartieri di Milano, sostenuti dalla community e presentati ai candidati Sindaco.</p>
+
+<form class="filtri" method="get" role="search" aria-label="Filtra le segnalazioni">
+  <input type="hidden" name="vista" value="{{ vista }}">
+  <div class="cerca"><label for="q">Cerca per parola chiave</label><input id="q" type="search" name="q" value="{{ filtri.q }}" placeholder="Es. semaforo, alberi, panchine"></div>
+  <div><label for="quartiere">Quartiere</label>
+    <select id="quartiere" name="quartiere"><option value="">Tutti</option>{% for q in quartieri %}<option value="{{ q.id }}" {% if filtri.quartiere == q.id|stringformat:"s" %}selected{% endif %}>{{ q.nome_leggibile }}</option>{% endfor %}</select></div>
+  <div><label for="categoria">Categoria</label>
+    <select id="categoria" name="categoria"><option value="">Tutte</option>{% for c in categorie %}<option value="{{ c.id }}" {% if filtri.categoria == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}</select></div>
+  <div><label for="stato">Stato</label>
+    <select id="stato" name="stato"><option value="">Approvate e presentate</option><option value="3" {% if filtri.stato == '3' %}selected{% endif %}>Approvata</option><option value="5" {% if filtri.stato == '5' %}selected{% endif %}>Presentata ai candidati</option></select></div>
+  <div><label for="tipo">Tipo</label>
+    <select id="tipo" name="tipo"><option value="">Tutti</option><option value="problema" {% if filtri.tipo == 'problema' %}selected{% endif %}>Problemi</option><option value="proposta" {% if filtri.tipo == 'proposta' %}selected{% endif %}>Proposte</option></select></div>
+  <div><label for="ordine">Ordina per</label>
+    <select id="ordine" name="ordine"><option value="recenti">Più recenti</option><option value="sostegni" {% if filtri.ordine == 'sostegni' %}selected{% endif %}>Più sostenute</option></select></div>
+  <div><button class="btn btn-primario" type="submit">Applica filtri</button> <a class="btn btn-lieve" href="{% url 'home' %}?vista={{ vista }}">Azzera</a></div>
+</form>
+
+<div class="barra">
+  <p role="status" class="piccolo"><strong>{{ totale }}</strong> segnalazioni trovate</p>
+  <nav class="schede" aria-label="Modo di visualizzazione">
+    <a href="?{% if querystring %}{{ querystring }}&{% endif %}vista=elenco" {% if vista == 'elenco' %}aria-current="true"{% endif %}>Elenco</a>
+    <a href="?{% if querystring %}{{ querystring }}&{% endif %}vista=mappa" {% if vista == 'mappa' %}aria-current="true"{% endif %}>Mappa</a>
+  </nav>
+</div>
+
+{% if vista == 'mappa' %}
+  <div id="mappa" class="mappa" role="region" aria-label="Mappa interattiva delle segnalazioni" data-url="{% url 'geojson' %}?{{ querystring }}"></div>
+  <p class="piccolo">Seleziona un segnaposto per vedere la segnalazione. Per leggerle in forma di elenco usa la scheda «Elenco».</p>
+{% else %}
+  {% if pagina.object_list %}
+  <ul class="griglia">{% for s in pagina %}{% include "portale/_scheda.html" %}{% endfor %}</ul>
+  {% if pagina.paginator.num_pages > 1 %}
+  <nav class="paginazione" aria-label="Pagine">
+    {% if pagina.has_previous %}<a class="btn btn-lieve" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.previous_page_number }}">← Precedente</a>{% endif %}
+    <span>Pagina {{ pagina.number }} di {{ pagina.paginator.num_pages }}</span>
+    {% if pagina.has_next %}<a class="btn btn-lieve" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.next_page_number }}">Successiva →</a>{% endif %}
+  </nav>{% endif %}
+  {% else %}<p class="vuoto-msg">Nessuna segnalazione corrisponde ai filtri scelti.</p>{% endif %}
+{% endif %}
+{% endblock %}
+{% block scripts %}{% if vista == 'mappa' %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{% static 'js/mappa.js' %}"></script>{% endif %}{% endblock %}

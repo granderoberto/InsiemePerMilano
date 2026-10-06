@@ -1,0 +1,40 @@
+{% extends "base.html" %}{% load static %}
+{% block titolo %}Nuova segnalazione{% endblock %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endblock %}
+{% block contenuto %}
+<h1>Nuova segnalazione</h1>
+<form method="post" enctype="multipart/form-data" class="accesso" style="max-width:760px" novalidate id="form-segnalazione">{% csrf_token %}
+  {% if form.non_field_errors %}<p class="avviso avviso-error" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+  <fieldset><legend>{{ form.tipo.label }}</legend>{{ form.tipo }}{% for e in form.tipo.errors %}<p class="errore">{{ e }}</p>{% endfor %}</fieldset>
+  {% include "_campo.html" with campo=form.titolo %}
+  {% include "_campo.html" with campo=form.descrizione %}
+  <fieldset><legend>{{ form.categorie.label }}</legend>
+    <p class="aiuto" id="aiuto-categorie">{{ form.categorie.help_text }} <span id="suggerimento" role="status"></span></p>
+    {{ form.categorie }}{% for e in form.categorie.errors %}<p class="errore" role="alert">{{ e }}</p>{% endfor %}</fieldset>
+  <fieldset><legend>Dove si trova</legend>
+    <p class="aiuto">Tocca la mappa per mettere il segnaposto, oppure cerca un indirizzo o usa la tua posizione. Il luogo deve essere dentro il Comune di Milano.</p>
+    <div class="ordine-mobile" style="margin-bottom:10px">
+      <button class="btn btn-lieve btn-piccolo" type="button" id="usa-posizione">📍 Usa la mia posizione</button>
+      <input type="search" id="cerca-indirizzo" placeholder="Cerca un indirizzo (es. Via Padova 10)" aria-label="Cerca un indirizzo" style="flex:1;min-width:220px">
+      <button class="btn btn-lieve btn-piccolo" type="button" id="vai-indirizzo">Cerca</button>
+    </div>
+    <div id="mappa-scelta" class="mappa mappa-scelta" role="application" aria-label="Mappa per scegliere il luogo"></div>
+    {{ form.latitudine }}{{ form.longitudine }}
+    <p id="esito-posizione" class="aiuto" role="status">Nessun luogo scelto.</p>
+    {% for e in form.latitudine.errors %}<p class="errore" role="alert">{{ e }}</p>{% endfor %}
+    {% include "_campo.html" with campo=form.indirizzo %}
+  </fieldset>
+  <fieldset><legend>Foto e video</legend>
+    <div class="campo"><label for="media">Allega da 1 a 10 file</label>
+      <input id="media" name="media" type="file" multiple required accept="image/jpeg,image/png,video/mp4,video/quicktime">
+      <p class="aiuto">Foto JPG o PNG fino a 10 MB. Video MP4 o MOV fino a 50 MB e 60 secondi. I metadati (posizione GPS del dispositivo) vengono rimossi prima della pubblicazione. La prima immagine sarà la copertina.</p></div>
+  </fieldset>
+  <p class="piccolo">Massimo 5 segnalazioni al giorno. Dopo l'invio i controlli automatici (simulati in questa versione) e un moderatore valutano la segnalazione.</p>
+  <button class="btn btn-primario" type="submit">Invia la segnalazione</button>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>window.URL_SUGGERISCI = "{% url 'suggerisci_categorie' %}"; window.URL_QUARTIERE = "{% url 'quartiere_da_posizione' %}";</script>
+<script src="{% static 'js/posizione.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}{% load portale_extra %}{% block titolo %}Il mio profilo{% endblock %}
+{% block contenuto %}
+<h1>Il mio profilo</h1>
+<div class="due-colonne">
+  <section class="riquadro"><h2>I miei dati</h2>
+    <p><strong>{{ user.nome }} {{ user.cognome }}</strong><br>{{ user.email }}<br><span class="piccolo">Accesso: {{ user.metodo_registrazione|upper }} · account {{ user.stato_account }}</span></p>
+    <p class="piccolo">Nome, cognome e data di nascita non sono modificabili: corrispondono all'identità verificata.</p>
+    <form method="post">{% csrf_token %}
+      <div class="campo"><label for="quartiere">Quartiere di residenza</label><select id="quartiere" name="quartiere"><option value="">— nessuno —</option>{% for q in quartieri %}<option value="{{ q.id }}" {% if user.quartiere_id == q.id %}selected{% endif %}>{{ q.nome_leggibile }}</option>{% endfor %}</select></div>
+      <div class="campo"><label class="spunta"><input type="checkbox" name="profilo_pubblico" {% if user.profilo_pubblico %}checked{% endif %}> <span>Profilo pubblico: compaio nelle classifiche con nome e iniziale del cognome.</span></label></div>
+      <button class="btn btn-primario" type="submit">Salva</button></form></section>
+  <section class="riquadro"><h2>Le mie statistiche</h2>
+    <ul class="barre" style="grid-template-columns:1fr 1fr">
+      <li style="display:block"><span class="contatore">{{ n_segnalazioni }}</span><br>segnalazioni</li>
+      <li style="display:block"><span class="contatore">{{ n_sostegni_ricevuti }}</span><br>sostegni ricevuti</li>
+      <li style="display:block"><span class="contatore">{{ n_commenti }}</span><br>commenti scritti</li>
+      <li style="display:block"><span class="contatore">{{ n_sostegni_dati }}</span><br>sostegni dati</li></ul></section>
+</div>
+<h2>Le mie segnalazioni</h2>
+{% if mie %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Titolo</th><th scope="col">Stato</th><th scope="col">Sostegni</th><th scope="col">Data</th></tr></thead><tbody>
+{% for s in mie %}<tr><td><a href="{% url 'dettaglio' s.id %}">{{ s.titolo }}</a></td><td><span class="badge badge-{{ s.stato_id }}">{{ s.stato.nome }}</span></td><td>{{ s.n_sostegni }}</td><td>{{ s.creata_il|date:"j M Y" }}</td></tr>{% endfor %}</tbody></table></div>
+{% else %}<p class="vuoto-msg">Non hai ancora inserito segnalazioni.</p>{% endif %}
+{% endblock %}

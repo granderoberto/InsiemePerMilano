@@ -1,0 +1,57 @@
+{% load static %}<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titolo %}La Nostra Città, Il Nostro Futuro{% endblock %} · Insieme per Milano</title>
+  <meta name="description" content="Segnalazioni e proposte dei cittadini sui quartieri di Milano.">
+  <link rel="stylesheet" href="{% static 'css/site.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<a class="salta" href="#contenuto">Vai al contenuto</a>
+<header class="testata">
+  <div class="contenitore testata-riga">
+    <a class="marchio" href="{% url 'home' %}"><span class="marchio-logo" aria-hidden="true">M</span><span><strong>La Nostra Città</strong><small>Insieme per Milano</small></span></a>
+    <nav aria-label="Principale" class="nav">
+      <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>Segnalazioni</a>
+      <a href="{% url 'statistiche' %}" {% if request.resolver_match.url_name == 'statistiche' %}aria-current="page"{% endif %}>Statistiche</a>
+      {% if user.is_authenticated and user.e_moderatore %}<a href="{% url 'moderazione' %}" {% if request.resolver_match.app_name == '' and 'moderazione' in request.path %}aria-current="page"{% endif %}>Moderazione</a>{% endif %}
+    </nav>
+    <div class="azioni">
+      {% if user.is_authenticated %}
+        {% if user.puo_interagire %}<a class="btn btn-primario" href="{% url 'nuova' %}"><span aria-hidden="true">＋</span> Nuova segnalazione</a>{% endif %}
+        <a class="btn btn-lieve" href="{% url 'notifiche' %}">Notifiche{% if notifiche_non_lette %} <span class="pallino" aria-label="{{ notifiche_non_lette }} non lette">{{ notifiche_non_lette }}</span>{% endif %}</a>
+        <a class="btn btn-lieve" href="{% url 'profilo' %}">{{ user.nome }}</a>
+        <form method="post" action="{% url 'esci' %}">{% csrf_token %}<button class="btn btn-lieve" type="submit">Esci</button></form>
+      {% else %}
+        <a class="btn btn-lieve" href="{% url 'accedi' %}">Accedi</a>
+        <a class="btn btn-primario" href="{% url 'registrati' %}">Registrati</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+{% if messages %}
+<div class="contenitore messaggi" role="status" aria-live="polite">
+  {% for m in messages %}<p class="avviso avviso-{{ m.level_tag }}">{{ m }}</p>{% endfor %}
+</div>
+{% endif %}
+
+{% if user.is_authenticated and not user.puo_interagire %}
+<div class="contenitore"><p class="avviso avviso-warning">Il tuo account è <strong>{{ user.get_stato_account_display|default:user.stato_account }}</strong>: puoi consultare i contenuti ma non interagire.</p></div>
+{% endif %}
+
+<main id="contenuto" class="contenitore principale" tabindex="-1">
+{% block contenuto %}{% endblock %}
+</main>
+
+<footer class="piede">
+  <div class="contenitore">
+    <p><strong>La Nostra Città, Il Nostro Futuro</strong> · Progetto d'esame per il comitato «Insieme per Milano».</p>
+    <p class="piccolo">Versione dimostrativa: verifica del documento, controlli di intelligenza artificiale e accesso SPID/CIE sono <strong>simulati</strong>. Dati e persone sono fittizi. Confini dei quartieri: Comune di Milano, CC BY.</p>
+  </div>
+</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -16,7 +16,7 @@ Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua d
 | 2b. Schema logico normalizzato | fatto (MySQL 8) | [`db/schema.sql`](db/schema.sql), [`db/schema.dbml`](db/schema.dbml) |
 | Database su Aiven con dati demo | fatto | [`db/`](db/README.md), [`tools/`](tools/) |
 | 3. Architettura di integrazione IA (schema a blocchi) | da fare | |
-| Implementazione della web app | da fare (stack scelto: Django) | [`docs/spike_django_spid.md`](docs/spike_django_spid.md) |
+| Implementazione della web app | in corso (prima versione funzionante, Django) | [`apps/web/`](apps/web/README.md), [`docs/spike_django_spid.md`](docs/spike_django_spid.md) |
 
 ## Da dove iniziare a leggere
 
@@ -40,6 +40,8 @@ Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua d
 │   ├── spike_django_spid.md   esiti della prova tecnica su Django e sull'SDK SPID/CIE
 │   └── prompt/
 │       └── 01_database.md     prompt operativo della fase database (fase 1, conclusa)
+├── apps/
+│   └── web/                   sito Django: portale pubblico, area utente, moderazione (README con avvio)
 ├── db/
 │   ├── README.md              come ricreare il database da zero
 │   ├── schema.sql             schema completo di riferimento (tabelle, trigger, viste, dati iniziali)

@@ -1,0 +1,33 @@
+{% extends "base.html" %}{% block titolo %}Moderazione{% endblock %}
+{% block contenuto %}
+<h1>Area moderatore</h1>
+<nav class="piccolo" aria-label="Code di lavoro"><a href="#attesa">In attesa ({{ in_attesa|length }})</a> · <a href="#segnalati">Contenuti segnalati ({{ segnalate|length }} + {{ commenti|length }})</a> · <a href="#presentare">Da presentare ({{ da_presentare|length }})</a> · <a href="#verifiche">Verifiche da rivedere ({{ verifiche|length }})</a></nav>
+
+<section id="attesa" class="riquadro"><h2>Segnalazioni in attesa</h2>
+{% if in_attesa %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Titolo</th><th scope="col">Autore</th><th scope="col">Controlli IA</th><th scope="col">Data</th><th scope="col"><span class="visually-hidden">Azioni</span></th></tr></thead><tbody>
+{% for s in in_attesa %}<tr><td><a href="{% url 'moderazione_segnalazione' s.id %}">{{ s.titolo }}</a><br><span class="piccolo">{{ s.quartiere.nome_leggibile }}</span></td><td>{{ s.autore.nome_pubblico }}</td>
+<td>{% if s.esito_moderazione == 'ok' %}<span class="badge badge-3">Nessun problema</span>{% elif s.esito_moderazione == 'dubbio' %}<span class="badge badge-2">Dubbio</span>{% elif s.esito_moderazione == 'bloccato' %}<span class="badge badge-4">Bloccata</span>{% else %}—{% endif %}</td>
+<td>{{ s.creata_il|date:"j M, H:i" }}</td>
+<td><form class="in-linea" method="post" action="{% url 'azione_segnalazione' s.id 'approva' %}">{% csrf_token %}<button class="btn btn-primario btn-piccolo" type="submit">Approva</button></form> <a class="btn btn-lieve btn-piccolo" href="{% url 'moderazione_segnalazione' s.id %}">Esamina</a></td></tr>{% endfor %}</tbody></table></div>
+{% else %}<p class="vuoto-msg">Nessuna segnalazione in attesa.</p>{% endif %}</section>
+
+<section id="segnalati" class="riquadro"><h2>Contenuti segnalati dall'IA</h2>
+<h3>Segnalazioni</h3>
+{% for s in segnalate %}<p><a href="{% url 'moderazione_segnalazione' s.id %}">{{ s.titolo }}</a> — <span class="badge badge-{% if s.esito_moderazione == 'bloccato' %}4{% else %}2{% endif %}">{{ s.esito_moderazione }}</span> <span class="piccolo">punteggio {{ s.punteggio_moderazione }} · {{ s.stato.nome }}</span></p>{% empty %}<p class="piccolo">Nessuna.</p>{% endfor %}
+<h3>Commenti (ultimi 30)</h3>
+{% for c in commenti %}<div class="commento"><header><strong>{{ c.autore.nome_pubblico }}</strong> su <a href="{% url 'dettaglio' c.segnalazione_id %}#commento-{{ c.id }}">{{ c.segnalazione.titolo }}</a> <span class="badge badge-2">{{ c.esito_moderazione }}</span>{% if c.nascosto %} <span class="badge badge-4">nascosto</span>{% endif %}</header>
+<p>{{ c.testo }}</p>
+{% if c.nascosto %}<form class="in-linea" method="post" action="{% url 'azione_commento' c.id 'ripristina' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Ripristina</button></form>
+{% else %}<form class="in-linea" method="post" action="{% url 'azione_commento' c.id 'nascondi' %}">{% csrf_token %}<input name="motivo" aria-label="Motivo" placeholder="Motivo" style="width:220px;min-height:34px"> <button class="btn btn-pericolo btn-piccolo" type="submit">Nascondi</button></form>
+<form class="in-linea" method="post" action="{% url 'azione_commento' c.id 'ripristina' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Segna come a posto</button></form>{% endif %}</div>{% empty %}<p class="piccolo">Nessuno.</p>{% endfor %}</section>
+
+<section id="presentare" class="riquadro"><h2>Approvate: da presentare ai candidati</h2>
+<p class="piccolo">Ordinate per sostegni, per aiutarti a scegliere le priorità.</p>
+{% for s in da_presentare|slice:":15" %}<p><strong>{{ s.n_sostegni }}</strong> sostegni · <a href="{% url 'moderazione_segnalazione' s.id %}">{{ s.titolo }}</a> <span class="piccolo">{{ s.quartiere.nome_leggibile }}</span></p>{% empty %}<p class="piccolo">Nessuna.</p>{% endfor %}</section>
+
+<section id="verifiche" class="riquadro"><h2>Verifiche d'identità da rivedere</h2>
+{% for v in verifiche %}<div class="commento"><p><strong>{{ v.utente.nome }} {{ v.utente.cognome }}</strong> · {{ v.utente.email }} · punteggio IA <strong>{{ v.punteggio }}</strong> (tentativo {{ v.tentativo }})</p>
+<ul class="meta"><li>Lettura OCR: {{ v.ok_lettura_ocr|yesno:"✓,✗" }}</li><li>Dati: {{ v.ok_corrispondenza_dati|yesno:"✓,✗" }}</li><li>Validità: {{ v.ok_validita|yesno:"✓,✗" }}</li><li>Autenticità: {{ v.ok_autenticita|yesno:"✓,✗" }}</li><li>Volto: {{ v.ok_confronto_volto|yesno:"✓,✗" }}</li></ul>{% if v.motivo %}<p class="piccolo">{{ v.motivo }}</p>{% endif %}
+<form method="post" action="{% url 'decidi_verifica' v.id %}">{% csrf_token %}<label for="m{{ v.id }}">Motivo della decisione</label><input id="m{{ v.id }}" name="motivo" required>
+<button class="btn btn-primario btn-piccolo" name="esito" value="approvata" type="submit">Conferma: approvata</button> <button class="btn btn-pericolo btn-piccolo" name="esito" value="rifiutata" type="submit">Rifiuta</button></form></div>{% empty %}<p class="piccolo">Nessuna verifica in coda.</p>{% endfor %}</section>
+{% endblock %}

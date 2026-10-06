@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block titolo %}Entra con SPID o CIE{% endblock %}
+{% block contenuto %}
+<div class="accesso">
+  <h1>Entra con SPID o CIE</h1>
+  <p class="avviso avviso-simulazione"><strong>Simulazione per lo sviluppo.</strong> Qui compili i dati che restituirebbe il gestore di identità. Nella versione definitiva questa pagina sarà sostituita dal vero accesso (servizio con l'SDK <em>spid-cie-oidc</em>). Usa dati fittizi.</p>
+  <form method="post" class="riquadro" novalidate>{% csrf_token %}
+    {% if form.non_field_errors %}<p class="errore" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+    {% for campo in form %}{% if campo.name == 'metodo' %}<fieldset><legend>{{ campo.label }}</legend>{{ campo }}</fieldset>{% else %}{% include "_campo.html" %}{% endif %}{% endfor %}
+    <button class="btn btn-primario" type="submit">Continua</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+<div class="campo{% if campo.errors %} campo-errore{% endif %}">
+  {% if campo.field.widget.input_type == 'checkbox' %}
+    <label class="spunta">{{ campo }} <span>{{ campo.label }}</span></label>
+  {% else %}
+    <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+    {{ campo }}
+  {% endif %}
+  {% if campo.help_text %}<p class="aiuto" id="aiuto-{{ campo.html_name }}">{{ campo.help_text }}</p>{% endif %}
+  {% for e in campo.errors %}<p class="errore" role="alert">{{ e }}</p>{% endfor %}
+</div>

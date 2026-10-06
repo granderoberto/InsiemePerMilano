@@ -13,7 +13,7 @@ Autore: Roberto Grande (GitHub: Bertox0). Lingua del progetto: **italiano** (doc
 | 2b. Schema logico normalizzato | fatto (MySQL 8) | `db/schema.sql`, `db/schema.dbml` |
 | Database su Aiven (MySQL) | **fatto** (fase 1 completata: migrazioni, 88 NIL, dati demo, verifica) | `db/migrations/`, `db/README.md` |
 | 3. Architettura di integrazione IA (schema a blocchi) | **da fare** | |
-| Implementazione della web app | **da fare**; stack scelto: Django 5.2 LTS (vedi sezione Stack) | `docs/spike_django_spid.md` |
+| Implementazione della web app | **in corso**: prima versione funzionante (Django 5.2), SPID/CIE e IA simulati | `apps/web/`, `docs/spike_django_spid.md` |
 
 ## Struttura
 
@@ -31,6 +31,7 @@ db/
   README.md              come ricreare il database da zero
 docs/prompt/
   01_database.md         prompt operativo per la fase database su Aiven
+apps/web/                sito Django (README con avvio, funzioni e parti simulate)
 tools/db/migrate.sh      applica le migrazioni a un database (idempotente, tabella schema_migrations)
 tools/geo/import_quartieri.py   importa gli 88 NIL in `quartieri`
 tools/seed/              seed.py (dati demo deterministici) + README con password demo e scelte
@@ -61,6 +62,9 @@ python3 -m venv tools/.venv && tools/.venv/bin/pip install -r tools/requirements
 # Migrazioni (idempotente) su un database Aiven
 tools/db/migrate.sh la_nostra_citta_test        # database di test (per prove distruttive)
 tools/db/migrate.sh defaultdb                   # database principale
+
+# Sito web (vedi apps/web/README.md)
+cd apps/web && .venv/bin/python manage.py runserver   # http://127.0.0.1:8000
 
 # Quartieri (88 NIL) e dati demo
 tools/.venv/bin/python tools/geo/import_quartieri.py defaultdb
@@ -139,7 +143,17 @@ Note sui dati:
 
 ## Prossimi passi suggeriti
 
-1. Impostare il progetto Django (app principale) e il servizio SPID/CIE separato.
+1. Completare l'app (`apps/web/README.md`, elenco "Non c'è ancora") e creare il servizio SPID/CIE separato con l'SDK.
 2. Materiale 3: schema a blocchi dell'architettura IA (dove si innestano verifica documento, classificazione, moderazione testo/immagini, coerenza nel flusso web app → API → DB).
 3. Decidere sulla colonna spaziale per `confine` e sul filtro della vista `v_statistiche_utenti`.
 4. Cambiare la password dell'utente `avnadmin` su Aiven (è stata condivisa in chiaro in chat).
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

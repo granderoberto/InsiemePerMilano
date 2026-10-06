@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block titolo %}Registrati{% endblock %}
+{% block contenuto %}
+<div class="accesso">
+  <h1>Registrati</h1>
+  {% if SIMULAZIONE_VERIFICA_DOCUMENTO %}<p class="avviso avviso-simulazione"><strong>Versione dimostrativa.</strong> La verifica del documento e del selfie con l'intelligenza artificiale è <strong>simulata</strong>: non devi caricare nulla e la verifica risulta approvata.</p>{% endif %}
+  <form method="post" class="riquadro" novalidate>{% csrf_token %}
+    {% if form.non_field_errors %}<p class="errore" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
+    {% for campo in form %}{% if campo.name in "nome cognome email password password2 data_nascita quartiere" %}{% include "_campo.html" %}{% endif %}{% endfor %}
+    <fieldset><legend>Normative</legend>
+      <p class="piccolo">Ogni consenso ha la sua casella, mai preselezionata. I testi qui sono segnaposto.</p>
+      {% for campo in form %}{% if campo.name not in "nome cognome email password password2 data_nascita quartiere" %}{% include "_campo.html" %}{% endif %}{% endfor %}
+    </fieldset>
+    <button class="btn btn-primario" type="submit">Crea l'account</button>
+  </form>
+  <p>Hai già un account? <a href="{% url 'accedi' %}">Accedi</a>.</p>
+</div>
+{% endblock %}

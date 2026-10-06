@@ -7,7 +7,7 @@ casuali salvati solo come hash SHA-256, testi dei documenti normativi segnaposto
 tools/.venv/bin/python tools/seed/seed.py <database> [--oggi AAAA-MM-GG]
 ```
 
-- **Distruttivo**: `SET FOREIGN_KEY_CHECKS=0`, `TRUNCATE` di tutte le tabelle tranne `quartieri`, `stati`,
+- **Distruttivo**: `SET FOREIGN_KEY_CHECKS=0`, `TRUNCATE` di tutte le tabelle tranne quelle di Django (`django_*`, `auth_*`), `quartieri`, `stati`,
   `transizioni_ammesse`, `categorie`, `schema_migrations`, poi `FOREIGN_KEY_CHECKS=1`. Richiede `quartieri`
   già popolata (`tools/geo/import_quartieri.py`).
 - **Deterministico**: seed fisso (`20260929`). Con lo stesso `--oggi` produce sempre gli stessi dati.

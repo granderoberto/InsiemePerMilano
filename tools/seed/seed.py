@@ -4,7 +4,8 @@
 Uso: tools/.venv/bin/python tools/seed/seed.py <database> [--oggi AAAA-MM-GG]
 
 Il reset è distruttivo: SET FOREIGN_KEY_CHECKS=0, TRUNCATE di tutte le tabelle non di
-riferimento (quartieri, stati, transizioni_ammesse, categorie, schema_migrations), poi
+riferimento (quartieri, stati, transizioni_ammesse, categorie, schema_migrations) e delle tabelle di Django
+(django_*, auth_*), poi
 FOREIGN_KEY_CHECKS=1. Serve TRUNCATE perché non attiva il trigger che blocca il DELETE
 su log_attivita. Prima si genera tutto in memoria: se la generazione fallisce il
 database non viene toccato.
@@ -33,6 +34,7 @@ SEED = 20260929
 PASSWORD_DEMO = "DemoMilano2026!"
 SALT_FISSO = b"$2b$12$DemoMilanoSeedSalt202O"  # salt fisso: hash riproducibile (solo demo)
 N_UTENTI, N_MODERATORI, N_SEGNALAZIONI, N_CANDIDATI = 150, 3, 300, 5
+PREFISSI_DJANGO = ("django_", "auth_")
 TABELLE_RIFERIMENTO = {"quartieri", "stati", "transizioni_ammesse", "categorie", "schema_migrations"}
 NOTIFICHE_OBBLIGATORIE = {"verifica_account", "stato_account", "normativa_aggiornata"}
 TIPI_NOTIFICA = ["verifica_account", "stato_account", "stato_segnalazione", "contenuto_bloccato",
@@ -894,7 +896,8 @@ def scrivi(cur, D, categorie):
     cur.execute("SET FOREIGN_KEY_CHECKS=0")
     cur.execute("SHOW FULL TABLES WHERE Table_type='BASE TABLE'")
     tabelle = [r[0] for r in cur.fetchall()]
-    da_svuotare = [t for t in tabelle if t not in TABELLE_RIFERIMENTO]
+    # Django (progetto in apps/web) crea nello stesso database le sue tabelle django_*/auth_*: non sono dati demo
+    da_svuotare = [t for t in tabelle if t not in TABELLE_RIFERIMENTO and not t.startswith(PREFISSI_DJANGO)]
     for t in da_svuotare:
         cur.execute(f"TRUNCATE TABLE `{t}`")
     cur.execute("SET FOREIGN_KEY_CHECKS=1")

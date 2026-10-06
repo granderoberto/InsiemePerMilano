@@ -1,0 +1,19 @@
+{% extends "base.html" %}{% block titolo %}Accedi{% endblock %}
+{% block contenuto %}
+<div class="accesso">
+  <h1>Accedi</h1>
+  {% if errore %}<p class="avviso avviso-error" role="alert">{{ errore }}</p>{% endif %}
+  <form method="post" class="riquadro">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}">
+    <div class="campo"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="username" required autofocus></div>
+    <div class="campo"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+    <button class="btn btn-primario" type="submit">Accedi</button>
+    <p class="piccolo">Dopo 5 tentativi falliti l'account si blocca per 15 minuti.</p>
+  </form>
+  <section class="riquadro"><h2>Hai SPID o CIE?</h2>
+    <p>Entra con la tua identità digitale: non serve caricare documenti.</p>
+    <a class="btn btn-lieve" href="{% url 'spid' %}">Entra con SPID o CIE</a>
+    {% if SIMULAZIONE_SPID_CIE %}<p class="piccolo">Versione dimostrativa: l'accesso è simulato.</p>{% endif %}
+  </section>
+  <p>Non hai un account? <a href="{% url 'registrati' %}">Registrati</a>.</p>
+</div>
+{% endblock %}

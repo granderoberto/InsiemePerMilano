@@ -1,0 +1,78 @@
+{% extends "base.html" %}{% load portale_extra %}
+{% block titolo %}{{ s.titolo }}{% endblock %}
+{% block contenuto %}
+<p><a href="{% url 'home' %}">← Tutte le segnalazioni</a></p>
+{% if not s.e_pubblica %}<p class="avviso avviso-warning">Questa segnalazione <strong>non è pubblica</strong> ({{ s.stato.nome }}{% if s.nascosta %}, nascosta{% endif %}): la vedi perché ne sei l'autore o un moderatore.</p>{% endif %}
+<div class="dettaglio">
+  <div>
+    <article class="riquadro">
+      <ul class="etichette" aria-label="Tipo e stato">
+        <li><span class="badge badge-{{ s.tipo }}">{% if s.tipo == 'proposta' %}Proposta{% else %}Problema{% endif %}</span></li>
+        <li><span class="badge badge-{{ s.stato_id }}">{{ s.stato.nome }}</span></li>
+        {% for c in categorie %}<li class="etichetta">{{ c.categoria.nome }}</li>{% endfor %}
+      </ul>
+      <h1>{{ s.titolo }}</h1>
+      <ul class="meta">
+        <li>📍 {{ s.quartiere.nome_leggibile }}{% if s.indirizzo %} · {{ s.indirizzo }}{% endif %}</li>
+        <li>di {{ s.autore.nome_pubblico }}</li>
+        <li><time datetime="{{ s.creata_il|date:'c' }}">{{ s.creata_il|date:"j F Y" }}</time></li>
+      </ul>
+      <p style="white-space: pre-line">{{ s.descrizione }}</p>
+      {% if media %}<h2>Foto e video</h2>
+      <div class="galleria">{% for m in media %}
+        {% if m.tipo == 'video' %}<video controls preload="metadata" src="{{ m.percorso|url_media }}" aria-label="Video della segnalazione {{ forloop.counter }}"></video>
+        {% else %}<img src="{{ m.percorso|url_media }}" alt="Foto {{ forloop.counter }} della segnalazione: {{ s.titolo }}" loading="lazy">{% endif %}{% endfor %}</div>{% endif %}
+    </article>
+
+    <section class="riquadro" aria-labelledby="t-commenti">
+      <h2 id="t-commenti">Commenti ({{ commenti|length }})</h2>
+      {% if s.e_pubblica %}
+        {% if user.is_authenticated and user.puo_interagire %}
+        <form method="post" action="{% url 'commenta' s.id %}">{% csrf_token %}
+          <div class="campo"><label for="testo">Scrivi un commento</label><textarea id="testo" name="testo" rows="3" maxlength="1000" required></textarea><p class="aiuto">Massimo 1000 caratteri. Sii rispettoso: i commenti sono controllati.</p></div>
+          <button class="btn btn-primario" type="submit">Pubblica</button>
+        </form>
+        {% elif not user.is_authenticated %}<p><a href="{% url 'accedi' %}?next={{ request.path }}">Accedi</a> o <a href="{% url 'registrati' %}">registrati</a> per commentare.</p>{% endif %}
+      {% else %}<p class="piccolo">I commenti si aprono quando la segnalazione è pubblicata.</p>{% endif %}
+      {% for c in commenti %}
+      <div class="commento livello-{{ c.livello }}" id="commento-{{ c.id }}">
+        <header><strong>{{ c.autore.nome_pubblico }}</strong><time datetime="{{ c.creato_il|date:'c' }}">{{ c.creato_il|date:"j M Y, H:i" }}</time>{% if c.modificato_il %}<span>(modificato)</span>{% endif %}</header>
+        <p>{{ c.testo }}</p>
+        {% if user.is_authenticated and user.puo_interagire and s.e_pubblica %}
+        <details><summary>Rispondi</summary>
+          <form method="post" action="{% url 'commenta' s.id %}">{% csrf_token %}<input type="hidden" name="padre" value="{{ c.id }}">
+            <label for="r{{ c.id }}" class="piccolo">Risposta a {{ c.autore.nome }}</label><textarea id="r{{ c.id }}" name="testo" rows="2" maxlength="1000" required></textarea>
+            <button class="btn btn-lieve btn-piccolo" type="submit">Invia risposta</button></form></details>{% endif %}
+        {% if c.autore_id == user.id %}<form class="in-linea" method="post" action="{% url 'elimina_commento' s.id c.id %}">{% csrf_token %}<button class="btn btn-pericolo btn-piccolo" type="submit">Elimina</button></form>{% endif %}
+      </div>
+      {% empty %}<p class="piccolo">Ancora nessun commento.</p>{% endfor %}
+    </section>
+  </div>
+
+  <aside aria-label="Sostegno e cronologia">
+    <section class="riquadro">
+      <p class="contatore" aria-live="polite">{{ n_sostegni }}</p><p>cittadini sostengono questa segnalazione</p>
+      {% if s.e_pubblica %}
+        {% if user.is_authenticated and user.puo_interagire %}
+          {% if s.autore_id == user.id %}<p class="piccolo">Non puoi sostenere la tua segnalazione.</p>
+          {% else %}<form method="post" action="{% url 'sostieni' s.id %}">{% csrf_token %}
+            <button class="btn {% if ha_sostenuto %}btn-attivo{% else %}btn-primario{% endif %}" type="submit" aria-pressed="{{ ha_sostenuto|yesno:'true,false' }}">{% if ha_sostenuto %}✓ Sostenuta · ritira{% else %}👍 Sostieni{% endif %}</button></form>{% endif %}
+        {% elif not user.is_authenticated %}<p><a class="btn btn-primario" href="{% url 'accedi' %}?next={{ request.path }}">Accedi per sostenere</a></p>{% endif %}
+      {% endif %}
+      <p><button class="btn btn-lieve btn-piccolo" type="button" id="copia" data-url="{{ url_assoluto }}">🔗 Copia il link</button> <span id="copia-esito" class="piccolo" role="status"></span></p>
+    </section>
+    {% if candidati %}<section class="riquadro"><h2>Presentata a</h2><ul>{% for c in candidati %}<li>{{ c.nome }} {{ c.cognome }} <span class="piccolo">({{ c.lista }})</span></li>{% endfor %}</ul></section>{% endif %}
+    <section class="riquadro"><h2>Cronologia</h2>
+      <ol class="cronologia">{% for c in cronologia %}<li><strong>{{ c.stato_a.nome }}</strong><br><time class="piccolo" datetime="{{ c.avvenuto_il|date:'c' }}">{{ c.avvenuto_il|date:"j M Y, H:i" }}</time>{% if c.nota and c.stato_a_id == 4 %}<br><span class="piccolo">Motivo: {{ c.nota }}</span>{% endif %}</li>
+      {% empty %}<li>Ricevuta<br><time class="piccolo">{{ s.creata_il|date:"j M Y, H:i" }}</time></li>{% endfor %}</ol></section>
+    {% if user.is_authenticated and user.e_moderatore %}<p><a class="btn btn-lieve" href="{% url 'moderazione_segnalazione' s.id %}">Apri nella moderazione</a></p>{% endif %}
+  </aside>
+</div>
+<script>
+document.getElementById('copia')?.addEventListener('click', async (e) => {
+  const esito = document.getElementById('copia-esito');
+  try { await navigator.clipboard.writeText(e.target.dataset.url); esito.textContent = 'Link copiato.'; }
+  catch { esito.textContent = 'Copia non riuscita: ' + e.target.dataset.url; }
+});
+</script>
+{% endblock %}

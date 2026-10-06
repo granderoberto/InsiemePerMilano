@@ -18,7 +18,9 @@
 
 ## Prossimo passo
 
-Impostare i due progetti Django: app principale (`apps/`) e servizio SPID/CIE separato (con le due modifiche all'SDK).
+Il sito gira (`apps/web/`, vedi il suo README): elenco, mappa, dettaglio, accesso, nuova segnalazione, moderazione, statistiche. Mancano modifica/eliminazione della propria segnalazione, richieste di revisione, dashboard admin, email/2FA, CSV, e il servizio SPID/CIE separato (oggi simulato).
+
+Attenzione: il servizio Aiven Free si spegne dopo pochi giorni di inattività e può cambiare stato; se `nslookup` dell'host dà NXDOMAIN, riaccenderlo dalla console.
 
 ## Aperto
 

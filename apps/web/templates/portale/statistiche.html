@@ -1,0 +1,26 @@
+{% extends "base.html" %}{% load portale_extra %}{% block titolo %}Statistiche{% endblock %}
+{% block contenuto %}
+<h1>Statistiche</h1>
+<div class="due-colonne">
+  <section class="riquadro"><h2>Segnalazioni per stato</h2>
+    <ul class="barre">{% for s in per_stato %}<li><span>{{ s.nome }}</span><span class="vuoto"><span class="pieno" style="display:block;width:{{ s.n|percento:max_stato }}%"></span></span><span>{{ s.n }}</span></li>{% endfor %}</ul></section>
+  <section class="riquadro"><h2>Segnalazioni pubbliche per categoria</h2>
+    <ul class="barre">{% for c in per_categoria %}<li><span>{{ c.nome }}</span><span class="vuoto"><span class="pieno" style="display:block;width:{{ c.n|percento:max_categoria }}%"></span></span><span>{{ c.n }}</span></li>{% endfor %}</ul></section>
+</div>
+<section class="riquadro"><h2>I quartieri più attivi</h2>
+  <ul class="barre">{% for q in per_quartiere %}<li><span>{{ q.nome_leggibile }}</span><span class="vuoto"><span class="pieno" style="display:block;width:{{ q.n|percento:max_quartiere }}%"></span></span><span>{{ q.n }}</span></li>{% endfor %}</ul></section>
+
+<h2>Classifica delle segnalazioni più sostenute</h2>
+<form class="filtri" method="get" aria-label="Filtra la classifica">
+  <div><label for="quartiere">Quartiere</label><select id="quartiere" name="quartiere"><option value="">Tutti</option>{% for q in quartieri %}<option value="{{ q.id }}" {% if filtri.quartiere == q.id|stringformat:"s" %}selected{% endif %}>{{ q.nome_leggibile }}</option>{% endfor %}</select></div>
+  <div><label for="categoria">Categoria</label><select id="categoria" name="categoria"><option value="">Tutte</option>{% for c in categorie %}<option value="{{ c.id }}" {% if filtri.categoria == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nome }}</option>{% endfor %}</select></div>
+  <div><label for="periodo">Periodo</label><select id="periodo" name="periodo"><option value="">Dall'inizio</option><option value="30" {% if filtri.periodo == '30' %}selected{% endif %}>Ultimi 30 giorni</option></select></div>
+  <div><button class="btn btn-primario" type="submit">Applica</button></div>
+</form>
+{% if classifica %}<ol class="griglia" style="list-style:decimal inside">{% for s in classifica %}{% include "portale/_scheda.html" %}{% endfor %}</ol>{% else %}<p class="vuoto-msg">Nessuna segnalazione per questi filtri.</p>{% endif %}
+
+<h2 style="margin-top:28px">Utenti più attivi</h2>
+<p class="piccolo">Solo chi ha scelto il profilo pubblico; il cognome è abbreviato.</p>
+<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Utente</th><th scope="col">Segnalazioni</th><th scope="col">Commenti</th><th scope="col">Sostegni ricevuti</th><th scope="col">Azioni (30 giorni)</th></tr></thead><tbody>
+{% for u in utenti %}<tr><td>{{ u.nome }} {{ u.cognome }}</td><td>{{ u.n_segnalazioni }}</td><td>{{ u.n_commenti }}</td><td>{{ u.n_sostegni_ricevuti }}</td><td>{{ u.attivita }}</td></tr>{% empty %}<tr><td colspan="5">Nessun profilo pubblico.</td></tr>{% endfor %}</tbody></table></div>
+{% endblock %}
