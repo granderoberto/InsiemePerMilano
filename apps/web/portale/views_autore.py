@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from core.models import Categoria, Classificazione, Media, RichiestaRevisione, Segnalazione, VerificaIdentita
-from core.services import geo, ia_simulata, log, media as servizio_media
+from core.services import geo, ia, log, media as servizio_media
 from core.services.errori import RegolaViolata, traduci
 
 from .forms import SegnalazioneForm
@@ -50,9 +50,9 @@ def modifica(request, pk):
             prima = {"titolo": s.titolo, "descrizione": s.descrizione, "tipo": s.tipo, "indirizzo": s.indirizzo,
                      "latitudine": str(s.latitudine), "longitudine": str(s.longitudine), "id_quartiere": s.quartiere_id,
                      "categorie": iniziale["categorie"], "n_media": len(esistenti)}
-            esito, p_mod = ia_simulata.controlla_testo(f"{d['titolo']} {d['descrizione']}")
-            p_coer = ia_simulata.coerenza_immagine_testo(d["titolo"], d["descrizione"], len(tenuti) + len(nuovi))
-            suggerite = dict(ia_simulata.suggerisci_categorie(d["titolo"], d["descrizione"]))
+            esito, p_mod = ia.controlla_testo(f"{d['titolo']} {d['descrizione']}")
+            p_coer = ia.coerenza_immagine_testo(d["titolo"], d["descrizione"], len(tenuti) + len(nuovi))
+            suggerite = dict(ia.suggerisci_categorie(d["titolo"], d["descrizione"]))
             with transaction.atomic():
                 s.tipo, s.titolo, s.descrizione, s.indirizzo = d["tipo"], d["titolo"], d["descrizione"], d.get("indirizzo") or None
                 s.latitudine = Decimal(str(d["latitudine"])).quantize(Decimal("0.000001"))

@@ -1,6 +1,6 @@
 """Esecuzione della verifica d'identità: i file passano dall'area temporanea cifrata e vengono cancellati a fine verifica."""
 from core.models import Notifica, VerificaIdentita
-from core.services import log, temporaneo, verifica_documento
+from core.services import ia, log, temporaneo
 
 MAX_TENTATIVI = 3
 
@@ -12,7 +12,7 @@ def esegui(utente, tentativo, tipo_documento, fronte, retro, selfie):
         for f in (fronte, retro, selfie):
             if f:
                 area.salva(f[0])  # qui in futuro: l'IA legge i file dall'area temporanea cifrata
-        r = verifica_documento.controlla(fronte, selfie)
+        r = ia.verifica_documento(fronte, selfie)
     v = VerificaIdentita.objects.create(
         utente=utente, tentativo=tentativo, tipo_documento=tipo_documento, punteggio=r["punteggio"], esito_ia=r["esito"], motivo=r["motivo"], **r["flag"])
     log.registra_molti([(utente, "verifica_identita", "verifiche_identita", v.id, None, {"tentativo": tentativo, "tipo_documento": tipo_documento}),

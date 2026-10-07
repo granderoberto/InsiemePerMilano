@@ -23,7 +23,7 @@ from core.models import (APPROVATA, PRESENTATA, Candidato, Categoria, Classifica
                          DocumentoNormativo, Media, Notifica, PreferenzaNotifica, Quartiere, RichiestaRevisione, Segnalazione, Sostegno, Stato,
                          Utente, VerificaIdentita)
 from core.queries import con_conteggi
-from core.services import geo, ia_simulata, log, media as servizio_media, normative, simili
+from core.services import geo, ia, log, media as servizio_media, normative, simili
 from core.services.errori import RegolaViolata, traduci
 from core.services.stati import cambia_stato
 
@@ -241,7 +241,7 @@ def commenta(request, pk):
     padre = None
     if request.POST.get("padre", "").isdigit():
         padre = Commento.objects.filter(pk=int(request.POST["padre"]), segnalazione=s).first()
-    esito, punteggio = ia_simulata.controlla_testo(testo)
+    esito, punteggio = ia.controlla_testo(testo)
     if esito == "bloccato":
         messages.error(request, "Il commento è stato bloccato dai controlli automatici perché contiene una minaccia. "
                                 "Riscrivilo in modo rispettoso.")
@@ -314,9 +314,9 @@ def nuova(request):
 
 
 def crea_segnalazione(utente, d, qid, file_salvati, categorie_scelte):
-    esito, p_mod = ia_simulata.controlla_testo(f"{d['titolo']} {d['descrizione']}")
-    p_coer = ia_simulata.coerenza_immagine_testo(d["titolo"], d["descrizione"], len(file_salvati))
-    suggerite = dict(ia_simulata.suggerisci_categorie(d["titolo"], d["descrizione"]))
+    esito, p_mod = ia.controlla_testo(f"{d['titolo']} {d['descrizione']}")
+    p_coer = ia.coerenza_immagine_testo(d["titolo"], d["descrizione"], len(file_salvati))
+    suggerite = dict(ia.suggerisci_categorie(d["titolo"], d["descrizione"]))
     with transaction.atomic():
         s = Segnalazione.objects.create(
             autore=utente, tipo=d["tipo"], titolo=d["titolo"], descrizione=d["descrizione"],
@@ -344,7 +344,7 @@ def crea_segnalazione(utente, d, qid, file_salvati, categorie_scelte):
 
 
 def suggerisci_categorie(request):
-    sug = ia_simulata.suggerisci_categorie(request.GET.get("titolo", ""), request.GET.get("descrizione", ""))
+    sug = ia.suggerisci_categorie(request.GET.get("titolo", ""), request.GET.get("descrizione", ""))
     ids = {c.nome: c.id for c in Categoria.objects.all()}
     return JsonResponse({"categorie": [{"id": ids[n], "nome": n, "confidenza": c} for n, c in sug if n in ids]})
 

@@ -130,12 +130,12 @@ Le soglie vanno **tarate sui dati reali**: per questo ogni punteggio è salvato 
 | Origine delle categorie | `classificazioni.origine` (`ia`, `utente`, `moderatore`) e `confidenza` |
 | Registro | `log_attivita` con operazione `decisione_ia` |
 | Code del moderatore | `/moderazione/` in `apps/web` |
-| Controlli IA | **simulati** in `apps/web/core/services/ia_simulata.py` (parole chiave ed espressioni regolari): stessa forma di risposta dei servizi veri |
-| Verifica del documento | caricamento **vero** (fronte, retro, selfie dalla fotocamera, JPG/PNG/PDF fino a 5 MB, controlli sui byte dei file), archivio temporaneo cifrato (`core/services/temporaneo.py`) con cancellazione a fine verifica, massimo 3 tentativi; il controllo è **simulato** in `core/services/verifica_documento.py` (qualità delle immagini al posto di OCR, dati, validità, autenticità e volto) |
+| Controlli IA | **simulati** in `apps/web/core/services/ia/simulato.py` (parole chiave ed espressioni regolari) dietro l'interfaccia unica `core/services/ia/__init__.py`; il fornitore si sceglie con `IA_BACKEND` |
+| Verifica del documento | caricamento **vero** (fronte, retro, selfie dalla fotocamera, JPG/PNG/PDF fino a 5 MB, controlli sui byte dei file), archivio temporaneo cifrato (`core/services/temporaneo.py`) con cancellazione a fine verifica, massimo 3 tentativi; il controllo è **simulato** in `core/services/ia/simulato_documento.py` (qualità delle immagini al posto di OCR, dati, validità, autenticità e volto) |
 
 ## Passi per l'IA vera
 
-1. Estrarre un'interfaccia (`core/services/ia/`) con le cinque funzioni e portare lì `ia_simulata`.
+1. ~~Estrarre un'interfaccia~~ **fatto**: `core/services/ia/` con le quattro funzioni del contratto (testo, categorie, coerenza, documento); il simulato è il primo fornitore. Un fornitore vero è un nuovo modulo con le stesse funzioni, scelto con `IA_BACKEND`.
 2. Scegliere i fornitori (costo, DPA, UE) e implementare un adattatore per ciascun modulo.
 3. Spostare i compiti lenti su una coda con un worker.
 4. Aggiungere il campo «modello e versione» alle decisioni salvate.

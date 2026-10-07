@@ -122,8 +122,9 @@ SPID_BRIDGE_SECRET = os.environ.get("SPID_BRIDGE_SECRET") or _env.get("SPID_BRID
 SPID_CIE_ATTIVO = bool(SPID_SERVIZIO_URL and SPID_BRIDGE_SECRET)
 SPID_AMBIENTE_PROVA = (os.environ.get("SPID_AMBIENTE_PROVA") or _env.get("SPID_AMBIENTE_PROVA", "1")) == "1"  # 0 solo con l'adesione reale
 
-# Ancora simulata: verifica del documento con l'IA (servizi IA da collegare)
-SIMULAZIONE_VERIFICA_DOCUMENTO = True
+# Fornitore dei controlli IA (modulo con il contratto di core/services/ia/__init__.py). Oggi solo il simulato.
+IA_BACKEND = os.environ.get("IA_BACKEND") or _env.get("IA_BACKEND", "core.services.ia.simulato")
+SIMULAZIONE_VERIFICA_DOCUMENTO = IA_BACKEND.endswith(".simulato")
 
 # Email: con EMAIL_HOST in .env si usa un server SMTP vero; senza, escono sulla console del server (solo sviluppo)
 _e = lambda k, d="": os.environ.get(k) or _env.get(k, d)

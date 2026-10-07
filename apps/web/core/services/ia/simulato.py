@@ -1,9 +1,11 @@
-"""Controlli IA SIMULATI (segnaposto): stessa interfaccia che avranno i servizi veri.
+"""Fornitore IA SIMULATO (parole chiave ed espressioni regolari): implementa il contratto di `core.services.ia`.
 
 Servono a far funzionare il flusso (esito ok/dubbio/bloccato, categorie suggerite, coerenza) senza modelli reali.
 Vanno sostituiti da chiamate ai servizi di IA: vedi il materiale 3 (architettura di integrazione).
 """
 import re
+
+from .simulato_documento import verifica_documento  # noqa: F401  (stesso contratto)
 
 INSULTI = ("idiota", "imbecille", "stronzo", "merda", "cretino", "schifoso", "bastardo")
 MINACCE = ("ti ammazzo", "ti uccido", "ti spacco", "ti butto giù", "vi ammazzo")
