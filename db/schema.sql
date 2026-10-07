@@ -461,6 +461,7 @@ SELECT u.id, u.nome, u.cognome, u.profilo_pubblico,
        (SELECT COUNT(*) FROM log_attivita l
          WHERE l.id_utente = u.id
            AND l.operazione IN ('creazione','commento','sostegno')
+           AND l.tabella IN ('segnalazioni','commenti','sostegni')
            AND l.avvenuto_il >= UTC_TIMESTAMP(3) - INTERVAL 30 DAY) AS attivita_30_giorni
 FROM utenti u
 WHERE u.stato_account <> 'eliminato';

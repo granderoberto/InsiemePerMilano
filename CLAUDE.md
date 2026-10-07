@@ -26,7 +26,7 @@ db/
   schema.sql             MySQL 8.0+: tabelle, ENUM, CHECK, trigger, viste, seed (riferimento completo)
   schema.dbml            stesso schema per dbdiagram.io (solo tabelle e relazioni)
   test_vincoli.sql       casi di test dei vincoli (righe "ERRORE ATTESO" devono fallire)
-  migrations/            001_schema.sql, 002_dati_riferimento.sql, 003_mfa_segreto.sql (applicate da tools/db/migrate.sh)
+  migrations/            001_schema.sql, 002_dati_riferimento.sql, 003_mfa_segreto.sql, 004_statistiche_attivita.sql (applicate da tools/db/migrate.sh)
   data/                  GeoJSON sorgente dei NIL e dei Municipi (Comune di Milano, CC BY) + README fonti
   README.md              come ricreare il database da zero
 docs/prompt/
@@ -152,7 +152,7 @@ Su Aiven ci sono `defaultdb` (principale, popolato) e `la_nostra_citta_test` (pr
 
 Note sui dati:
 - `quartieri` = 88 NIL (Comune di Milano, CC BY). `quartieri.id` = `ID_NIL` della fonte. Il `municipio` è ricavato per maggiore sovrapposizione: per 16 NIL che attraversano più Municipi è un'approssimazione.
-- `v_statistiche_utenti` conta come attività ogni `log_attivita.operazione` in ('creazione','commento','sostegno') senza filtrare la tabella: le richieste di revisione (`creazione` su `richieste_revisione`) gonfiano un poco `attivita_30_giorni`. Da correggere con una nuova migrazione se serve.
+- `v_statistiche_utenti` conta come attività solo `creazione`/`commento`/`sostegno` su `segnalazioni`, `commenti`, `sostegni` (migrazione 004).
 - Per `confine` si è valutato il tipo spaziale (`POLYGON SRID 4326` + SPATIAL): funziona con `ST_Contains(geom, ST_SRID(POINT(lon, lat), 4326))`, ma 2 poligoni (`CASCINA MERLATA`, `ASSIANO`) risultano invalidi per MySQL. Decisione rinviata; oggi il controllo punto-in-poligono va fatto nell'applicazione.
 - Il servizio Free si spegne se inattivo: se la connessione fallisce, riaccenderlo dalla console Aiven.
 
@@ -160,7 +160,7 @@ Note sui dati:
 
 1. Completare l'app (`apps/web/README.md`, elenco "Non c'è ancora"). Account, documento e selfie, SPID/CIE (ambiente di prova), eliminazione dell'account: fatti. Accessibilità: controlli automatici fatti, prove con screen reader da fare (`docs/accessibilita.md`). Poi l'adesione dell'ente a SPID/CIE e le email vere (SMTP).
 2. Sostituire i controlli IA simulati con servizi veri (vedi "Passi per l'IA vera" in `docs/architettura_ia.md`).
-3. Decidere sulla colonna spaziale per `confine` e sul filtro della vista `v_statistiche_utenti`.
+3. Decidere sulla colonna spaziale per `confine`.
 4. Cambiare la password dell'utente `avnadmin` su Aiven (è stata condivisa in chiaro in chat).
 
 ## graphify

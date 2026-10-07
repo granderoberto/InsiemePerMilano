@@ -14,7 +14,7 @@
 - Modelli Django sul dominio: `managed=False`; utente di autenticazione su `utenti` (niente `auth_user`); vedi le 11 regole in `CLAUDE.md`.
 - `quartieri.id` = `ID_NIL`; `municipio` approssimato per 16 NIL su 88.
 - Contenuto bloccato dall'IA: resta non pubblico; revisione accolta = approvato con `esito_moderazione` ancora `bloccato`.
-- Modifiche allo schema: nuova migrazione, non si toccano quelle già applicate. Ultima: `003_mfa_segreto.sql` (2FA TOTP, applicata su `defaultdb` e `la_nostra_citta_test`).
+- Modifiche allo schema: nuova migrazione, non si toccano quelle già applicate. Ultima: `004_statistiche_attivita.sql` (filtro attività nella vista statistiche; prima la 003, 2FA TOTP; applicate su `defaultdb` e `la_nostra_citta_test`).
 
 ## Prossimo passo
 
@@ -27,7 +27,6 @@ Attenzione: il servizio Aiven Free si spegne dopo pochi giorni di inattività e 
 1. **SPID/CIE reali**: il flusso è costruito e provato su ambiente di prova (`apps/spid/README.md`). Per la produzione serve un ente che aderisca (probabilmente la scuola) o un soggetto aggregatore, più chiavi e trust mark veri.
 2. Materiale 3 della traccia (schema a blocchi dell'IA): **fatto** in `docs/architettura_ia.md`. Da fare: sostituire i controlli IA simulati con servizi veri.
 3. Colonna spaziale per `quartieri.confine`: rinviata; 2 poligoni (`CASCINA MERLATA`, `ASSIANO`) invalidi per MySQL.
-4. Filtro per tabella nella vista `v_statistiche_utenti`: da valutare (nuova migrazione).
 5. **Cambiare la password di `avnadmin` su Aiven** (condivisa in chiaro in chat).
 6. `spike/` (317 MB, ignorata da git): tenere o eliminare.
 
