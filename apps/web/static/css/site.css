@@ -286,3 +286,10 @@ table { max-width: 100%; }
 @media (max-width: 640px) { .accesso form.riquadro { padding: 20px; } .riepilogo { grid-template-columns: 1fr 1fr; } }
 .badge { white-space: nowrap; } .tabella td, .tabella th { min-width: 4.5rem; }
 .riquadro .btn { margin: 4px 6px 4px 0; } .riquadro form + form, .riquadro form + p { margin-top: 12px; } .riquadro h3 { margin-top: 1.2em; }
+/* tabelle: non spezzare le parole, scorrere in orizzontale se serve */
+.scorri .tabella:has(th:nth-child(5)) { min-width: 680px; }
+.tabella th, .tabella td { overflow-wrap: normal; word-break: normal; hyphens: manual; }
+.tabella td code { overflow-wrap: anywhere; }
+.scorri { -webkit-overflow-scrolling: touch; }
+[hidden] { display: none !important; }
+@media (min-width: 900px) { .azioni { margin-left: auto; } }
