@@ -18,7 +18,7 @@
 
 ## Prossimo passo
 
-Il sito gira (`apps/web/`, vedi il suo README): portale pubblico, area utente (registrazione con conferma email, recupero password, preferenze), autore (modifica/elimina/revisione), moderazione, amministrazione (utenti, ruoli, sospensioni, registro, statistiche con CSV, categorie, normative). Mancano eliminazione account, l'IA vera (oggi simulata); il servizio SPID/CIE c'è (`apps/spid/`) e funziona sull'ambiente di prova, per l'uso reale serve l'adesione di un ente, oltre allo schema a blocchi dell'IA (materiale 3).
+Il sito gira (`apps/web/`, vedi il suo README): portale pubblico, area utente (registrazione con conferma email, recupero password, preferenze), autore (modifica/elimina/revisione), moderazione, amministrazione (utenti, ruoli, sospensioni, registro, statistiche con CSV, categorie, normative). Mancano l'IA vera (oggi simulata); il servizio SPID/CIE c'è (`apps/spid/`) e funziona sull'ambiente di prova, per l'uso reale serve l'adesione di un ente, oltre allo schema a blocchi dell'IA (materiale 3).
 
 Attenzione: il servizio Aiven Free si spegne dopo pochi giorni di inattività e può cambiare stato; se `nslookup` dell'host dà NXDOMAIN, riaccenderlo dalla console.
 

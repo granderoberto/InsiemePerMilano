@@ -34,6 +34,7 @@
   <p class="piccolo">Seleziona un segnaposto per vedere la segnalazione. Per leggerle in forma di elenco usa la scheda «Elenco».</p>
 {% else %}
   {% if pagina.object_list %}
+  <h2 class="visually-hidden">Elenco delle segnalazioni</h2>
   <ul class="griglia">{% for s in pagina %}{% include "portale/_scheda.html" %}{% endfor %}</ul>
   {% if pagina.paginator.num_pages > 1 %}
   <nav class="paginazione" aria-label="Pagine">

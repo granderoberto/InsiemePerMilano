@@ -107,7 +107,10 @@ class Utente(AbstractBaseUser):
         b = raw.encode()
         if not self.password or len(b) > 72:  # bcrypt non accetta oltre 72 byte: non può essere la password giusta
             return False
-        return bcrypt.checkpw(b, self.password.encode())
+        try:
+            return bcrypt.checkpw(b, self.password.encode())
+        except ValueError:  # hash non valido (es. account eliminato: «!»)
+            return False
 
     def set_password(self, raw):
         self.password = bcrypt.hashpw(raw.encode(), bcrypt.gensalt(12)).decode()

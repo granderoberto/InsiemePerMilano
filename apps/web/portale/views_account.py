@@ -9,10 +9,10 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from core.models import Notifica, PreferenzaNotifica, Utente
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import logout, update_session_auth_hash
 
-from core.services import email as posta, log, token
-from core.services.errori import traduci
+from core.services import email as posta, log, mfa, token, utenti as servizio_utenti
+from core.services.errori import RegolaViolata, traduci
 
 from .forms import CambioPasswordForm, PasswordForm
 
@@ -213,3 +213,33 @@ def cambia_password(request):
         messages.success(request, "Password cambiata. Le altre sessioni aperte sono state chiuse.")
         return redirect("profilo")
     return render(request, "portale/cambia_password.html", {"form": form})
+
+
+@login_required
+def elimina_account(request):
+    """Eliminazione dell'account (par. 4): irreversibile; i contenuti restano in forma anonima."""
+    u = request.user
+    errore = None
+    if request.method == "POST":
+        ok = request.POST.get("conferma", "").strip().upper() == "ELIMINA"
+        if ok and u.metodo_registrazione == "credenziali":
+            ok = u.check_password(request.POST.get("password", ""))
+            if ok and u.mfa_attiva:
+                ok = mfa.verifica_utente(u, request.POST.get("codice", ""))
+        if not ok:
+            errore = "Per confermare scrivi ELIMINA" + (" e inserisci la password" if u.metodo_registrazione == "credenziali" else "") + (" e il codice dell'app" if u.mfa_attiva else "") + "."
+        else:
+            vecchia_email, nome = u.email, u.nome
+            try:
+                servizio_utenti.elimina_account(u)
+            except RegolaViolata as e:
+                errore = str(e)
+            else:
+                posta.invia(request, vecchia_email, "Il tuo account è stato eliminato", "Account eliminato",
+                            [f"Ciao {nome}, abbiamo eliminato il tuo account e i tuoi dati personali.",
+                             "Le segnalazioni, i commenti e i sostegni che hai inserito restano visibili in forma anonima, come indicato nell'informativa."],
+                            nota="Se non sei stato tu, scrivici subito.")
+                logout(request)
+                messages.success(request, "Il tuo account è stato eliminato. Grazie per aver partecipato.")
+                return redirect("home")
+    return render(request, "portale/elimina_account.html", {"errore": errore})

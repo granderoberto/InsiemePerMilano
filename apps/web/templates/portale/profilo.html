@@ -15,6 +15,7 @@
       <form method="post" action="{% url 'mfa_disattiva' %}">{% csrf_token %}<div class="campo"><label for="m-pw">Per disattivarla: password</label><input id="m-pw" name="password" type="password" autocomplete="current-password" required></div>
         <div class="campo"><label for="m-cod">e codice dell'app</label><input id="m-cod" name="codice" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required></div><button class="btn btn-pericolo btn-piccolo" type="submit">Disattiva</button></form>
     {% else %}<p class="piccolo">Aggiunge un codice monouso dell'app di autenticazione ogni volta che accedi.</p><a class="btn btn-primario btn-piccolo" href="{% url 'mfa_attiva' %}">Attiva</a>{% endif %}
+    <p style="margin-top:12px"><a href="{% url 'elimina_account' %}">Elimina il mio account</a></p>
     <p style="margin-top:12px"><a href="{% url 'preferenze_notifica' %}">Scegli quali notifiche ricevere</a></p>
     <form method="post">{% csrf_token %}
       <div class="campo"><label for="quartiere">Quartiere di residenza</label><select id="quartiere" name="quartiere"><option value="">— nessuno —</option>{% for q in quartieri %}<option value="{{ q.id }}" {% if user.quartiere_id == q.id %}selected{% endif %}>{{ q.nome_leggibile }}</option>{% endfor %}</select></div>

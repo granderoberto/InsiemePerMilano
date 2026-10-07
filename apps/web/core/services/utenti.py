@@ -1,6 +1,9 @@
 """Sospensione, riattivazione, cambio ruolo e modifica dati degli utenti (con motivo e log)."""
 from datetime import timedelta
 
+import hashlib
+from datetime import date
+
 from django.db import DatabaseError, transaction
 from django.utils import timezone
 
@@ -92,3 +95,31 @@ def modifica_dati(utente: Utente, da: Utente, nuovi: dict, motivo: str):
         raise traduci(e) from e
     dopo = {c: str(getattr(utente, c + "_id" if c == "quartiere" else c)) for c in campi}
     log.registra(da, "modifica", "utenti", utente.id, prima, {**dopo, "motivo": motivo.strip()})
+
+
+def elimina_account(utente: Utente):
+    """Eliminazione dell'account (par. 4): si rimuovono i dati personali; segnalazioni, commenti, sostegni e registro delle
+    attività restano, in forma anonima, così non si altera la tracciabilità né la classifica.
+    Dell'utente restano: id, ruolo, anno di nascita (1° gennaio: la colonna è obbligatoria), metodo di accesso e date."""
+    if utente.stato_account == "eliminato":
+        raise RegolaViolata("L'account è già stato eliminato.")
+    if utente.ruolo == "amministratore" and not Utente.objects.filter(ruolo="amministratore", stato_account="attivo").exclude(pk=utente.pk).exists():
+        raise RegolaViolata("Sei l'ultimo amministratore: nomina prima un altro amministratore, poi potrai eliminare l'account.")
+    adesso = timezone.now()
+    with transaction.atomic():
+        utente.nome, utente.cognome = "Utente", "eliminato"
+        utente.email = f"eliminato-{utente.id}@anonimo.invalid"
+        utente.password = "!" if utente.metodo_registrazione == "credenziali" else None      # il vincolo del DB vuole la password solo con le credenziali
+        utente.codice_fiscale_hash = (hashlib.sha256(f"eliminato-{utente.id}".encode()).hexdigest()
+                                      if utente.metodo_registrazione in ("spid", "cie") else None)  # il vincolo vuole un valore per SPID/CIE
+        utente.data_nascita = date(utente.data_nascita.year, 1, 1)
+        utente.quartiere = None
+        utente.profilo_pubblico = False
+        utente.mfa_attiva, utente.mfa_segreto = False, None
+        utente.tentativi_falliti, utente.bloccato_fino = 0, None
+        utente.stato_account, utente.eliminato_il = "eliminato", adesso
+        utente.save(update_fields=["nome", "cognome", "email", "password", "codice_fiscale_hash", "data_nascita", "quartiere", "profilo_pubblico",
+                                   "mfa_attiva", "mfa_segreto", "tentativi_falliti", "bloccato_fino", "stato_account", "eliminato_il"])
+        utente.notifiche.all().delete()      # le notifiche sono personali: non si conservano
+        utente.preferenze.all().delete()
+    log.registra(utente, "eliminazione", "utenti", utente.id, {"stato_account": "attivo"}, {"stato_account": "eliminato"})  # senza dati personali

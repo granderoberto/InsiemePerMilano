@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% block titolo %}Elimina l'account{% endblock %}
+{% block contenuto %}<div class="accesso"><p><a href="{% url 'profilo' %}">← Profilo</a></p><h1>Elimina l'account</h1>
+{% if errore %}<p class="avviso avviso-error" role="alert">{{ errore }}</p>{% endif %}
+<div class="riquadro"><h2 style="font-size:1.05rem">Cosa succede</h2>
+<ul><li><strong>Si cancellano</strong> i tuoi dati personali: nome, cognome, email, data di nascita, quartiere, password, impronta del codice fiscale e le notifiche.</li>
+<li><strong>Restano, in forma anonima</strong> («Utente eliminato»): le tue segnalazioni, i commenti, i sostegni e il registro delle attività. Così non si altera la tracciabilità né la classifica.</li>
+<li><strong>Non si può annullare.</strong> Potrai registrarti di nuovo, ma come un nuovo utente.</li></ul></div>
+<form method="post" class="riquadro" novalidate>{% csrf_token %}
+<div class="campo"><label for="conferma">Per confermare scrivi ELIMINA</label><input id="conferma" name="conferma" autocomplete="off" required></div>
+{% if user.metodo_registrazione == 'credenziali' %}<div class="campo"><label for="password">La tua password</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+{% if user.mfa_attiva %}<div class="campo"><label for="codice">Codice dell'app di autenticazione</label><input id="codice" name="codice" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required></div>{% endif %}{% endif %}
+<button class="btn btn-pericolo" type="submit">Elimina definitivamente il mio account</button></form></div>{% endblock %}
