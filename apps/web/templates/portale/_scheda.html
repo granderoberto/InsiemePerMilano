@@ -1,15 +1,17 @@
 {% load portale_extra %}
 <li class="scheda">
-  {% if s.copertina_lista %}<img src="{{ s.copertina_lista.0.percorso|url_media }}" alt="Foto della segnalazione: {{ s.titolo }}" loading="lazy" width="640" height="400">
-  {% else %}<img src="/media/demo/0.jpg" alt="" loading="lazy" width="640" height="400">{% endif %}
-  <div class="scheda-corpo">
+  <div class="scheda-img">
+    {% if s.copertina_lista %}<img src="{{ s.copertina_lista.0.percorso|url_media }}" alt="Foto della segnalazione: {{ s.titolo }}" loading="lazy" width="640" height="400">
+    {% else %}<img src="/media/demo/0.jpg" alt="" loading="lazy" width="640" height="400">{% endif %}
     <ul class="etichette" aria-label="Tipo e stato">
       <li><span class="badge badge-{{ s.tipo }}">{% if s.tipo == 'proposta' %}Proposta{% else %}Problema{% endif %}</span></li>
       <li><span class="badge badge-{{ s.stato_id }}">{{ s.stato.nome }}</span></li>
     </ul>
+  </div>
+  <div class="scheda-corpo">
     <h3><a href="{% url 'dettaglio' s.id %}">{{ s.titolo }}</a></h3>
-    <ul class="meta"><li>{{ s.quartiere.nome_leggibile }}</li><li><time datetime="{{ s.creata_il|date:'c' }}">{{ s.creata_il|date:"j M Y" }}</time></li></ul>
+    <ul class="meta"><li><svg class="ico" aria-hidden="true"><use href="#i-luogo"/></svg>{{ s.quartiere.nome_leggibile }}</li><li><svg class="ico" aria-hidden="true"><use href="#i-data"/></svg><time datetime="{{ s.creata_il|date:'c' }}">{{ s.creata_il|date:"j M Y" }}</time></li></ul>
     {% if s.cat_lista %}<ul class="etichette" aria-label="Categorie">{% for c in s.cat_lista %}<li class="etichetta">{{ c.categoria.nome }}</li>{% endfor %}</ul>{% endif %}
-    <p class="scheda-piede"><span>👍 {{ s.n_sostegni }} <span class="piccolo">sostegni</span></span>{% if s.n_commenti is not None %}<span>💬 {{ s.n_commenti }} <span class="piccolo">commenti</span></span>{% endif %}</p>
+    <p class="scheda-piede"><span><svg class="ico" aria-hidden="true"><use href="#i-pollice"/></svg>{{ s.n_sostegni }} <span class="piccolo">sostegni</span></span>{% if s.n_commenti is not None %}<span><svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>{{ s.n_commenti }} <span class="piccolo">commenti</span></span>{% endif %}</p>
   </div>
 </li>

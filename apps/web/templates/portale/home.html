@@ -2,8 +2,29 @@
 {% block titolo %}Segnalazioni dei cittadini{% endblock %}
 {% block head %}{% if vista == 'mappa' %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endif %}{% endblock %}
 {% block contenuto %}
-<h1>Le segnalazioni dei cittadini</h1>
-<p class="piccolo">Problemi e proposte sui quartieri di Milano, sostenuti dalla community e presentati ai candidati Sindaco.</p>
+{% if not querystring and pagina.number == 1 and vista == 'elenco' %}
+<section class="hero" aria-labelledby="t-hero">
+  <span class="sopra">Insieme per Milano</span>
+  <h1 id="t-hero">La nostra città, il nostro futuro</h1>
+  <p>Segnala un problema o proponi un’idea per il tuo quartiere. La community la sostiene, i moderatori la fanno avanzare fino ai candidati Sindaco.</p>
+  <div class="hero-azioni">
+    {% if user.is_authenticated %}<a class="btn btn-hero btn-grande" href="{% url 'nuova' %}"><svg class="ico" aria-hidden="true"><use href="#i-piu"/></svg> Nuova segnalazione</a>
+    {% else %}<a class="btn btn-hero btn-grande" href="{% url 'registrati' %}">Unisciti a noi <svg class="ico" aria-hidden="true"><use href="#i-freccia"/></svg></a>
+    <a class="btn btn-hero-lieve btn-grande" href="{% url 'accedi' %}">Accedi</a>{% endif %}
+    <a class="btn btn-hero-lieve btn-grande" href="?vista=mappa">Esplora la mappa</a>
+  </div>
+</section>
+<h2 class="visually-hidden">Come funziona</h2>
+<ol class="passi">
+  <li><strong>Segnala o proponi</strong><span>Descrivi il problema, scegli il luogo sulla mappa e aggiungi foto o video.</span></li>
+  <li><strong>La community sostiene</strong><span>Altri cittadini sostengono e commentano: le idee più sentite emergono.</span></li>
+  <li><strong>Arriva ai candidati</strong><span>I moderatori verificano e presentano le segnalazioni ai candidati Sindaco.</span></li>
+</ol>
+{% else %}
+<div class="intestazione"><h1>Le segnalazioni dei cittadini</h1>
+<p>Problemi e proposte sui quartieri di Milano, sostenuti dalla community e presentati ai candidati Sindaco.</p></div>
+{% endif %}
+<div class="titolo-sezione"><h2>Le segnalazioni</h2></div>
 
 <form class="filtri" method="get" role="search" aria-label="Filtra le segnalazioni">
   <input type="hidden" name="vista" value="{{ vista }}">
@@ -18,7 +39,7 @@
     <select id="tipo" name="tipo"><option value="">Tutti</option><option value="problema" {% if filtri.tipo == 'problema' %}selected{% endif %}>Problemi</option><option value="proposta" {% if filtri.tipo == 'proposta' %}selected{% endif %}>Proposte</option></select></div>
   <div><label for="ordine">Ordina per</label>
     <select id="ordine" name="ordine"><option value="recenti">Più recenti</option><option value="sostegni" {% if filtri.ordine == 'sostegni' %}selected{% endif %}>Più sostenute</option></select></div>
-  <div><button class="btn btn-primario" type="submit">Applica filtri</button> <a class="btn btn-lieve" href="{% url 'home' %}?vista={{ vista }}">Azzera</a></div>
+  <div><button class="btn btn-primario" type="submit"><svg class="ico" aria-hidden="true"><use href="#i-cerca"/></svg> Applica filtri</button> <a class="btn btn-lieve" href="{% url 'home' %}?vista={{ vista }}">Azzera</a></div>
 </form>
 
 <div class="barra">
@@ -34,7 +55,6 @@
   <p class="piccolo">Seleziona un segnaposto per vedere la segnalazione. Per leggerle in forma di elenco usa la scheda «Elenco».</p>
 {% else %}
   {% if pagina.object_list %}
-  <h2 class="visually-hidden">Elenco delle segnalazioni</h2>
   <ul class="griglia">{% for s in pagina %}{% include "portale/_scheda.html" %}{% endfor %}</ul>
   {% if pagina.paginator.num_pages > 1 %}
   <nav class="paginazione" aria-label="Pagine">

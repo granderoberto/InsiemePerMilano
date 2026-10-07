@@ -9,10 +9,22 @@
   {% block head %}{% endblock %}
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-pollice" viewBox="0 0 24 24"><path d="M7 11v9H4a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3zm0 0 4-8a2.5 2.5 0 0 1 2.5 2.5V9H19a2 2 0 0 1 2 2.3l-1 6.5A2 2 0 0 1 18 19.5H7"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></symbol>
+<symbol id="i-luogo" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+<symbol id="i-data" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></symbol>
+<symbol id="i-piu" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-campana" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"/></symbol>
+<symbol id="i-utente" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20.5a8 8 0 0 1 16 0"/></symbol>
+<symbol id="i-cerca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></symbol>
+<symbol id="i-freccia" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-scudo" viewBox="0 0 24 24"><path d="M12 3 5 6v5.5c0 4.6 3 8 7 9.5 4-1.5 7-4.9 7-9.5V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+</defs></svg>
 <a class="salta" href="#contenuto">Vai al contenuto</a>
 <header class="testata">
   <div class="contenitore testata-riga">
-    <a class="marchio" href="{% url 'home' %}"><span class="marchio-logo" aria-hidden="true">M</span><span><strong>La Nostra Città</strong><small>Insieme per Milano</small></span></a>
+    <a class="marchio" href="{% url 'home' %}"><span class="marchio-logo" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5l1.1 3.1V8h-2.2V4.6zM5.5 7l.9 2.4V13H4.6V9.4zm13 0 .9 2.4V13h-1.8V9.4zM3 14h18v2H3zM4.5 17h15v4.5h-15zm5 1.7v2.8h1.8v-2.8zm3.2 0v2.8h1.8v-2.8z"/></svg></span><span><strong>La Nostra Città</strong><small>Insieme per Milano</small></span></a>
     <nav aria-label="Principale" class="nav">
       <a href="{% url 'home' %}" {% if request.resolver_match.url_name == 'home' %}aria-current="page"{% endif %}>Segnalazioni</a>
       <a href="{% url 'statistiche' %}" {% if request.resolver_match.url_name == 'statistiche' %}aria-current="page"{% endif %}>Statistiche</a>
@@ -21,7 +33,7 @@
     </nav>
     <div class="azioni">
       {% if user.is_authenticated %}
-        {% if user.puo_interagire %}<a class="btn btn-primario" href="{% url 'nuova' %}"><span aria-hidden="true">＋</span> Nuova segnalazione</a>{% endif %}
+        {% if user.puo_interagire %}<a class="btn btn-primario" href="{% url 'nuova' %}"><svg class="ico" aria-hidden="true"><use href="#i-piu"/></svg> Nuova segnalazione</a>{% endif %}
         <a class="btn btn-lieve" href="{% url 'notifiche' %}">Notifiche{% if notifiche_non_lette %} <span class="pallino" aria-label="{{ notifiche_non_lette }} non lette">{{ notifiche_non_lette }}</span>{% endif %}</a>
         <a class="btn btn-lieve" href="{% url 'profilo' %}">{{ user.nome }}</a>
         <form method="post" action="{% url 'esci' %}">{% csrf_token %}<button class="btn btn-lieve" type="submit">Esci</button></form>
@@ -48,10 +60,16 @@
 </main>
 
 <footer class="piede">
-  <div class="contenitore">
-    <p><strong>La Nostra Città, Il Nostro Futuro</strong> · Progetto d'esame per il comitato «Insieme per Milano».</p>
-    <p class="piccolo"><a href="{% url 'normative' %}">Normative (privacy, termini d'uso, cookie)</a>.</p>
+  <div class="contenitore piede-griglia">
+    <div>
+    <h2>La piattaforma</h2>
+    <p><strong>La Nostra Città, Il Nostro Futuro</strong><br>Progetto d'esame per il comitato «Insieme per Milano».</p>
+    <p class="piccolo"><a href="{% url 'normative' %}">Normative (privacy, termini d'uso, cookie)</a></p>
+    </div>
+    <div>
+    <h2>Nota</h2>
     <p class="piccolo">Versione dimostrativa: verifica del documento e controlli di intelligenza artificiale sono <strong>simulati</strong>{% if SPID_AMBIENTE_PROVA %}; SPID/CIE usa un gestore di identità di <strong>prova</strong>{% endif %}. Dati e persone sono fittizi. Confini dei quartieri: Comune di Milano, CC BY.</p>
+    </div>
   </div>
 </footer>
 <script>
