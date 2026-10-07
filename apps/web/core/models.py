@@ -347,6 +347,12 @@ class VerificaIdentita(models.Model):
     revisionata_il = models.DateTimeField(blank=True, null=True)
     creata_il = models.DateTimeField(db_default=Now())
 
+    @property
+    def controlli(self):
+        """[(nome, superato)] dei cinque controlli, per le schermate."""
+        return [("Lettura OCR", self.ok_lettura_ocr), ("Dati", self.ok_corrispondenza_dati), ("Validità", self.ok_validita),
+                ("Autenticità", self.ok_autenticita), ("Volto", self.ok_confronto_volto)]
+
     class Meta:
         managed = False
         db_table = "verifiche_identita"

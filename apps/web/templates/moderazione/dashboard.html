@@ -1,11 +1,17 @@
 {% extends "base.html" %}{% block titolo %}Moderazione{% endblock %}
 {% block contenuto %}
-<h1>Area moderatore</h1>
-<nav class="piccolo" aria-label="Code di lavoro"><a href="#richieste">Richieste di revisione ({{ richieste|length }})</a> · <a href="#attesa">In attesa ({{ in_attesa|length }})</a> · <a href="#segnalati">Contenuti segnalati ({{ segnalate|length }} + {{ commenti|length }})</a> · <a href="#presentare">Da presentare ({{ da_presentare|length }})</a> · <a href="#verifiche">Verifiche da rivedere ({{ verifiche|length }})</a></nav>
+<div class="intestazione"><h1>Area moderatore</h1><p>Le code di lavoro: l'IA propone, tu decidi.</p></div>
+<nav class="code" aria-label="Code di lavoro">
+  <a href="#richieste"><strong>{{ richieste|length }}</strong><span>Richieste di revisione</span></a>
+  <a href="#attesa"><strong>{{ in_attesa|length }}</strong><span>In attesa</span></a>
+  <a href="#segnalati"><strong>{{ segnalate|length }} + {{ commenti|length }}</strong><span>Contenuti segnalati</span></a>
+  <a href="#presentare"><strong>{{ da_presentare|length }}</strong><span>Da presentare</span></a>
+  <a href="#verifiche"><strong>{{ verifiche|length }}</strong><span>Verifiche da rivedere</span></a>
+</nav>
 
 <section id="richieste" class="riquadro"><h2>Richieste di revisione</h2>
-{% for r in richieste %}<div class="commento"><p><strong>{{ r.richiedente.nome_pubblico }}</strong> chiede la revisione di
-{% if r.segnalazione %}una segnalazione bloccata dall'IA: <a href="{% url 'moderazione_segnalazione' r.segnalazione_id %}">{{ r.segnalazione.titolo }}</a>{% else %}una verifica d'identità rifiutata (punteggio {{ r.verifica.punteggio }}, {{ r.verifica.utente.email }}){% endif %}</p>
+{% for r in richieste %}<div class="voce"><p><strong>{{ r.richiedente.nome_pubblico }}</strong> chiede la revisione di
+{% if r.segnalazione %}una segnalazione bloccata dall'IA: <a href="{% url 'moderazione_segnalazione' r.segnalazione_id %}">{{ r.segnalazione.titolo }}</a>{% else %}una verifica d'identità rifiutata{% if r.verifica %} (punteggio {{ r.verifica.punteggio }}, {{ r.verifica.utente.email }}){% endif %}{% endif %}</p>
 <p class="piccolo">«{{ r.motivo }}» · {{ r.creata_il|date:"j M, H:i" }}</p>
 <form method="post" action="{% url 'decidi_richiesta' r.id %}">{% csrf_token %}<label for="ris{{ r.id }}">Risposta per l'utente</label><input id="ris{{ r.id }}" name="risposta" required>
 <button class="btn btn-primario btn-piccolo" name="esito" value="accolta" type="submit">Accogli</button> <button class="btn btn-pericolo btn-piccolo" name="esito" value="respinta" type="submit">Respingi</button></form></div>{% empty %}<p class="piccolo">Nessuna richiesta aperta.</p>{% endfor %}</section>
@@ -22,10 +28,10 @@
 <h3>Segnalazioni</h3>
 {% for s in segnalate %}<p><a href="{% url 'moderazione_segnalazione' s.id %}">{{ s.titolo }}</a> — <span class="badge badge-{% if s.esito_moderazione == 'bloccato' %}4{% else %}2{% endif %}">{{ s.esito_moderazione }}</span> <span class="piccolo">punteggio {{ s.punteggio_moderazione }} · {{ s.stato.nome }}</span></p>{% empty %}<p class="piccolo">Nessuna.</p>{% endfor %}
 <h3>Commenti (ultimi 30)</h3>
-{% for c in commenti %}<div class="commento"><header><strong>{{ c.autore.nome_pubblico }}</strong> su <a href="{% url 'dettaglio' c.segnalazione_id %}#commento-{{ c.id }}">{{ c.segnalazione.titolo }}</a> <span class="badge badge-2">{{ c.esito_moderazione }}</span>{% if c.nascosto %} <span class="badge badge-4">nascosto</span>{% endif %}</header>
+{% for c in commenti %}<div class="voce"><header><strong>{{ c.autore.nome_pubblico }}</strong> su <a href="{% url 'dettaglio' c.segnalazione_id %}#commento-{{ c.id }}">{{ c.segnalazione.titolo }}</a> <span class="badge badge-2">{{ c.esito_moderazione }}</span>{% if c.nascosto %} <span class="badge badge-4">nascosto</span>{% endif %}</header>
 <p>{{ c.testo }}</p>
 {% if c.nascosto %}<form class="in-linea" method="post" action="{% url 'azione_commento' c.id 'ripristina' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Ripristina</button></form>
-{% else %}<form class="in-linea" method="post" action="{% url 'azione_commento' c.id 'nascondi' %}">{% csrf_token %}<input name="motivo" aria-label="Motivo" placeholder="Motivo" style="width:220px;min-height:34px"> <button class="btn btn-pericolo btn-piccolo" type="submit">Nascondi</button></form>
+{% else %}<form class="in-linea" method="post" action="{% url 'azione_commento' c.id 'nascondi' %}">{% csrf_token %}<input name="motivo" aria-label="Motivo" placeholder="Motivo" class="campo-corto"> <button class="btn btn-pericolo btn-piccolo" type="submit">Nascondi</button></form>
 <form class="in-linea" method="post" action="{% url 'azione_commento' c.id 'ripristina' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Segna come a posto</button></form>{% endif %}</div>{% empty %}<p class="piccolo">Nessuno.</p>{% endfor %}</section>
 
 <section id="presentare" class="riquadro"><h2>Approvate: da presentare ai candidati</h2>
@@ -33,8 +39,8 @@
 {% for s in da_presentare|slice:":15" %}<p><strong>{{ s.n_sostegni }}</strong> sostegni · <a href="{% url 'moderazione_segnalazione' s.id %}">{{ s.titolo }}</a> <span class="piccolo">{{ s.quartiere.nome_leggibile }}</span></p>{% empty %}<p class="piccolo">Nessuna.</p>{% endfor %}</section>
 
 <section id="verifiche" class="riquadro"><h2>Verifiche d'identità da rivedere</h2>
-{% for v in verifiche %}<div class="commento"><p><strong>{{ v.utente.nome }} {{ v.utente.cognome }}</strong> · {{ v.utente.email }} · punteggio IA <strong>{{ v.punteggio }}</strong> (tentativo {{ v.tentativo }})</p>
-<ul class="meta"><li>Lettura OCR: {{ v.ok_lettura_ocr|yesno:"✓,✗" }}</li><li>Dati: {{ v.ok_corrispondenza_dati|yesno:"✓,✗" }}</li><li>Validità: {{ v.ok_validita|yesno:"✓,✗" }}</li><li>Autenticità: {{ v.ok_autenticita|yesno:"✓,✗" }}</li><li>Volto: {{ v.ok_confronto_volto|yesno:"✓,✗" }}</li></ul>{% if v.motivo %}<p class="piccolo">{{ v.motivo }}</p>{% endif %}
+{% for v in verifiche %}<div class="voce"><p><strong>{{ v.utente.nome }} {{ v.utente.cognome }}</strong> · {{ v.utente.email }} · punteggio IA <strong>{{ v.punteggio }}</strong> (tentativo {{ v.tentativo }})</p>
+<ul class="controlli" aria-label="Esito dei controlli">{% for nome, ok in v.controlli %}<li class="{{ ok|yesno:'si,no' }}"><span aria-hidden="true">{{ ok|yesno:"✓,✗" }}</span> {{ nome }}<span class="visually-hidden">: {{ ok|yesno:"superato,non superato" }}</span></li>{% endfor %}</ul>{% if v.motivo %}<p class="piccolo">{{ v.motivo }}</p>{% endif %}
 <form method="post" action="{% url 'decidi_verifica' v.id %}">{% csrf_token %}<label for="m{{ v.id }}">Motivo della decisione</label><input id="m{{ v.id }}" name="motivo" required>
 <button class="btn btn-primario btn-piccolo" name="esito" value="approvata" type="submit">Conferma: approvata</button> <button class="btn btn-pericolo btn-piccolo" name="esito" value="rifiutata" type="submit">Rifiuta</button></form></div>{% empty %}<p class="piccolo">Nessuna verifica in coda.</p>{% endfor %}</section>
 {% endblock %}

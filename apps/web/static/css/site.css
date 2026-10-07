@@ -246,3 +246,43 @@ table { max-width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } .scheda:hover { transform: none; } .scheda:hover .scheda-img img { transform: none; } }
 .riquadro .meta { margin-bottom: 16px; }
+
+/* moderazione e amministrazione */
+.code { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); margin-bottom: 26px; }
+.code a { display: flex; flex-direction: column; gap: 2px; padding: 16px 18px; background: var(--superficie); border: 1px solid var(--bordo); border-radius: var(--raggio); box-shadow: var(--ombra-s);
+  text-decoration: none; color: var(--testo); transition: transform .15s, box-shadow .15s, border-color .15s; }
+.code a:hover { transform: translateY(-2px); box-shadow: var(--ombra); border-color: var(--primario); }
+.code strong { font-family: var(--font-titoli); font-size: 1.9rem; line-height: 1.1; color: var(--primario); }
+.code span { color: var(--attenuato); font-size: .88rem; font-weight: 600; }
+.riquadro > h2 { padding-bottom: 12px; margin-bottom: 14px; border-bottom: 1px solid var(--bordo); font-size: 1.3rem; }
+.voce { padding: 16px 18px; margin: 0 0 12px; background: var(--superficie-2); border: 1px solid var(--bordo); border-radius: 12px; }
+.voce > :last-child { margin-bottom: 0; }
+.voce header { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; margin-bottom: 6px; }
+.voce form { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-top: 10px; }
+.voce form label { flex-basis: 100%; margin: 0; font-size: .85rem; }
+.voce form input { flex: 1 1 220px; }
+.campo-corto { width: 220px; max-width: 100%; min-height: 36px; padding-block: 6px; }
+.controlli { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 8px 0; }
+.controlli li { padding: 4px 12px; border-radius: 99px; font-size: .85rem; font-weight: 650; border: 1px solid currentColor; }
+.controlli .si { color: var(--ok); background: var(--ok-tenue); } .controlli .no { color: var(--errore); background: var(--errore-tenue); }
+.schede-largo { display: flex; flex-wrap: wrap; margin-bottom: 22px; }
+.riepilogo { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.riepilogo li { padding: 14px 16px; background: var(--superficie-2); border: 1px solid var(--bordo); border-radius: 12px; font-size: .9rem; color: var(--attenuato); font-weight: 600; }
+.riepilogo .contatore { display: block; font-size: 2.1rem; }
+.due-colonne .riquadro .contatore { font-size: 2.6rem; display: inline-block; margin-right: 6px; }
+
+/* moduli */
+.accesso .riquadro, form.accesso { position: relative; }
+.accesso > h1, .accesso-largo > h1 { text-align: left; }
+.accesso-largo { max-width: 780px; }
+.spazio-sotto { margin-bottom: 12px; }
+.h-piccolo { font-size: 1.1rem; }
+.selfie-box { padding: 16px; border: 2px dashed var(--bordo); border-radius: 14px; background: var(--superficie-2); }
+.selfie-media { display: block; width: 100%; max-width: 320px; border-radius: 12px; background: #000; margin-bottom: 10px; }
+.etichetta-gruppo { display: block; margin-bottom: 4px; }
+.accesso form.riquadro { padding: 28px 30px; box-shadow: var(--ombra); }
+.accesso form.riquadro > button[type=submit].btn-primario { width: 100%; min-height: 48px; margin-top: 4px; }
+.accesso form.riquadro > button[type=submit].btn-primario + a { display: block; text-align: center; margin-top: 14px; }
+@media (max-width: 640px) { .accesso form.riquadro { padding: 20px; } .riepilogo { grid-template-columns: 1fr 1fr; } }
+.badge { white-space: nowrap; } .tabella td, .tabella th { min-width: 4.5rem; }
+.riquadro .btn { margin: 4px 6px 4px 0; } .riquadro form + form, .riquadro form + p { margin-top: 12px; } .riquadro h3 { margin-top: 1.2em; }

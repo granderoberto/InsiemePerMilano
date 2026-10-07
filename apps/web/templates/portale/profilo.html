@@ -22,11 +22,11 @@
       <div class="campo"><label class="spunta"><input type="checkbox" name="profilo_pubblico" {% if user.profilo_pubblico %}checked{% endif %}> <span>Profilo pubblico: compaio nelle classifiche con nome e iniziale del cognome.</span></label></div>
       <button class="btn btn-primario" type="submit">Salva</button></form></section>
   <section class="riquadro"><h2>Le mie statistiche</h2>
-    <ul class="barre" style="grid-template-columns:1fr 1fr">
-      <li style="display:block"><span class="contatore">{{ n_segnalazioni }}</span><br>segnalazioni</li>
-      <li style="display:block"><span class="contatore">{{ n_sostegni_ricevuti }}</span><br>sostegni ricevuti</li>
-      <li style="display:block"><span class="contatore">{{ n_commenti }}</span><br>commenti scritti</li>
-      <li style="display:block"><span class="contatore">{{ n_sostegni_dati }}</span><br>sostegni dati</li></ul></section>
+    <ul class="riepilogo">
+      <li><span class="contatore">{{ n_segnalazioni }}</span>segnalazioni</li>
+      <li><span class="contatore">{{ n_sostegni_ricevuti }}</span>sostegni ricevuti</li>
+      <li><span class="contatore">{{ n_commenti }}</span>commenti scritti</li>
+      <li><span class="contatore">{{ n_sostegni_dati }}</span>sostegni dati</li></ul></section>
 </div>
 {% if verifica_rifiutata %}<section class="riquadro"><h2>Verifica dell'identità non superata</h2>
   <p>La verifica del tuo documento è stata rifiutata{% if verifica_rifiutata.motivo %}: {{ verifica_rifiutata.motivo }}{% endif %}.</p>
