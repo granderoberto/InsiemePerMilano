@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load static portale_extra %}
 {% block titolo %}Segnalazioni dei cittadini{% endblock %}
-{% block head %}{% if vista == 'mappa' %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endif %}{% endblock %}
+{% block head %}{% if vista == 'mappa' %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">{% endif %}{% endblock %}
 {% block contenuto %}
 {% if not querystring and pagina.number == 1 and vista == 'elenco' %}
 <section class="hero" aria-labelledby="t-hero">
@@ -52,6 +52,7 @@
 
 {% if vista == 'mappa' %}
   <div id="mappa" class="mappa" role="region" aria-label="Mappa interattiva delle segnalazioni" data-url="{% url 'geojson' %}?{{ querystring }}"></div>
+  <p class="piccolo" id="mappa-conteggio" role="status"></p>
   <p class="piccolo">Seleziona un segnaposto per vedere la segnalazione. Per leggerle in forma di elenco usa la scheda «Elenco».</p>
 {% else %}
   {% if pagina.object_list %}
@@ -67,4 +68,5 @@
 {% endblock %}
 {% block scripts %}{% if vista == 'mappa' %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="{% static 'js/mappa.js' %}"></script>{% endif %}{% endblock %}
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="{% static 'js/mappa.js' %}?v={{ versione_css }}\"></script>{% endif %}{% endblock %}

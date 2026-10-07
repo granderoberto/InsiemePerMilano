@@ -46,5 +46,6 @@
 {% block scripts %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>window.URL_SUGGERISCI = "{% url 'suggerisci_categorie' %}"; window.URL_QUARTIERE = "{% url 'quartiere_da_posizione' %}"; window.URL_SIMILI = "{% url 'segnalazioni_simili' %}"; window.ESCLUDI_ID = {% if modifica %}{{ s.id }}{% else %}null{% endif %};</script>
-<script src="{% static 'js/posizione.js' %}"></script>
+<script src="{% static 'js/posizione.js' %}?v={{ versione_css }}\"></script>
+<script src="{% static 'js/modulo.js' %}?v={{ versione_css }}\"></script>
 {% endblock %}

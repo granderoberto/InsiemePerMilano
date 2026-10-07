@@ -293,3 +293,60 @@ table { max-width: 100%; }
 .scorri { -webkit-overflow-scrolling: touch; }
 [hidden] { display: none !important; }
 @media (min-width: 900px) { .azioni { margin-left: auto; } }
+
+/* mappa */
+.mappa { position: relative; background: var(--superficie-2); }
+.leaflet-container { font: inherit; }
+.pin-contenitore { background: none; border: 0; }
+.pin { display: block; width: 30px; height: 30px; margin: 0 auto; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid #fff; box-shadow: 0 3px 8px rgb(0 0 0 / .4); transition: transform .15s; position: relative; }
+.pin::after { content: ""; position: absolute; inset: 7px; border-radius: 50%; background: #fff; }
+.pin-problema { background: #b8420b; } .pin-proposta { background: #0d4f8b; }
+.leaflet-marker-icon:hover .pin, .leaflet-marker-icon:focus .pin { transform: rotate(-45deg) scale(1.15); }
+.grappolo { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: var(--hero-2); color: #fff; font-weight: 800; border: 4px solid rgb(255 255 255 / .85); box-shadow: 0 3px 10px rgb(0 0 0 / .35); }
+.legenda-mappa { display: flex; gap: 14px; padding: 8px 14px; border-radius: 99px; background: var(--superficie); color: var(--testo); box-shadow: var(--ombra); font-size: .85rem; font-weight: 650; }
+.legenda-mappa span { display: inline-flex; align-items: center; gap: 6px; }
+.pin-mini { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 2px solid #fff; box-shadow: 0 0 0 1px rgb(0 0 0 / .25); }
+.leaflet-popup-content-wrapper { border-radius: 14px; background: var(--superficie); color: var(--testo); box-shadow: var(--ombra-l); }
+.leaflet-popup-tip { background: var(--superficie); }
+.leaflet-popup-content { margin: 14px 16px; font-family: var(--font); line-height: 1.4; }
+.popup-segnalazione { display: grid; gap: 6px; }
+.popup-segnalazione a { font-family: var(--font-titoli); font-size: 1.05rem; font-weight: 700; color: var(--testo); text-decoration: none; }
+.popup-segnalazione a:hover { color: var(--primario); text-decoration: underline; }
+.popup-tag { font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.popup-problema { color: var(--accento); } .popup-proposta { color: var(--primario); }
+.popup-info { color: var(--attenuato); font-size: .85rem; }
+.leaflet-bar a { color: #1c2630; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--attenuato); }
+@media (prefers-color-scheme: dark) {
+  .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.8); }
+  .leaflet-container { background: #14202b; }
+  .pin-proposta, .pin-mini.pin-proposta { background: #3b8fd9; } .pin-problema, .pin-mini.pin-problema { background: #e0742b; }
+}
+
+/* modulo «Nuova segnalazione» */
+#form-segnalazione { counter-reset: passo-modulo; }
+#form-segnalazione > fieldset { position: relative; padding-top: 22px; }
+#form-segnalazione > fieldset > legend { display: flex; align-items: center; gap: 10px; }
+#form-segnalazione > fieldset > legend::before { counter-increment: passo-modulo; content: counter(passo-modulo); display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px;
+  background: var(--primario); color: var(--su-primario); font: 800 .9rem var(--font); }
+#form-segnalazione #id_tipo, #form-segnalazione #id_categorie { display: flex; flex-wrap: wrap; gap: 10px; }
+#form-segnalazione #id_tipo > div, #form-segnalazione #id_categorie > div { display: contents; }
+#form-segnalazione #id_tipo label, #form-segnalazione #id_categorie label { display: flex; gap: 8px; align-items: center; margin: 0; padding: 9px 16px; border: 1.5px solid var(--bordo); border-radius: 99px; cursor: pointer;
+  background: var(--superficie-2); font-weight: 600; transition: background .15s, border-color .15s; }
+#form-segnalazione #id_tipo label:hover, #form-segnalazione #id_categorie label:hover { border-color: var(--primario); }
+#form-segnalazione #id_tipo label:has(input:checked), #form-segnalazione #id_categorie label:has(input:checked) { background: var(--primario-tenue); border-color: var(--primario); color: var(--primario-scuro); }
+#form-segnalazione #id_tipo label:has(input:focus-visible), #form-segnalazione #id_categorie label:has(input:focus-visible) { outline: 3px solid var(--accento); outline-offset: 2px; }
+#form-segnalazione #id_tipo input, #form-segnalazione #id_categorie input { width: 18px; height: 18px; accent-color: var(--primario); }
+#form-segnalazione #id_tipo { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); }
+#form-segnalazione #id_tipo label { border-radius: 14px; padding: 16px 18px; font-size: 1.02rem; }
+.conta { display: flex; justify-content: space-between; gap: 10px; font-size: .82rem; color: var(--attenuato); margin-top: 6px; }
+.conta .troppo { color: var(--errore); font-weight: 700; }
+.anteprime { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(120px, 100%), 1fr)); }
+.anteprime li { position: relative; border: 1px solid var(--bordo); border-radius: 12px; overflow: hidden; background: var(--superficie-2); font-size: .75rem; }
+.anteprime img, .anteprime .video-segnaposto { width: 100%; aspect-ratio: 1; object-fit: cover; display: grid; place-items: center; background: var(--primario-tenue); color: var(--primario-scuro); font-weight: 800; }
+.anteprime span { display: block; padding: 6px 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--attenuato); }
+.anteprime .problema { color: var(--errore); font-weight: 700; white-space: normal; }
+#form-segnalazione input[type=file] { width: 100%; padding: 22px; border: 2px dashed var(--bordo); border-radius: 14px; background: var(--superficie-2); cursor: pointer; }
+#form-segnalazione input[type=file]:hover { border-color: var(--primario); }
+#form-segnalazione > button[type=submit] { width: 100%; min-height: 52px; font-size: 1.05rem; }
+.mappa-scelta { height: 380px; }

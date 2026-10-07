@@ -76,7 +76,7 @@
     li.append(a, info);
     if (puo && !x.propria) {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-lieve btn-piccolo';
-      const testo = () => { b.textContent = x.sostenuta ? '✓ Sostenuta · ritira' : '👍 Sostieni questa'; b.setAttribute('aria-pressed', String(x.sostenuta)); };
+      const testo = () => { b.textContent = x.sostenuta ? 'Sostenuta · ritira' : 'Sostieni questa'; b.setAttribute('aria-pressed', String(x.sostenuta)); };
       testo();
       b.addEventListener('click', async () => {
         b.disabled = true;

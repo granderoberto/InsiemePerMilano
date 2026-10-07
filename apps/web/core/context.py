@@ -4,10 +4,11 @@ from django.conf import settings
 
 
 def _versione_css():
-    """Cambia a ogni modifica del file: il browser non usa uno stile vecchio dalla cache."""
+    """Cambia a ogni modifica di un file di stile o di script: il browser non usa versioni vecchie dalla cache."""
     try:
-        return int(os.path.getmtime(settings.BASE_DIR / "static" / "css" / "site.css"))
-    except OSError:
+        radice = settings.BASE_DIR / "static"
+        return int(max(os.path.getmtime(f) for sotto in ("css", "js") for f in (radice / sotto).glob("*.*")))
+    except (OSError, ValueError):
         return 0
 
 

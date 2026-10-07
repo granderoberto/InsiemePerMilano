@@ -5,4 +5,4 @@
 {% if form.non_field_errors %}<p class="avviso avviso-error" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
 {% include "portale/_documenti.html" %}
 <button class="btn btn-primario" type="submit">Invia per la verifica</button></form></div>{% endblock %}
-{% block scripts %}<script src="{% static 'js/selfie.js' %}"></script>{% endblock %}
+{% block scripts %}<script src="{% static 'js/selfie.js' %}?v={{ versione_css }}\"></script>{% endblock %}
