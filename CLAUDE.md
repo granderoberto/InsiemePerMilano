@@ -156,6 +156,10 @@ Note sui dati:
 - Per `confine` si è valutato il tipo spaziale (`POLYGON SRID 4326` + SPATIAL): funziona con `ST_Contains(geom, ST_SRID(POINT(lon, lat), 4326))`, ma 2 poligoni (`CASCINA MERLATA`, `ASSIANO`) risultano invalidi per MySQL. Decisione rinviata; oggi il controllo punto-in-poligono va fatto nell'applicazione.
 - Il servizio Free si spegne se inattivo: se la connessione fallisce, riaccenderlo dalla console Aiven.
 
+## Produzione
+
+Guide: `docs/produzione.md` (hosting a contenitori, scelto Render/Railway al posto di Vercel; email con Brevo; `render.yaml`, `apps/web/Dockerfile`, `.env.example`) e `docs/spid_produzione.md` (adesione di un ente, bozza di richiesta). Il sito legge `DJANGO_DEBUG`, `DJANGO_SECRET_KEY` (obbligatoria con DEBUG=0), `DATA_DIR` (disco persistente per media e archivio verifica), `DB_CA_PEM`. Comando `manage.py prova_email`; controllo di stato `/salute/`. Docker non è stato provato in locale.
+
 ## Prossimi passi suggeriti
 
 1. Completare l'app (`apps/web/README.md`, elenco "Non c'è ancora"). Account, documento e selfie, SPID/CIE (ambiente di prova), eliminazione dell'account: fatti. Accessibilità: controlli automatici fatti, prove con screen reader da fare (`docs/accessibilita.md`). Poi l'adesione dell'ente a SPID/CIE e le email vere (SMTP).

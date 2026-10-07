@@ -12,8 +12,8 @@ from django.conf import settings
 
 
 def _cartella() -> Path:
-    d = Path(settings.BASE_DIR) / "tmp_verifiche"
-    d.mkdir(mode=0o700, exist_ok=True)
+    d = Path(settings.TMP_VERIFICHE_DIR)
+    d.mkdir(mode=0o700, parents=True, exist_ok=True)
     return d
 
 

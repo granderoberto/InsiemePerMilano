@@ -1,0 +1,32 @@
+# Blueprint per Render (https://render.com): crea il sito con un disco persistente per i file caricati.
+# Il database resta su Aiven (variabili da inserire nel pannello, mai nel repository).
+services:
+  - type: web
+    name: la-nostra-citta
+    runtime: docker
+    dockerContext: apps/web
+    dockerfilePath: apps/web/Dockerfile
+    plan: starter            # i dischi persistenti non sono disponibili nel piano gratuito
+    healthCheckPath: /salute/
+    preDeployCommand: python manage.py migrate --noinput   # tabelle di Django (sessioni, admin); lo schema del dominio è in db/migrations
+    disk:
+      name: dati
+      mountPath: /data
+      sizeGB: 5
+    envVars:
+      - { key: DJANGO_DEBUG, value: "0" }
+      - { key: DATA_DIR, value: /data }
+      - { key: DJANGO_SECRET_KEY, generateValue: true }
+      - { key: DJANGO_ALLOWED_HOSTS, sync: false }
+      - { key: DJANGO_CSRF_ORIGINS, sync: false }
+      - { key: SITE_URL, sync: false }
+      - { key: DB_HOST, sync: false }
+      - { key: DB_PORT, sync: false }
+      - { key: DB_USER, sync: false }
+      - { key: DB_PASSWORD, sync: false }
+      - { key: DJANGO_DB_NAME, value: defaultdb }
+      - { key: DB_CA_PEM, sync: false }
+      - { key: EMAIL_HOST, sync: false }
+      - { key: EMAIL_USER, sync: false }
+      - { key: EMAIL_PASSWORD, sync: false }
+      - { key: EMAIL_FROM, sync: false }

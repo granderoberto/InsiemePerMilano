@@ -507,6 +507,18 @@ def statistiche(request):
     })
 
 
+def salute(request):
+    """Controllo di stato per l'hosting: 200 se il sito risponde; con ?db=1 verifica anche il database."""
+    if request.GET.get("db"):
+        from django.db import connection
+        try:
+            with connection.cursor() as cur:
+                cur.execute("SELECT 1")
+        except Exception:  # noqa: BLE001
+            return HttpResponse("database non raggiungibile", status=503, content_type="text/plain")
+    return HttpResponse("ok", content_type="text/plain")
+
+
 # ------------------------------------------------------------------ file multimediali
 def media_file(request, path):
     radice = (Path(settings.MEDIA_ROOT) / "media").resolve()

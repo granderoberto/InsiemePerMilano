@@ -1,0 +1,7 @@
+.venv
+media
+tmp_verifiche
+static_raccolti
+smoke
+__pycache__
+*.pyc

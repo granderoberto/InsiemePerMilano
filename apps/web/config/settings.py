@@ -5,6 +5,7 @@ Il database è quello di Aiven: credenziali da `.env` nella radice del repositor
 non da Django: vedi la regola di convivenza in CLAUDE.md.
 """
 import os
+import tempfile
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,10 +25,28 @@ def _leggi_env():
 
 
 _env = _leggi_env()
+_e = lambda k, d="": os.environ.get(k) or _env.get(k, d)  # variabile d'ambiente (hosting) oppure .env (sviluppo)
 
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "solo-sviluppo-non-usare-in-produzione")
-DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
+DEBUG = _e("DJANGO_DEBUG", "1") == "1"
+SECRET_KEY = _e("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    if not DEBUG:
+        raise RuntimeError("DJANGO_SECRET_KEY è obbligatoria in produzione (DJANGO_DEBUG=0). Se cambia, i segreti 2FA non si leggono più.")
+    SECRET_KEY = "solo-sviluppo-non-usare-in-produzione"
+ALLOWED_HOSTS = [h.strip() for h in _e("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",") if h.strip()]
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in _e("DJANGO_CSRF_ORIGINS").split(",") if o.strip()]  # es. https://lanostracitta.example
+
+if not DEBUG:
+    # dietro il proxy dell'hosting: HTTPS già terminato, lo dichiara l'intestazione X-Forwarded-Proto
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = _e("DJANGO_SSL_REDIRECT", "1") == "1"
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = int(_e("DJANGO_HSTS_SECONDS", "3600"))  # alzare a 31536000 quando tutto funziona
+    SECURE_REDIRECT_EXEMPT = [r"^salute/$"]  # il controllo di stato dell'hosting arriva in HTTP
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = "same-origin"
+    X_FRAME_OPTIONS = "DENY"
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -44,6 +63,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # file statici in produzione (in sviluppo li serve runserver)
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -72,17 +92,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+def _certificato_db():
+    """Certificato CA del database: file certs/ca.pem (sviluppo) oppure testo PEM in DB_CA_PEM (hosting, senza file nel repository)."""
+    pem = os.environ.get("DB_CA_PEM", "").replace("\\n", "\n")
+    if pem.strip():
+        f = Path(tempfile.gettempdir()) / "lnc_db_ca.pem"
+        f.write_text(pem)
+        return str(f)
+    return str(REPO_ROOT / "certs" / "ca.pem")
+
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get("DJANGO_DB_NAME", "la_nostra_citta_test"),
-        "HOST": _env.get("DB_HOST", "localhost"),
-        "PORT": _env.get("DB_PORT", "3306"),
-        "USER": _env.get("DB_USER", "root"),
-        "PASSWORD": _env.get("DB_PASSWORD", ""),
+        "NAME": _e("DJANGO_DB_NAME", "la_nostra_citta_test"),
+        "HOST": _e("DB_HOST", "localhost"),
+        "PORT": _e("DB_PORT", "3306"),
+        "USER": _e("DB_USER", "root"),
+        "PASSWORD": _e("DB_PASSWORD", ""),
         "OPTIONS": {
             "charset": "utf8mb4",
-            "ssl": {"ca": str(REPO_ROOT / "certs" / "ca.pem")},
+            "ssl": {"ca": _certificato_db()},
             "ssl_mode": "VERIFY_IDENTITY",
         },
         "CONN_MAX_AGE": 60,
@@ -105,7 +135,15 @@ USE_TZ = True  # nel DB tutto in UTC
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-MEDIA_ROOT = BASE_DIR / "media"
+STATIC_ROOT = BASE_DIR / "static_raccolti"  # destinazione di `collectstatic` in produzione
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}
+# Foto e video caricati e archivio temporaneo della verifica: in produzione vanno su un disco persistente (DATA_DIR)
+DATA_DIR = Path(_e("DATA_DIR") or BASE_DIR)
+MEDIA_ROOT = DATA_DIR / "media"
+TMP_VERIFICHE_DIR = DATA_DIR / "tmp_verifiche"
 
 # Sessioni su database con una cache davanti: le letture non costano un giro verso il database remoto
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
@@ -127,7 +165,6 @@ IA_BACKEND = os.environ.get("IA_BACKEND") or _env.get("IA_BACKEND", "core.servic
 SIMULAZIONE_VERIFICA_DOCUMENTO = IA_BACKEND.endswith(".simulato")
 
 # Email: con EMAIL_HOST in .env si usa un server SMTP vero; senza, escono sulla console del server (solo sviluppo)
-_e = lambda k, d="": os.environ.get(k) or _env.get(k, d)
 EMAIL_HOST = _e("EMAIL_HOST")
 EMAIL_BACKEND = ("django.core.mail.backends.smtp.EmailBackend" if EMAIL_HOST else "django.core.mail.backends.console.EmailBackend")
 EMAIL_PORT = int(_e("EMAIL_PORT", "587"))
