@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load static %}
 {% load portale_extra %}{% block titolo %}{% if modifica %}Modifica segnalazione{% else %}Nuova segnalazione{% endif %}{% endblock %}
-{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">{% endblock %}
+{% block head %}<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="stylesheet" href="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.css">{% endblock %}
 {% block contenuto %}
 <h1>{% if modifica %}Modifica la segnalazione{% else %}Nuova segnalazione{% endif %}</h1>
 {% if modifica %}<p class="piccolo">Puoi modificarla finché è Ricevuta o In attesa. La versione precedente resta nel registro delle attività e la segnalazione ripassa dai controlli automatici.</p>{% endif %}
@@ -36,8 +36,8 @@
       {% if m.tipo == 'video' %}<video preload="metadata" src="{{ m.percorso|url_media }}" aria-label="Video {{ forloop.counter }}"></video>{% else %}<img src="{{ m.percorso|url_media }}" alt="Foto {{ forloop.counter }}">{% endif %}
       <span><input type="checkbox" name="rimuovi_media" value="{{ m.id }}"> Rimuovi il file {{ forloop.counter }}</span></label>{% endfor %}</div>{% endif %}
     <div class="campo"><label for="media">{% if modifica %}Aggiungi altri file (facoltativo){% else %}Allega da 1 a 10 file{% endif %}</label>
-      <input id="media" name="media" type="file" multiple {% if not modifica %}required{% endif %} accept="image/jpeg,image/png,video/mp4,video/quicktime">
-      <p class="aiuto">Foto JPG o PNG fino a 10 MB. Video MP4 o MOV fino a 50 MB e 60 secondi. I metadati (posizione GPS del dispositivo) vengono rimossi prima della pubblicazione. La prima immagine sarà la copertina.</p></div>
+      <input id="media" name="media" type="file" multiple {% if not modifica %}required{% endif %} accept="image/jpeg,image/png,image/heic,image/heif,.heic,.heif,video/mp4,video/quicktime">
+      <p class="aiuto">Foto JPG, PNG o HEIC (iPhone) fino a 10 MB. Video MP4 o MOV fino a 50 MB e 60 secondi. I metadati (posizione GPS del dispositivo) vengono rimossi prima della pubblicazione. La prima immagine sarà la copertina.</p></div>
   </fieldset>
   <p class="piccolo">Massimo 5 segnalazioni al giorno. Dopo l'invio i controlli automatici (simulati in questa versione) e un moderatore valutano la segnalazione.</p>
   <button class="btn btn-primario" type="submit">{% if modifica %}Salva le modifiche{% else %}Invia la segnalazione{% endif %}</button>{% if modifica %} <a class="btn btn-lieve" href="{% url 'dettaglio' s.id %}">Annulla</a>{% endif %}
@@ -45,7 +45,8 @@
 {% endblock %}
 {% block scripts %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
 <script>window.URL_SUGGERISCI = "{% url 'suggerisci_categorie' %}"; window.URL_QUARTIERE = "{% url 'quartiere_da_posizione' %}"; window.URL_SIMILI = "{% url 'segnalazioni_simili' %}"; window.ESCLUDI_ID = {% if modifica %}{{ s.id }}{% else %}null{% endif %};</script>
-<script src="{% static 'js/posizione.js' %}?v={{ versione_css }}\"></script>
-<script src="{% static 'js/modulo.js' %}?v={{ versione_css }}\"></script>
+<script src="{% static 'js/posizione.js' %}?v={{ versione_css }}"></script>
+<script src="{% static 'js/modulo.js' %}?v={{ versione_css }}"></script>
 {% endblock %}

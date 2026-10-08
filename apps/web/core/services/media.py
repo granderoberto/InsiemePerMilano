@@ -5,11 +5,17 @@ from datetime import date
 from pathlib import Path
 
 from django.conf import settings
-from PIL import Image
+from PIL import Image, ImageOps
+
+try:  # foto HEIC/HEIF (formato predefinito dell'iPhone): si convertono in JPEG
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+except ImportError:  # senza la libreria i file HEIC vengono rifiutati come immagine non valida
+    pass
 
 MAX_FOTO = 10 * 1024 * 1024
 MAX_VIDEO = 50 * 1024 * 1024
-FOTO = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png"}
+FOTO = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".heic": "image/jpeg", ".heif": "image/jpeg"}  # HEIC/HEIF diventano JPEG
 VIDEO = {".mp4": "video/mp4", ".mov": "video/quicktime"}
 
 
@@ -43,7 +49,7 @@ def salva(file):
             img = Image.open(file)
             img.verify()
             file.seek(0)
-            img = Image.open(file)
+            img = ImageOps.exif_transpose(Image.open(file))  # applica la rotazione dell'EXIF prima di toglierlo
             pulita = Image.new(img.mode, img.size)  # copia i soli pixel: via ogni metadato
             pulita.putdata(list(img.getdata()))
         except Exception as e:

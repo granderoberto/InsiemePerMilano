@@ -9,7 +9,7 @@
       <ul class="etichette" aria-label="Tipo e stato">
         <li><span class="badge badge-{{ s.tipo }}">{% if s.tipo == 'proposta' %}Proposta{% else %}Problema{% endif %}</span></li>
         <li><span class="badge badge-{{ s.stato_id }}">{{ s.stato.nome }}</span></li>
-        {% for c in categorie %}<li class="etichetta">{{ c.categoria.nome }}</li>{% endfor %}
+        {% for c in categorie %}<li class="etichetta"><i class="punto {{ c.categoria.nome|classe_categoria }}" aria-hidden="true"></i>{{ c.categoria.nome }}</li>{% endfor %}
       </ul>
       <h1>{{ s.titolo }}</h1>
       <ul class="meta">

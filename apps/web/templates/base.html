@@ -34,9 +34,14 @@
     <div class="azioni">
       {% if user.is_authenticated %}
         {% if user.puo_interagire %}<a class="btn btn-primario" href="{% url 'nuova' %}"><svg class="ico" aria-hidden="true"><use href="#i-piu"/></svg> Nuova segnalazione</a>{% endif %}
-        <a class="btn btn-lieve" href="{% url 'notifiche' %}">Notifiche{% if notifiche_non_lette %} <span class="pallino" aria-label="{{ notifiche_non_lette }} non lette">{{ notifiche_non_lette }}</span>{% endif %}</a>
-        <a class="btn btn-lieve" href="{% url 'profilo' %}">{{ user.nome }}</a>
-        <form method="post" action="{% url 'esci' %}">{% csrf_token %}<button class="btn btn-lieve" type="submit">Esci</button></form>
+        <details class="menu-account">
+          <summary class="btn btn-lieve"><svg class="ico" aria-hidden="true"><use href="#i-utente"/></svg><span>{{ user.nome }}</span>{% if notifiche_non_lette %} <span class="pallino" aria-label="{{ notifiche_non_lette }} notifiche non lette">{{ notifiche_non_lette }}</span>{% endif %}</summary>
+          <div class="menu-pannello">
+            <a href="{% url 'profilo' %}">Il mio profilo</a>
+            <a href="{% url 'notifiche' %}">Notifiche{% if notifiche_non_lette %} ({{ notifiche_non_lette }}){% endif %}</a>
+            <form method="post" action="{% url 'esci' %}">{% csrf_token %}<button type="submit">Esci</button></form>
+          </div>
+        </details>
       {% else %}
         <a class="btn btn-lieve" href="{% url 'accedi' %}">Accedi</a>
         <a class="btn btn-primario" href="{% url 'registrati' %}">Registrati</a>
@@ -73,6 +78,9 @@
   </div>
 </footer>
 <script>
+/* Il menu dell'account si chiude con Esc e con un clic fuori. */
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.menu-account[open]').forEach(d => { d.open = false; d.querySelector('summary').focus(); }); });
+document.addEventListener('click', e => document.querySelectorAll('.menu-account[open]').forEach(d => { if (!d.contains(e.target)) d.open = false; }));
 /* Dopo il primo clic il pulsante si blocca: i passaggi verso il database richiedono qualche secondo e un secondo invio creerebbe doppioni. */
 document.querySelectorAll('form[method="post"]').forEach(f => f.addEventListener('submit', e => {
   const b = e.submitter || f.querySelector('button[type=submit]');

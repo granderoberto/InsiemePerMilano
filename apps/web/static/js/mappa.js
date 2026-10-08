@@ -2,13 +2,13 @@
 (function () {
   const el = document.getElementById('mappa');
   if (!el || typeof L === 'undefined') return;
-  const mappa = L.map(el, { zoomControl: true, scrollWheelZoom: true }).setView([45.4642, 9.19], 12);
+  const mappa = L.map(el, { zoomControl: true, gestureHandling: true, gestureHandlingOptions: { text: { touch: 'Usa due dita per muovere la mappa', scroll: 'Usa Ctrl + scorrimento per zoomare la mappa', scrollMac: 'Usa ⌘ + scorrimento per zoomare la mappa' } } }).setView([45.4642, 9.19], 12);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(mappa);
 
   const icona = tipo => L.divIcon({ className: 'pin-contenitore', html: `<span class="pin pin-${tipo}"></span>`, iconSize: [30, 38], iconAnchor: [15, 36], popupAnchor: [0, -32] });
   const gruppo = typeof L.markerClusterGroup === 'function'
-    ? L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 48,
+    ? L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 70,
         iconCreateFunction: c => L.divIcon({ className: 'pin-contenitore', html: `<span class="grappolo">${c.getChildCount()}</span>`, iconSize: [42, 42] }) })
     : L.layerGroup();
   gruppo.addTo(mappa);

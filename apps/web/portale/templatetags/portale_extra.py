@@ -1,6 +1,14 @@
 from django import template
 
+from django.utils.text import slugify
+
 register = template.Library()
+
+
+@register.filter
+def classe_categoria(nome):
+    """Classe CSS `cat-<slug>`: ogni categoria ha il colore di una linea della metropolitana di Milano."""
+    return "cat-" + slugify(nome or "")
 
 
 @register.filter

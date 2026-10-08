@@ -3,9 +3,9 @@
 <h1>Notifiche</h1>
 {% if notifiche %}
 <form method="post">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Segna tutte come lette</button></form>
-<ul style="list-style:none;padding:0;margin-top:14px">{% for n in notifiche %}
-<li class="riquadro" style="padding:12px 16px;margin-bottom:10px;{% if not n.letta %}border-left:5px solid var(--primario){% endif %}">
-  <p style="margin:0">{% if not n.letta %}<span class="badge badge-5">Nuova</span> {% endif %}{{ n.messaggio }}{% if n.link %} <a href="{{ n.link }}">Apri</a>{% endif %}</p>
+<ul class="lista-notifiche">{% for n in notifiche %}
+<li class="riquadro notifica{% if not n.letta %} notifica-nuova{% endif %}">
+  <p>{% if not n.letta %}<span class="badge badge-5">Nuova</span> {% endif %}{{ n.messaggio }}{% if n.link %} <a href="{{ n.link }}">Apri</a>{% endif %}</p>
   <time class="piccolo" datetime="{{ n.creata_il|date:'c' }}">{{ n.creata_il|date:"j M Y, H:i" }}</time></li>{% endfor %}</ul>
 {% else %}<p class="vuoto-msg">Nessuna notifica.</p>{% endif %}
 {% endblock %}

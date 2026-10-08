@@ -74,10 +74,6 @@ a:hover { color: var(--primario-scuro); text-decoration-thickness: 2px; }
 .btn-piccolo { min-height: 36px; padding: 6px 13px; font-size: .88rem; }
 .btn-grande { min-height: 52px; padding: 14px 26px; font-size: 1.05rem; border-radius: 13px; }
 .btn-attivo { background: var(--ok-tenue); border-color: var(--ok); color: var(--ok); }
-.btn-hero { background: #fff; color: #08345d; box-shadow: 0 6px 20px rgb(0 0 0 / .25); }
-.btn-hero:hover { background: #eaf3fb; color: #08345d; text-decoration: none; }
-.btn-hero-lieve { background: rgb(255 255 255 / .12); color: #fff; border-color: rgb(255 255 255 / .45); }
-.btn-hero-lieve:hover { background: rgb(255 255 255 / .22); color: #fff; text-decoration: none; }
 
 .principale { padding-block: 32px 64px; outline: none; }
 
@@ -92,28 +88,13 @@ a:hover { color: var(--primario-scuro); text-decoration-thickness: 2px; }
 
 /* messaggi */
 .messaggi { padding-top: 18px; }
-.avviso { margin: 0 0 10px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--bordo); border-left: 5px solid var(--info); background: var(--superficie); box-shadow: var(--ombra-s); }
-.avviso-success { border-left-color: var(--ok); background: var(--ok-tenue); }
-.avviso-warning { border-left-color: var(--attenzione); background: var(--attenzione-tenue); }
-.avviso-error { border-left-color: var(--errore); background: var(--errore-tenue); }
-.avviso-simulazione { border-left-color: var(--accento); background: var(--accento-tenue); }
+.avviso { margin: 0 0 10px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--bordo); background: var(--superficie); box-shadow: var(--ombra-s); }
+.avviso-success { border-color: var(--ok); background: var(--ok-tenue); }
+.avviso-warning { border-color: var(--attenzione); background: var(--attenzione-tenue); }
+.avviso-error { border-color: var(--errore); background: var(--errore-tenue); }
+.avviso-simulazione { border-color: var(--accento); background: var(--accento-tenue); }
 
 /* hero */
-.hero { position: relative; overflow: hidden; border-radius: 28px; color: #fff; padding: clamp(28px, 5vw, 60px); margin-bottom: 32px;
-  background: radial-gradient(900px 400px at 85% -10%, rgb(255 255 255 / .16), transparent 60%), linear-gradient(135deg, var(--hero-1), var(--hero-2) 60%, var(--hero-3)); box-shadow: var(--ombra-l); }
-.hero::before { content: ""; position: absolute; inset: 0; opacity: .12; pointer-events: none;
-  background-image: linear-gradient(rgb(255 255 255 / .6) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / .6) 1px, transparent 1px); background-size: 44px 44px;
-  mask-image: radial-gradient(circle at 80% 20%, #000, transparent 70%); -webkit-mask-image: radial-gradient(circle at 80% 20%, #000, transparent 70%); }
-.hero > * { position: relative; }
-.hero h1 { color: #fff; font-size: clamp(2.1rem, 5.4vw, 3.5rem); max-width: 18ch; margin-bottom: .35em; }
-.hero p { font-size: clamp(1.02rem, 2vw, 1.2rem); max-width: 56ch; color: #dcebf8; }
-.hero .sopra { display: inline-block; font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; background: rgb(255 255 255 / .14); border: 1px solid rgb(255 255 255 / .25); padding: 5px 14px; border-radius: 99px; margin-bottom: 18px; color: #fff; }
-.hero-azioni { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
-.passi { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr)); list-style: none; padding: 0; margin: 0 0 36px; counter-reset: passo; }
-.passi li { counter-increment: passo; background: var(--superficie); border: 1px solid var(--bordo); border-radius: var(--raggio); padding: 20px 22px 18px; box-shadow: var(--ombra-s); position: relative; }
-.passi li::before { content: counter(passo); display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--primario-tenue); color: var(--primario-scuro); font-weight: 800; margin-bottom: 12px; font-family: var(--font-titoli); }
-.passi strong { display: block; margin-bottom: 4px; font-size: 1.05rem; }
-.passi span { color: var(--attenuato); font-size: .93rem; }
 .titolo-sezione { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; margin-bottom: 14px; }
 .titolo-sezione h1, .titolo-sezione h2 { margin: 0; }
 .intestazione { margin-bottom: 22px; }
@@ -350,3 +331,84 @@ table { max-width: 100%; }
 #form-segnalazione input[type=file]:hover { border-color: var(--primario); }
 #form-segnalazione > button[type=submit] { width: 100%; min-height: 52px; font-size: 1.05rem; }
 .mappa-scelta { height: 380px; }
+
+/* ===== home: la mappa apre la pagina ===== */
+.fascia { display: grid; gap: 0; background: var(--superficie); border: 1px solid var(--bordo); border-radius: 24px; box-shadow: var(--ombra); overflow: hidden; margin-bottom: 18px; }
+.fascia-testo { padding: clamp(22px, 4vw, 40px); display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.fascia h1 { font-size: clamp(1.7rem, 4.6vw, 2.6rem); margin-bottom: .35em; text-wrap: balance; max-width: 16ch; }
+.fascia-testo > p { color: var(--attenuato); max-width: 46ch; font-size: 1.05rem; }
+.fascia-azioni { display: flex; flex-wrap: wrap; gap: 10px; margin: 6px 0 18px; }
+.mappa-fascia { height: 300px; border: 0; border-radius: 0; box-shadow: none; }
+@media (min-width: 900px) { .fascia { grid-template-columns: minmax(340px, 5fr) 7fr; } .mappa-fascia { height: auto; min-height: 440px; } }
+.linee { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.linee a { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 5px 14px 5px 10px; border: 1px solid var(--bordo); border-radius: 99px; background: var(--superficie-2); color: var(--testo); font-size: .88rem; font-weight: 650; text-decoration: none; }
+.linee a:hover { border-color: var(--primario); background: var(--primario-tenue); }
+/* ogni categoria ha il colore di una linea della metropolitana di Milano */
+.punto { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--c, var(--attenuato)); box-shadow: 0 0 0 2px var(--superficie), 0 0 0 3px color-mix(in srgb, var(--c, #888) 55%, #000); flex: none; }
+.cat-mobilita-urbana { --c: #e30613; } .cat-ambiente { --c: #00a651; } .cat-decoro-urbano { --c: #f5c400; }
+.cat-sicurezza-del-territorio { --c: #1b6cc4; } .cat-politiche-giovanili { --c: #a05eb5; }
+.percorso { list-style: none; display: flex; flex-wrap: wrap; gap: 6px 4px; margin: 0 0 30px; padding: 0; color: var(--attenuato); font-size: .92rem; font-weight: 600; }
+.percorso li { display: inline-flex; align-items: center; }
+.percorso li + li::before { content: ""; width: 22px; height: 2px; background: var(--bordo); margin: 0 10px; border-radius: 2px; }
+.percorso li:last-child { color: var(--accento); }
+
+/* barra di ricerca compatta con filtri a scomparsa */
+.filtri-barra { margin-bottom: 20px; }
+.cerca-riga { display: flex; gap: 10px; }
+.cerca-riga input { flex: 1; min-width: 0; }
+.filtri-extra { margin-top: 10px; }
+.filtri-extra > summary { cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 6px 4px; font-weight: 700; color: var(--primario); list-style: none; }
+.filtri-extra > summary::-webkit-details-marker { display: none; }
+.filtri-extra > summary::before { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .15s; }
+.filtri-extra[open] > summary::before { transform: rotate(45deg); }
+.filtri-extra .filtri { margin: 6px 0 0; }
+.filtri-azioni { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* schede: il quartiere è la prima informazione */
+.scheda-luogo { position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 1; margin: 0; display: flex; align-items: center; gap: 6px; color: #fff; font-family: var(--font-titoli); font-weight: 700; font-size: 1.12rem; line-height: 1.2; text-shadow: 0 1px 6px rgb(0 0 0 / .55); }
+
+/* menu dell'account */
+.menu-account { position: relative; }
+.menu-account > summary { list-style: none; cursor: pointer; }
+.menu-account > summary::-webkit-details-marker { display: none; }
+.menu-account[open] > summary { background: var(--primario-tenue); border-color: var(--primario); }
+.menu-pannello { position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; min-width: 210px; padding: 6px; background: var(--superficie); border: 1px solid var(--bordo); border-radius: 14px; box-shadow: var(--ombra-l); display: grid; }
+.menu-pannello a, .menu-pannello button { display: block; width: 100%; padding: 11px 14px; min-height: 44px; border: 0; border-radius: 9px; background: none; color: var(--testo); font: inherit; font-weight: 600; text-align: left; text-decoration: none; cursor: pointer; }
+.menu-pannello a:hover, .menu-pannello button:hover { background: var(--primario-tenue); color: var(--primario-scuro); }
+.menu-pannello form { margin: 0; }
+
+/* notifiche */
+.lista-notifiche { list-style: none; padding: 0; margin: 14px 0 0; }
+.notifica { padding: 12px 16px; margin-bottom: 10px; }
+.notifica p { margin: 0; }
+.notifica-nuova { background: var(--primario-tenue); border-color: var(--primario); }
+
+/* bersagli di tocco da 44 px */
+.btn { min-height: 44px; } .btn-piccolo { min-height: 40px; }
+.nav a { min-height: 44px; display: inline-flex; align-items: center; }
+.piede a { display: inline-block; padding-block: 8px; }
+.schede a { min-height: 40px; display: inline-flex; align-items: center; }
+@media (max-width: 640px) {
+  .azioni { width: 100%; justify-content: space-between; }
+  .azioni > .btn-primario { flex: 1; }
+  .cerca-riga .btn { padding-inline: 14px; }
+  .menu-pannello { right: auto; left: 0; }
+}
+@media (max-width: 640px) {
+  #usa-posizione { width: 100%; min-height: 48px; justify-content: center; font-size: 1rem; }
+  #cerca-indirizzo { min-width: 0 !important; }
+  #form-segnalazione > button[type=submit] { position: sticky; bottom: 12px; z-index: 5; box-shadow: 0 6px 24px rgb(0 0 0 / .25); }
+}
+
+/* telefono: titolo, un invito all'azione e subito la mappa; categorie e spiegazione sotto */
+@media (max-width: 899px) {
+  .fascia-testo { display: contents; }
+  .fascia h1 { order: 1; padding: 20px 20px 0; margin: 0; font-size: 1.65rem; max-width: none; }
+  .fascia-testo > p { order: 2; padding: 0 20px; margin: 8px 0 0; font-size: .98rem; }
+  .fascia-azioni { order: 3; padding: 4px 20px 16px; margin: 0; }
+  .fascia-azioni .btn-grande { min-height: 48px; padding: 10px 20px; font-size: 1rem; }
+  .mappa-fascia { order: 4; height: min(52vh, 380px); }
+  .linee { order: 5; padding: 14px 20px 18px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .linee a { white-space: nowrap; }
+  .nav { scrollbar-width: none; }
+}
