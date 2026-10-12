@@ -35,6 +35,10 @@ if not SECRET_KEY:
     SECRET_KEY = "solo-sviluppo-non-usare-in-produzione"
 ALLOWED_HOSTS = [h.strip() for h in _e("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",") if h.strip()]
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in _e("DJANGO_CSRF_ORIGINS").split(",") if o.strip()]  # es. https://lanostracitta.example
+_host_render = _e("RENDER_EXTERNAL_HOSTNAME")  # su Render è l'indirizzo pubblico del servizio, già noto: niente da configurare a mano
+if _host_render:
+    ALLOWED_HOSTS.append(_host_render)
+    CSRF_TRUSTED_ORIGINS.append("https://" + _host_render)
 
 if not DEBUG:
     # dietro il proxy dell'hosting: HTTPS già terminato, lo dichiara l'intestazione X-Forwarded-Proto
@@ -62,6 +66,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "core.middleware.ControlloDiStato",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",  # file statici in produzione (in sviluppo li serve runserver)
     "django.contrib.sessions.middleware.SessionMiddleware",

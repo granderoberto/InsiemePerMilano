@@ -15,7 +15,7 @@ un host diverso per il servizio SPID. Si può fare, ma è più lavoro e più fra
 
 1. Render → **New → Blueprint** → scegli il repository `granderoberto/InsiemePerMilano`.
 2. Nel pannello del servizio, *Environment*: incolla il contenuto di `.env.produzione` (file locale, non versionato; generato con la chiave segreta e i valori del database).
-3. Dopo il primo deploy copia l'indirizzo (es. `https://la-nostra-citta.onrender.com`) e imposta `DJANGO_ALLOWED_HOSTS` (solo il nome host), `DJANGO_CSRF_ORIGINS` (con `https://`) e `SITE_URL`; poi *Manual Deploy*.
+3. Su Render host e origine CSRF si ricavano da soli (`RENDER_EXTERNAL_HOSTNAME`); `SITE_URL` serve per i link nelle email. Con un dominio tuo imposta anche `DJANGO_ALLOWED_HOSTS` e `DJANGO_CSRF_ORIGINS`. (Prima versione: copia l'indirizzo (es. `https://la-nostra-citta.onrender.com`) e imposta `DJANGO_ALLOWED_HOSTS` (solo il nome host), `DJANGO_CSRF_ORIGINS` (con `https://`) e `SITE_URL`; poi *Manual Deploy*.)
 4. Apri `/salute/?db=1`: deve rispondere `ok`.
 
 ## 1. Database (Aiven)
