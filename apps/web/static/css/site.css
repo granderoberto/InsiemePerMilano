@@ -56,7 +56,7 @@ code, td, th, h1, h2, h3, p, .aiuto, .piccolo { overflow-wrap: anywhere; }
 .marchio-linea circle { stroke: var(--inchiostro); stroke-width: 2.5; }
 .marchio-linea .m1 { fill: var(--m1); } .marchio-linea .m2 { fill: var(--m2); } .marchio-linea .m3 { fill: var(--m3); } .marchio-linea .m4 { fill: var(--m4); } .marchio-linea .m5 { fill: var(--m5); }
 .marchio-riga { display: flex; align-items: center; gap: 10px; }
-.marchio small { display: none; font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--attenuato); }
+.marchio small { display: none; font-size: .78rem; font-weight: 700; color: var(--attenuato); }
 @media (min-width: 420px) { .marchio small { display: inline; } }
 .nav { display: flex; gap: 0; flex: 1; }
 .nav a { padding: 9px 14px; min-height: 44px; display: inline-flex; align-items: center; color: var(--inchiostro); text-decoration: none; font-weight: 600; font-size: .95rem; border-bottom: 4px solid transparent; }
@@ -88,7 +88,7 @@ code, td, th, h1, h2, h3, p, .aiuto, .piccolo { overflow-wrap: anywhere; }
 .piede-griglia { display: grid; gap: 24px 48px; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
 .piede p { margin: 4px 0; }
 .piede .piccolo { color: #b4b4b0; }
-.piede h2 { font-size: .78rem; font-stretch: 100%; letter-spacing: .12em; text-transform: uppercase; color: #b4b4b0; margin: 0 0 10px; }
+.piede h2 { font-size: 1rem; font-stretch: 100%; color: #fff; margin: 0 0 10px; }
 .piede :focus-visible { outline-color: #fff; }
 
 /* messaggi */
@@ -192,7 +192,7 @@ input[data-password] { margin-bottom: 6px; }
 .meta { display: flex; flex-wrap: wrap; gap: 4px 16px; color: var(--attenuato); font-size: .88rem; margin: 0; padding: 0; list-style: none; }
 .meta li { display: inline-flex; align-items: center; gap: 5px; }
 .riquadro .meta { margin-bottom: 16px; }
-.etichette { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 0; margin: 0; list-style: none; font-size: .78rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.etichette { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 0; margin: 0; list-style: none; font-size: .85rem; font-weight: 800; }
 .etichetta { display: inline-flex; align-items: center; gap: 6px; color: var(--inchiostro); }
 .badge { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; color: var(--inchiostro); }
 .badge::before { content: ""; width: 10px; height: 10px; background: var(--c, var(--inchiostro)); border: 2px solid var(--inchiostro); flex: none; }
@@ -208,9 +208,9 @@ input[data-password] { margin-bottom: 6px; }
 .leaflet-bar { border: 2px solid #101010 !important; box-shadow: none !important; }
 .leaflet-bar a { color: #101010; }
 .pin-contenitore { background: none; border: 0; }
-.pin { display: block; width: 22px; height: 22px; margin: 1px; border-radius: 50%; border: 4px solid #fff; background: var(--m1); box-shadow: 0 0 0 2px #101010; }
+.pin { display: block; width: 22px; height: 22px; margin: 1px; border-radius: 50%; border: 4px solid #fff; background: var(--m1); outline: 2px solid #101010; }
 .pin-proposta { background: var(--m4); } .pin-problema { background: var(--m1); }
-.grappolo { display: grid; place-items: center; width: 36px; height: 36px; background: #101010; color: #fff; font-weight: 800; font-size: .95rem; border: 3px solid #fff; box-shadow: 0 0 0 2px #101010; }
+.grappolo { display: grid; place-items: center; width: 36px; height: 36px; background: #101010; color: #fff; font-weight: 800; font-size: .95rem; border: 3px solid #fff; outline: 2px solid #101010; }
 .legenda-mappa { display: flex; gap: 16px; padding: 7px 12px; background: var(--carta); color: var(--inchiostro); border: 2px solid var(--filetto); font-size: .85rem; font-weight: 700; }
 .legenda-mappa span { display: inline-flex; align-items: center; gap: 6px; }
 .pin-mini { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 2px solid var(--inchiostro); background: var(--m1); }
@@ -221,7 +221,7 @@ input[data-password] { margin-bottom: 6px; }
 .popup-segnalazione { display: grid; gap: 6px; }
 .popup-segnalazione a { font-weight: 800; font-size: 1.05rem; text-decoration: none; }
 .popup-segnalazione a:hover { text-decoration: underline; text-decoration-color: var(--m1); }
-.popup-tag { font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.popup-tag { font-size: .8rem; font-weight: 800; }
 .popup-problema { color: var(--m1); } .popup-proposta { color: var(--m4); }
 .popup-info { color: var(--attenuato); font-size: .85rem; }
 .leaflet-container a.leaflet-popup-close-button { color: var(--attenuato); }
@@ -247,8 +247,8 @@ input[data-password] { margin-bottom: 6px; }
 .tappa::before { content: ""; position: absolute; left: 8px; top: 18px; bottom: -2px; width: 4px; background: var(--inchiostro); }
 .tappa:last-child { padding-bottom: 0; } .tappa:last-child::before { display: none; }
 .tappa::after { content: ""; position: absolute; left: 0; top: 3px; width: 20px; height: 20px; border-radius: 50%; border: 4px solid var(--inchiostro); background: var(--inchiostro); }
-.tappa-attuale::after { background: var(--m1); border-color: var(--inchiostro); box-shadow: 0 0 0 3px var(--carta), 0 0 0 5px var(--m1); }
-.tappa-futura::before { background: repeating-linear-gradient(to bottom, var(--inchiostro) 0 6px, transparent 6px 10px); }
+.tappa-attuale::after { background: var(--m1); border-color: var(--inchiostro); outline: 3px solid var(--m1); outline-offset: 2px; }
+.tappa-futura::before { width: 0; border-left: 4px dashed var(--inchiostro); background: none; }
 .tappa-futura::after { background: var(--carta); }
 .tappa-futura strong { color: var(--attenuato); font-weight: 600; }
 .tappa-attuale strong { font-size: 1.1rem; }
@@ -364,8 +364,6 @@ table { max-width: 100%; }
   .contenitore { padding-inline: 16px; }
   .testata { position: static; }
   .nav { order: 3; flex-basis: 100%; overflow-x: auto; }
-  .azioni { width: 100%; justify-content: space-between; }
-  .azioni > .btn-primario { flex: 1; }
   .barre li { grid-template-columns: 1fr 3ch; } .barre li span:first-child { grid-column: 1 / -1; }
   .riquadro { padding: 18px; }
   .livello-1 { margin-left: 8px; } .livello-2 { margin-left: 16px; } .livello-3 { margin-left: 24px; } .livello-4 { margin-left: 32px; }

@@ -561,7 +561,7 @@ def media_file(request, path):
     svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Immagine di esempio">'
            f'<rect width="640" height="400" fill="hsl({tinta} 35% 82%)"/><circle cx="320" cy="170" r="54" fill="hsl({tinta} 30% 62%)"/>'
            f'<path d="M0 400 L180 250 L300 330 L430 220 L640 400Z" fill="hsl({tinta} 32% 70%)"/>'
-           f'<text x="320" y="360" text-anchor="middle" font-family="sans-serif" font-size="22" fill="hsl({tinta} 30% 28%)">Foto di esempio (dati demo)</text></svg>')
+           f'<text x="320" y="318" text-anchor="middle" font-family="sans-serif" font-size="22" fill="hsl({tinta} 30% 28%)">Foto di esempio (dati demo)</text></svg>')
     return HttpResponse(svg, content_type="image/svg+xml")
 
 
