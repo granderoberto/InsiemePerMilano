@@ -2,6 +2,7 @@
 {% block contenuto %}
 <div class="accesso">
   <h1>Registrati</h1>
+  {% if not EMAIL_ATTIVA %}<p class="avviso avviso-warning" role="alert"><strong>Invio email non attivo.</strong> Puoi registrarti, ma non riceverai il link di conferma: un amministratore dovrà confermare il tuo indirizzo.</p>{% endif %}
   {% if SIMULAZIONE_VERIFICA_DOCUMENTO %}<p class="avviso avviso-simulazione"><strong>Versione dimostrativa.</strong> Documento e selfie vengono davvero caricati, cifrati e cancellati a fine verifica, ma il controllo con l'intelligenza artificiale è <strong>simulato</strong> (verifica la qualità delle immagini: una foto del documento piccola va in revisione, un selfie minuscolo viene rifiutato).</p>{% endif %}
   <form method="post" enctype="multipart/form-data" class="riquadro" novalidate>{% csrf_token %}
     {% if form.non_field_errors %}<p class="errore" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}

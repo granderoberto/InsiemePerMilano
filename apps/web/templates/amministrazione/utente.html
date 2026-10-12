@@ -22,6 +22,8 @@
   <section class="riquadro"><h2>Ruolo</h2>
    {% if u.id == user.id %}<p class="piccolo">Nessuno può cambiare il proprio ruolo.</p>{% else %}
    <form method="post" action="{% url 'amm_azione_utente' u.id 'ruolo' %}">{% csrf_token %}<div class="campo"><label for="f-ruolo">Nuovo ruolo</label><select id="f-ruolo" name="ruolo">{% for v in ruoli %}<option value="{{ v }}" {% if u.ruolo == v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div><button class="btn btn-primario btn-piccolo" type="submit">Cambia ruolo</button></form>{% endif %}</section>
+  {% if not u.email_verificata_il %}<section class="riquadro"><h2>Email non confermata</h2>
+   <form method="post" action="{% url 'amm_azione_utente' u.id 'conferma_email' %}">{% csrf_token %}<div class="campo"><label for="ce-mot">Conferma al posto dell'utente: motivo</label><input id="ce-mot" name="motivo" required></div><button class="btn btn-primario btn-piccolo" type="submit">Conferma l'email</button></form></section>{% endif %}
   <section class="riquadro"><h2>Sospensione</h2>
    {% if u.stato_account == 'sospeso' %}<form method="post" action="{% url 'amm_azione_utente' u.id 'riattiva' %}">{% csrf_token %}<button class="btn btn-primario btn-piccolo" type="submit">Riattiva l'account</button></form>
    {% elif u.stato_account == 'attivo' and u.id != user.id %}<form method="post" action="{% url 'amm_azione_utente' u.id 'sospendi' %}">{% csrf_token %}

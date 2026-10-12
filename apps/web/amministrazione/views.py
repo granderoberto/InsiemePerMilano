@@ -102,6 +102,18 @@ def azione_utente(request, pk, azione):
             log.registra(me, "modifica", "utenti", u.id, {"mfa_attiva": True}, {"mfa_attiva": False, "motivo": p["motivo"].strip()})
             Notifica.objects.create(utente=u, tipo="stato_account", messaggio="La verifica in due passaggi del tuo account è stata azzerata da un amministratore.", link="/profilo/")
             messages.success(request, "Verifica in due passaggi azzerata.")
+        elif azione == "conferma_email":
+            if u.email_verificata_il:
+                raise RegolaViolata("L'email è già confermata.")
+            if not p.get("motivo", "").strip():
+                raise RegolaViolata("Indica il motivo (per esempio: invio email non attivo, identità verificata di persona).")
+            from django.utils import timezone
+            from portale.views_account import ricalcola_attivazione
+            u.email_verificata_il = timezone.now()
+            u.save(update_fields=["email_verificata_il"])
+            log.registra(me, "modifica", "utenti", u.id, {"email_verificata_il": None}, {"email_verificata_il": u.email_verificata_il, "confermata_da_admin": True, "motivo": p["motivo"].strip()})
+            attivato = ricalcola_attivazione(u)
+            messages.success(request, "Email confermata dall'amministratore." + (" L'account ora è attivo." if attivato else " Resta da completare la verifica dell'identità."))
         elif azione == "riattiva":
             servizio.riattiva(u, me)
             messages.success(request, "Account riattivato.")

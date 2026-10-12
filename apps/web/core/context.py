@@ -2,6 +2,8 @@ import os
 
 from django.conf import settings
 
+from core.services import email
+
 
 def _versione_css():
     """Cambia a ogni modifica di un file di stile o di script: il browser non usa versioni vecchie dalla cache."""
@@ -20,6 +22,7 @@ def sito(request):
     return {
         "versione_css": _versione_css(),
         "notifiche_non_lette": non_lette,
+        "EMAIL_ATTIVA": email.configurata(),
         "SPID_CIE_ATTIVO": settings.SPID_CIE_ATTIVO,
         "SPID_AMBIENTE_PROVA": settings.SPID_AMBIENTE_PROVA,
         "SIMULAZIONE_VERIFICA_DOCUMENTO": settings.SIMULAZIONE_VERIFICA_DOCUMENTO,

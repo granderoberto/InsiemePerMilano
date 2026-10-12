@@ -40,8 +40,16 @@ def ip_di(request) -> str:
     return request.META.get("REMOTE_ADDR", "?")
 
 
+def configurata() -> bool:
+    """True se le email partono davvero (server SMTP impostato) o se si è in sviluppo (console)."""
+    return not e_console() or settings.DEBUG
+
+
 def invia(request, destinatario, oggetto, titolo, paragrafi, pulsante=None, link=None, nota=None) -> bool:
     """Spedisce un messaggio (testo + HTML). -> True se il server di posta l'ha accettato."""
+    if not configurata():  # produzione senza SMTP: meglio dirlo che far credere che l'email sia partita
+        log.error("Invio email a %s impossibile: EMAIL_HOST non è impostato", destinatario)
+        return False
     ctx = {"titolo": titolo, "paragrafi": paragrafi, "pulsante": pulsante, "link": link, "nota": nota}
     testo = "\n\n".join([titolo, *paragrafi] + ([f"{pulsante}: {link}"] if link and pulsante else []) + ([nota] if nota else [])
                         + ["— La Nostra Città, Il Nostro Futuro"])
