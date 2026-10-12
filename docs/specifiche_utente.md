@@ -31,7 +31,7 @@ L'ultima parola resta sempre a un essere umano: ogni decisione automatica può e
 | Ruolo | Chi è |
 |---|---|
 | Visitatore | chiunque navighi senza account o senza aver effettuato l'accesso |
-| Utente | cittadino registrato con identità verificata |
+| Utente | cittadino registrato; legge, sostiene e commenta. Per **pubblicare** segnalazioni deve avere l'identità verificata (SPID/CIE, oppure documento e selfie) |
 | Moderatore | membro del comitato che supervisiona contenuti e verifiche |
 | Amministratore | membro del comitato che gestisce utenti, ruoli e configurazione |
 
@@ -62,8 +62,8 @@ Il primo amministratore viene creato all'installazione della piattaforma. Nessun
 
 | Stato | Significato | Cosa può fare |
 |---|---|---|
-| In attesa di verifica | registrato con credenziali, verifica non ancora conclusa | solo consultazione |
-| Attivo | identità verificata | tutte le funzioni del suo ruolo |
+| In attesa di verifica | registrato con credenziali, email non ancora confermata | solo consultazione |
+| Attivo | email confermata (o accesso con SPID/CIE) | tutte le funzioni del suo ruolo; pubblicare segnalazioni richiede inoltre l'identità verificata |
 | Sospeso | bloccato da un moderatore o amministratore | solo consultazione |
 | Eliminato | cancellato dall'utente, dati anonimizzati | nessun accesso |
 
@@ -97,12 +97,19 @@ Chi non ha SPID o CIE si registra compilando un modulo:
 | Password | sì | almeno 8 caratteri, con almeno una maiuscola, un numero e un simbolo; salvata solo come hash |
 | Data di nascita | sì | età minima 14 anni |
 | Quartiere di residenza | no | scelto da un elenco predefinito dei quartieri di Milano |
+
+Il documento d'identità e il selfie **non si chiedono alla registrazione**: l'account diventa attivo quando l'utente conferma l'email. La verifica dell'identità (paragrafo 3.3) è facoltativa, ma è **necessaria per pubblicare una segnalazione**: chi non l'ha fatta può leggere, sostenere e commentare; se prova a pubblicare viene accompagnato alla verifica. Il consenso al trattamento dei dati biometrici (art. 9) si chiede solo quando l'utente avvia la verifica.
+
+Per la verifica servono:
+
+| Dato | Obbligatorio | Vincoli |
+|---|---|---|
 | Documento d'identità fronte e retro | sì | carta d'identità, patente o passaporto; JPG, PNG o PDF, massimo 5 MB per lato |
 | Selfie | sì | scattato al momento dalla fotocamera, non caricato dalla galleria |
 
-L'account resta in attesa finché l'utente non conferma l'email e il sistema non completa la verifica del documento.
-
 ### 3.3 Verifica automatica dell'identità
+
+Si avvia dal profilo o dal momento in cui l'utente prova a pubblicare la prima segnalazione. Con SPID/CIE non serve: l'identità è già certificata.
 
 Il sistema verifica il documento con un modulo di intelligenza artificiale, senza intervento manuale del moderatore. Il modulo esegue questi controlli:
 

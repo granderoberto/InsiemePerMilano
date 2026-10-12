@@ -92,7 +92,7 @@ class DocumentiForm(forms.Form):
         return d
 
 
-class RegistrazioneForm(DocumentiForm):
+class RegistrazioneForm(forms.Form):
     nome = forms.CharField(label="Nome", max_length=50)
     cognome = forms.CharField(label="Cognome", max_length=50)
     email = forms.EmailField(label="Email", max_length=254)
@@ -104,13 +104,10 @@ class RegistrazioneForm(DocumentiForm):
     quartiere = forms.ModelChoiceField(label="Quartiere di residenza (facoltativo)", queryset=Quartiere.objects.all(),
                                        required=False, empty_label="— nessuno —")
     privacy = forms.BooleanField(label=MESSAGGI_CONSENSI["privacy"])
-    biometrici = forms.BooleanField(label=MESSAGGI_CONSENSI["biometrici"])
     intelligenza_artificiale = forms.BooleanField(label=MESSAGGI_CONSENSI["intelligenza_artificiale"])
     termini_uso = forms.BooleanField(label=MESSAGGI_CONSENSI["termini_uso"])
     cookie = forms.BooleanField(label=MESSAGGI_CONSENSI["cookie"])
     eta_minima = forms.BooleanField(label=MESSAGGI_CONSENSI["eta_minima"])
-
-    CAMPI_CONSENSO = list(MESSAGGI_CONSENSI)
 
     def clean_email(self):
         e = self.cleaned_data["email"].strip().lower()
@@ -133,6 +130,16 @@ class RegistrazioneForm(DocumentiForm):
         if d.get("password") and d.get("password2") and d["password"] != d["password2"]:
             self.add_error("password2", "Le due password non coincidono.")
         return d
+
+
+class VerificaForm(DocumentiForm):
+    """Verifica facoltativa dell'identità, necessaria per pubblicare: documento, selfie e, la prima volta, il consenso biometrico (art. 9)."""
+    biometrici = forms.BooleanField(label=MESSAGGI_CONSENSI["biometrici"])
+
+    def __init__(self, *a, consenso_gia_dato=False, **kw):
+        super().__init__(*a, **kw)
+        if consenso_gia_dato:
+            del self.fields["biometrici"]
 
 
 class SpidCompletaForm(forms.Form):

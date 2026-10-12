@@ -44,14 +44,12 @@ def ha_verifica_approvata(u):
 
 
 def ricalcola_attivazione(u):
-    """L'account diventa attivo quando l'email è confermata E la verifica d'identità è approvata."""
+    """L'account diventa attivo quando l'email è confermata. La verifica del documento è facoltativa: serve solo per pubblicare."""
     if u.stato_account != "in_attesa_verifica" or not u.email_verificata_il:
-        return False
-    if u.metodo_registrazione == "credenziali" and not ha_verifica_approvata(u):
         return False
     u.stato_account = "attivo"
     u.save(update_fields=["stato_account"])
-    Notifica.objects.create(utente=u, tipo="verifica_account", messaggio="Email e identità verificate: il tuo account è attivo.", link="/profilo/")
+    Notifica.objects.create(utente=u, tipo="verifica_account", messaggio="Email confermata: il tuo account è attivo. Per pubblicare una segnalazione verifica la tua identità dal profilo.", link="/profilo/")
     return True
 
 
@@ -86,7 +84,7 @@ def conferma_email(request, tok):
         u.save(update_fields=["email_verificata_il"])
         log.registra(u, "modifica", "utenti", u.id, {"email_verificata_il": None}, {"email_verificata_il": u.email_verificata_il})
     attivato = ricalcola_attivazione(u)
-    messages.success(request, "Email confermata. " + ("Il tuo account è attivo." if attivato else "Resta da completare la verifica dell'identità."))
+    messages.success(request, "Email confermata." + (" Il tuo account è attivo." if attivato else ""))
     return redirect("profilo" if request.user.is_authenticated else "accedi")
 
 

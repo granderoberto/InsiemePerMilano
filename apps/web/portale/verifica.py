@@ -19,7 +19,7 @@ def esegui(utente, tentativo, tipo_documento, fronte, retro, selfie):
                         (None, "decisione_ia", "verifiche_identita", v.id, None, {"punteggio": v.punteggio, "esito_ia": v.esito_ia, "simulata": True})])
     rimasti = MAX_TENTATIVI - tentativo
     if v.esito_ia == "approvata":
-        testo = "La verifica del documento è stata approvata. Per attivare l'account conferma anche l'indirizzo email."
+        testo = "La verifica del documento è stata approvata: ora puoi pubblicare segnalazioni."
     elif v.esito_ia == "da_rivedere":
         testo = "La verifica del documento è in revisione: un moderatore la controllerà e ti avviseremo dell'esito."
     else:

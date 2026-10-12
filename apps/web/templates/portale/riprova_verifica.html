@@ -1,8 +1,12 @@
-{% extends "base.html" %}{% load static %}{% block titolo %}Nuovo tentativo di verifica{% endblock %}
+{% extends "base.html" %}{% load static %}{% block titolo %}Verifica la tua identità{% endblock %}
 {% block contenuto %}<div class="accesso"><p><a href="{% url 'profilo' %}">← Profilo</a></p>
-<h1>Verifica del documento: tentativo {{ tentativo }} di 3</h1>
+<h1>Verifica la tua identità</h1>
+<p>Serve per <strong>pubblicare segnalazioni</strong>: così ogni segnalazione ha dietro una persona vera. Leggere, sostenere e commentare non lo richiede.{% if tentativo > 1 %} Tentativo {{ tentativo }} di 3.{% endif %}</p>
+{% if SIMULAZIONE_VERIFICA_DOCUMENTO %}<p class="avviso avviso-simulazione"><strong>Versione dimostrativa.</strong> I file vengono caricati, cifrati e cancellati a fine verifica, ma il controllo con l'intelligenza artificiale è simulato.</p>{% endif %}
+<p class="piccolo">Hai SPID o CIE? Entrando con quelli l'identità è già certificata e non serve caricare nulla.</p>
 <form method="post" enctype="multipart/form-data" class="riquadro" novalidate>{% csrf_token %}
 {% if form.non_field_errors %}<p class="avviso avviso-error" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
 {% include "portale/_documenti.html" %}
+{% if form.biometrici %}<fieldset><legend>Consenso</legend>{% include "_campo.html" with campo=form.biometrici %}</fieldset>{% endif %}
 <button class="btn btn-primario" type="submit">Invia per la verifica</button></form></div>{% endblock %}
 {% block scripts %}<script src="{% static 'js/selfie.js' %}?v={{ versione_css }}"></script>{% endblock %}

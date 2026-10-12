@@ -89,6 +89,14 @@ class Utente(AbstractBaseUser):
     def puo_interagire(self):
         return self.stato_account == "attivo"
 
+    @property
+    def identita_verificata(self):
+        """Serve per pubblicare segnalazioni. Verificata con SPID/CIE, con il documento (approvato dall'IA o da un moderatore),
+        oppure account del comitato (moderatore, amministratore)."""
+        if self.metodo_registrazione in ("spid", "cie") or self.ruolo in ("moderatore", "amministratore"):
+            return True
+        return any((v.esito_finale or v.esito_ia) == "approvata" for v in self.verifiche.all())
+
     def has_perm(self, perm, obj=None):
         return self.is_active and self.is_superuser
 

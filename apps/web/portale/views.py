@@ -49,6 +49,18 @@ def attivo_richiesto(vista):
     return _v
 
 
+def verificato_richiesto(vista):
+    """Pubblicare segnalazioni richiede l'identità verificata (SPID/CIE o documento): gli altri vengono accompagnati alla verifica."""
+    @attivo_richiesto
+    def _v(request, *a, **kw):
+        if not request.user.identita_verificata:
+            messages.info(request, "Per pubblicare una segnalazione devi prima verificare la tua identità. Leggere, sostenere e commentare invece non lo richiede.")
+            return redirect("riprova_verifica")
+        return vista(request, *a, **kw)
+    _v.__name__ = vista.__name__
+    return _v
+
+
 def destinazione_sicura(request, dest):
     """Il parametro `next` si accetta solo se resta su questo sito: «//sito-esterno.it» o «https://altro.it» non valgono."""
     if dest and url_has_allowed_host_and_scheme(dest, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
@@ -278,7 +290,7 @@ def elimina_commento(request, pk, cid):
 
 
 # ------------------------------------------------------------------ nuova segnalazione
-@attivo_richiesto
+@verificato_richiesto
 def nuova(request):
     form = SegnalazioneForm(request.POST or None, request.FILES or None)
     categorie = list(Categoria.objects.filter(attiva=True))
@@ -423,12 +435,10 @@ def registrati(request):
             with transaction.atomic():
                 u = Utente(nome=d["nome"], cognome=d["cognome"], email=d["email"], data_nascita=d["data_nascita"],
                            metodo_registrazione="credenziali", quartiere=d.get("quartiere"),
-                           stato_account="in_attesa_verifica")
+                           stato_account="in_attesa_verifica")  # diventa attivo alla conferma dell'email
                 u.set_password(d["password"])
                 u.save(force_insert=True)
-                registra_consensi(u, ["privacy", "biometrici", "intelligenza_artificiale", "termini_uso", "cookie", "eta_minima"])
-                # verifica del documento (controlli IA simulati): file in area temporanea cifrata, cancellati a fine verifica
-                verifica = verifica_identita.esegui(u, 1, d["tipo_documento"], d["_fronte"], d.get("_retro"), d["_selfie"])
+                registra_consensi(u, ["privacy", "intelligenza_artificiale", "termini_uso", "cookie", "eta_minima"])
         except DatabaseError as e:
             form.add_error(None, str(traduci(e)))
         else:
@@ -439,12 +449,8 @@ def registrati(request):
                 messages.success(request, "Registrazione completata. Ti abbiamo inviato un'email: conferma l'indirizzo per attivare l'account (controlla anche lo spam).")
             else:
                 messages.warning(request, "Registrazione completata, ma non siamo riusciti a spedire l'email di conferma: usa «Invia di nuovo il link» qui sotto.")
-            if verifica.esito_ia == "da_rivedere":
-                messages.info(request, "La verifica del documento è in revisione: un moderatore la controllerà.")
-            elif verifica.esito_ia == "rifiutata":
-                messages.error(request, f"La verifica del documento non è stata superata ({verifica.motivo}). Puoi riprovare dal profilo (3 tentativi in totale).")
             return redirect("profilo")
-    return render(request, "portale/registrati.html", {"form": form, "sfida": nuova_sfida()})
+    return render(request, "portale/registrati.html", {"form": form})
 
 
 # ------------------------------------------------------------------ profilo, notifiche
@@ -460,9 +466,19 @@ def profilo(request):
         return redirect("profilo")
     mie = con_dettagli(con_conteggi(Segnalazione.objects.filter(autore=u, eliminata_il__isnull=True).select_related("stato", "quartiere")))
     ultima = u.verifiche.order_by("-creata_il").first()
+    if u.metodo_registrazione != "credenziali" or u.ruolo != "utente":
+        stato_verifica = "verificata" if u.identita_verificata else "mai"
+    elif u.identita_verificata:
+        stato_verifica = "verificata"
+    elif ultima and ultima.esito_ia == "da_rivedere" and not ultima.esito_finale:
+        stato_verifica = "in_revisione"
+    elif ultima:
+        stato_verifica = "rifiutata"
+    else:
+        stato_verifica = "mai"
     rifiutata = ultima if ultima and ultima.esito_ia == "rifiutata" and ultima.revisore_id is None else None
     return render(request, "portale/profilo.html", {
-        "verifica_rifiutata": rifiutata,
+        "stato_verifica": stato_verifica, "verifica_rifiutata": rifiutata,
         "tentativi_usati": u.verifiche.count(),
         "richiesta_verifica_aperta": bool(rifiutata) and RichiestaRevisione.objects.filter(verifica=rifiutata, stato="aperta").exists(),
         "mie": mie, "quartieri": Quartiere.objects.all(),

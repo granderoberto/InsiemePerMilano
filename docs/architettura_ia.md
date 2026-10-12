@@ -57,7 +57,7 @@ sequenceDiagram
 
 Con `bloccato` la segnalazione non viene pubblicata; con `dubbio` resta In attesa e il moderatore vede il problema rilevato. Le categorie suggerite si mostrano già selezionate: l'utente le conferma o le cambia e il sistema registra se le ha scelte l'IA, l'utente o un moderatore (`classificazioni.origine`), così si misura nel tempo la precisione del modello.
 
-### B. Registrazione con credenziali (verifica del documento)
+### B. Verifica del documento (facoltativa alla registrazione, necessaria per pubblicare)
 
 ```mermaid
 sequenceDiagram
@@ -83,7 +83,7 @@ sequenceDiagram
     end
 ```
 
-L'account diventa **attivo** quando la verifica è approvata *e* l'email è confermata. Con SPID/CIE non serve alcun controllo IA: l'identità è già certificata.
+L'account diventa **attivo** con la conferma dell'email; la verifica approvata rende l'utente **verificato** e gli permette di pubblicare segnalazioni. Con SPID/CIE non serve alcun controllo IA: l'identità è già certificata.
 
 ### C. Commento
 

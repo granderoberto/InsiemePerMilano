@@ -91,11 +91,11 @@ pip install cairosvg && tools/er/run.sh
 
 **Ruoli:** `utente`, `moderatore`, `amministratore`. **Stato account** separato dal ruolo: `in_attesa_verifica`, `attivo`, `sospeso`, `eliminato`. Il visitatore non registrato legge i contenuti pubblici ma non interagisce.
 
-**Accesso:** SPID/CIE (identità già certificata, account subito attivo, si salva solo l'hash SHA-256 del codice fiscale per garantire un account per persona) oppure credenziali + verifica IA del documento.
+**Accesso:** SPID/CIE (identità già certificata, account subito attivo, si salva solo l'hash SHA-256 del codice fiscale per garantire un account per persona) oppure credenziali: l'account diventa attivo con la conferma dell'email. La **verifica IA del documento è facoltativa alla registrazione ma necessaria per pubblicare segnalazioni** (`Utente.identita_verificata`: SPID/CIE, verifica approvata dall'IA o da un moderatore, oppure ruolo moderatore/amministratore). Chi non è verificato legge, sostiene e commenta; se prova a pubblicare viene portato a `/profilo/verifica/`. Il consenso biometrico (art. 9) si chiede solo all'avvio della verifica.
 
 **Verifica IA del documento:** OCR, corrispondenza dati, validità, autenticità, confronto selfie/foto documento. Punteggio 0-100: ≥85 approvata, 50-84 da rivedere (coda moderatore), <50 rifiutata. Max 3 tentativi, revisione umana sempre richiedibile. Immagini cancellate dopo la verifica.
 
-**Normative in registrazione:** informativa GDPR art. 13, consenso biometrico art. 9 (solo percorso credenziali), informativa IA con diritto a revisione umana (art. 22), termini d'uso, cookie policy, età minima 14 anni. Si registra la versione accettata; nuova versione = nuova accettazione.
+**Normative in registrazione:** informativa GDPR art. 13, informativa IA con diritto a revisione umana (art. 22), termini d'uso, cookie policy, età minima 14 anni. Si registra la versione accettata; nuova versione = nuova accettazione.
 
 **Segnalazione:** tipo (proposta/problema), titolo ≤100, descrizione 30-2000, una o più categorie (suggerite dall'IA con confidenza), posizione dentro il Comune di Milano da GPS / mappa / indirizzo, quartiere ricavato dalla posizione, 1-10 media (foto JPG/PNG/HEIC ≤10 MB, video MP4/MOV ≤60 s e ≤50 MB). Metadati EXIF rimossi prima della pubblicazione. Max 5 segnalazioni/giorno. Modificabile dall'autore solo negli stati 1-2; ogni modifica va nel log.
 

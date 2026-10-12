@@ -57,7 +57,7 @@
 {% endif %}
 
 {% if user.is_authenticated and not user.puo_interagire %}
-<div class="contenitore"><p class="avviso avviso-warning">Il tuo account è <strong>{{ user.get_stato_account_display|default:user.stato_account }}</strong>: puoi consultare i contenuti ma non interagire.</p></div>
+<div class="contenitore"><p class="avviso avviso-warning">Il tuo account è <strong>{% if user.stato_account == 'in_attesa_verifica' %}in attesa di conferma dell'email{% else %}{{ user.get_stato_account_display|default:user.stato_account }}{% endif %}</strong>: puoi consultare i contenuti ma non interagire.</p></div>
 {% endif %}
 
 <main id="contenuto" class="contenitore principale" tabindex="-1">

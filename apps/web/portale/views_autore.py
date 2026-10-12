@@ -15,14 +15,14 @@ from core.services import geo, ia, log, media as servizio_media
 from core.services.errori import RegolaViolata, traduci
 
 from .forms import SegnalazioneForm
-from .views import attivo_richiesto, notifica
+from .views import attivo_richiesto, notifica, verificato_richiesto
 
 
 def _file_media(m):
     return Path(settings.MEDIA_ROOT) / m.percorso
 
 
-@attivo_richiesto
+@verificato_richiesto
 def modifica(request, pk):
     s = get_object_or_404(Segnalazione.objects.select_related("quartiere"), pk=pk, autore=request.user)
     if not s.modificabile:

@@ -16,6 +16,10 @@
 - Contenuto bloccato dall'IA: resta non pubblico; revisione accolta = approvato con `esito_moderazione` ancora `bloccato`.
 - Modifiche allo schema: nuova migrazione, non si toccano quelle già applicate. Ultima: `004_statistiche_attivita.sql` (filtro attività nella vista statistiche; prima la 003, 2FA TOTP; applicate su `defaultdb` e `la_nostra_citta_test`).
 
+## Verifica del documento (2026-10-12)
+
+Ora è facoltativa alla registrazione: l'account credenziali diventa attivo alla conferma dell'email; per **pubblicare** serve `identita_verificata` (SPID/CIE, verifica approvata, oppure moderatore/amministratore). Sostenere e commentare restano possibili senza verifica. Nessuna modifica allo schema.
+
 ## Prossimo passo
 
 Il sito gira (`apps/web/`, vedi il suo README): portale pubblico, area utente (registrazione con conferma email, recupero password, preferenze), autore (modifica/elimina/revisione), moderazione, amministrazione (utenti, ruoli, sospensioni, registro, statistiche con CSV, categorie, normative). Mancano l'IA vera (oggi simulata); il servizio SPID/CIE c'è (`apps/spid/`) e funziona sull'ambiente di prova, per l'uso reale serve l'adesione di un ente, oltre allo schema a blocchi dell'IA (materiale 3).

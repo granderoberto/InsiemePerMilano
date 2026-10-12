@@ -75,7 +75,7 @@ if not Utente.objects.filter(email=form["email"]).exists():
     r = C.post("/registrati/", {**form, **campi_documento(), "data_nascita": "2020-01-01", "email": f"minorenne{SFX}@example.org"}); esito("under 14 rifiutato", not Utente.objects.filter(email=f"minorenne{SFX}@example.org").exists())
     r = C.post("/registrati/", {**form, **campi_documento(), "password": "debole", "password2": "debole", "email": f"debole{SFX}@example.org"}); esito("password debole rifiutata", not Utente.objects.filter(email=f"debole{SFX}@example.org").exists())
     r = C.post("/registrati/", {**form, **campi_documento()}, follow=True); u = Utente.objects.filter(email=form["email"]).first()
-    esito("registrazione: verifica simulata ok ma account in attesa della conferma email", u is not None and u.stato_account == "in_attesa_verifica" and u.verifiche.count() == 1 and u.consensi.count() == 6, f"consensi={u.consensi.count() if u else 0}")
+    esito("registrazione: nessuna verifica del documento, 5 consensi, account in attesa della conferma email", u is not None and u.stato_account == "in_attesa_verifica" and u.verifiche.count() == 0 and u.consensi.count() == 5, f"consensi={u.consensi.count() if u else 0}")
     from core.services import token
     r = C.get("/conferma-email/token-sbagliato/", follow=True); esito("link di conferma non valido rifiutato", u.stato_account == "in_attesa_verifica" and Utente.objects.get(pk=u.pk).email_verificata_il is None)
     C.get(f"/conferma-email/{token.crea('conferma', u)}/", follow=True); u.refresh_from_db(); esito("conferma email -> account attivo", u.stato_account == "attivo" and u.email_verificata_il is not None)
