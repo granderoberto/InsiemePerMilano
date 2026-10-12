@@ -1,6 +1,6 @@
 {% load portale_extra %}
 <li class="scheda">
-  <div class="scheda-img">
+  <div class="scheda-img{% if s.cat_lista %} {{ s.cat_lista.0.categoria.nome|classe_categoria }}{% endif %}">
     {% if s.copertina_lista %}<img src="{{ s.copertina_lista.0.percorso|url_media }}" alt="Foto della segnalazione: {{ s.titolo }}" loading="lazy" width="640" height="400">
     {% else %}<img src="/media/demo/0.jpg" alt="" loading="lazy" width="640" height="400">{% endif %}
     <ul class="etichette" aria-label="Tipo e stato">

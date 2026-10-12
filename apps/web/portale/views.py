@@ -167,6 +167,21 @@ def albero_commenti(seg):
     return ordine
 
 
+def tappe_percorso(s, cambi):
+    """Le fermate del percorso di una segnalazione come su una linea della metropolitana: fatte, quella attuale, quelle ancora da fare."""
+    quando = {c.stato_a_id: c for c in cambi}
+    sequenza = [(1, "Ricevuta"), (2, "In attesa"), (4, "Rifiutata")] if s.stato_id == 4 else [(1, "Ricevuta"), (2, "In attesa"), (3, "Approvata"), (5, "Presentata ai candidati")]
+    posizione = {sid: i for i, (sid, _) in enumerate(sequenza)}
+    corrente = posizione.get(s.stato_id, 0)
+    tappe = []
+    for i, (sid, nome) in enumerate(sequenza):
+        c = quando.get(sid)
+        tappe.append({"nome": nome, "data": c.avvenuto_il if c else (s.creata_il if sid == 1 else None),
+                      "fase": "fatta" if i < corrente else "attuale" if i == corrente else "futura",
+                      "nota": c.nota if c and sid == 4 else ""})
+    return tappe
+
+
 def dettaglio(request, pk):
     s = get_object_or_404(Segnalazione.objects.select_related("quartiere", "stato", "autore"), pk=pk)
     if not puo_vedere(request.user, s):
@@ -175,7 +190,7 @@ def dettaglio(request, pk):
     return render(request, "portale/dettaglio.html", {
         "s": s, "media": list(s.media.all()),
         "categorie": Classificazione.objects.filter(segnalazione=s).select_related("categoria"),
-        "cronologia": s.cambi_stato.select_related("stato_a", "operatore"),
+        "tappe": tappe_percorso(s, list(s.cambi_stato.select_related("stato_a"))),
         "commenti": albero_commenti(s),
         "n_sostegni": s.sostegni.count(),
         "ha_sostenuto": u.is_authenticated and Sostegno.objects.filter(utente=u, segnalazione=s).exists(),

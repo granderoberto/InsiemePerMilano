@@ -6,10 +6,10 @@
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(mappa);
 
-  const icona = tipo => L.divIcon({ className: 'pin-contenitore', html: `<span class="pin pin-${tipo}"></span>`, iconSize: [30, 38], iconAnchor: [15, 36], popupAnchor: [0, -32] });
+  const icona = tipo => L.divIcon({ className: 'pin-contenitore', html: `<span class="pin pin-${tipo}"></span>`, iconSize: [24, 24], iconAnchor: [12, 12], popupAnchor: [0, -14] });
   const gruppo = typeof L.markerClusterGroup === 'function'
     ? L.markerClusterGroup({ showCoverageOnHover: false, maxClusterRadius: 70,
-        iconCreateFunction: c => L.divIcon({ className: 'pin-contenitore', html: `<span class="grappolo">${c.getChildCount()}</span>`, iconSize: [42, 42] }) })
+        iconCreateFunction: c => L.divIcon({ className: 'pin-contenitore', html: `<span class="grappolo">${c.getChildCount()}</span>`, iconSize: [36, 36] }) })
     : L.layerGroup();
   gruppo.addTo(mappa);
 

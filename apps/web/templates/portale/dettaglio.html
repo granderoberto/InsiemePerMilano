@@ -56,18 +56,19 @@
         {% if user.is_authenticated and user.puo_interagire %}
           {% if s.autore_id == user.id %}<p class="piccolo">Non puoi sostenere la tua segnalazione.</p>
           {% else %}<form method="post" action="{% url 'sostieni' s.id %}">{% csrf_token %}
-            <button class="btn {% if ha_sostenuto %}btn-attivo{% else %}btn-primario{% endif %}" type="submit" aria-pressed="{{ ha_sostenuto|yesno:'true,false' }}">{% if ha_sostenuto %}✓ Sostenuta · ritira{% else %}<svg class="ico" aria-hidden="true"><use href="#i-pollice"/></svg> Sostieni{% endif %}</button></form>{% endif %}
+            <button class="btn {% if ha_sostenuto %}btn-attivo{% else %}btn-primario{% endif %}" type="submit" aria-pressed="{{ ha_sostenuto|yesno:'true,false' }}">{% if ha_sostenuto %}Sostenuta · ritira{% else %}<svg class="ico" aria-hidden="true"><use href="#i-pollice"/></svg> Sostieni{% endif %}</button></form>{% endif %}
         {% elif not user.is_authenticated %}<p><a class="btn btn-primario" href="{% url 'accedi' %}?next={{ request.path }}">Accedi per sostenere</a></p>{% endif %}
       {% endif %}
-      <p><button class="btn btn-lieve btn-piccolo" type="button" id="copia" data-url="{{ url_assoluto }}">🔗 Copia il link</button> <span id="copia-esito" class="piccolo" role="status"></span></p>
+      <p><button class="btn btn-lieve btn-piccolo" type="button" id="copia" data-url="{{ url_assoluto }}">Copia il link</button> <span id="copia-esito" class="piccolo" role="status"></span></p>
     </section>
     {% if candidati %}<section class="riquadro"><h2>Presentata a</h2><ul>{% for c in candidati %}<li>{{ c.nome }} {{ c.cognome }} <span class="piccolo">({{ c.lista }})</span></li>{% endfor %}</ul></section>{% endif %}
-    <section class="riquadro"><h2>Cronologia</h2>
-      <ol class="cronologia">{% for c in cronologia %}<li><strong>{{ c.stato_a.nome }}</strong><br><time class="piccolo" datetime="{{ c.avvenuto_il|date:'c' }}">{{ c.avvenuto_il|date:"j M Y, H:i" }}</time>{% if c.nota and c.stato_a_id == 4 %}<br><span class="piccolo">Motivo: {{ c.nota }}</span>{% endif %}</li>
-      {% empty %}<li>Ricevuta<br><time class="piccolo">{{ s.creata_il|date:"j M Y, H:i" }}</time></li>{% endfor %}</ol></section>
+    <section class="riquadro"><h2>Percorso</h2>
+      <ol class="linea-percorso">{% for t in tappe %}<li class="tappa tappa-{{ t.fase }}"{% if t.fase == 'attuale' %} aria-current="step"{% endif %}><strong>{{ t.nome }}</strong>
+        {% if t.data %}<time class="piccolo" datetime="{{ t.data|date:'c' }}">{{ t.data|date:"j M Y, H:i" }}</time>{% elif t.fase == 'futura' %}<span class="piccolo">prossima fermata</span>{% endif %}
+        {% if t.nota %}<span class="piccolo">Motivo: {{ t.nota }}</span>{% endif %}</li>{% endfor %}</ol></section>
     {% if s.autore_id == user.id and s.modificabile and user.puo_interagire %}
     <section class="riquadro"><h2>La tua segnalazione</h2>
-      <p><a class="btn btn-primario btn-piccolo" href="{% url 'modifica' s.id %}">✏️ Modifica</a></p>
+      <p><a class="btn btn-primario btn-piccolo" href="{% url 'modifica' s.id %}">Modifica</a></p>
       <form method="post" action="{% url 'elimina' s.id %}" onsubmit="return confirm('Eliminare la segnalazione?')">{% csrf_token %}<button class="btn btn-pericolo btn-piccolo" type="submit">Elimina</button></form>
       {% if s.esito_moderazione == 'bloccato' %}<hr><p class="avviso avviso-warning">I controlli automatici hanno <strong>bloccato</strong> questa segnalazione: non sarà pubblicata finché un moderatore non la rivede.</p>
         {% if richiesta_aperta %}<p class="piccolo">Hai già chiesto la revisione: attendi la risposta di un moderatore.</p>{% else %}
