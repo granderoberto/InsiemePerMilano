@@ -11,6 +11,13 @@ Vercel esegue funzioni «serverless»: senza disco persistente, con processi di 
 un host diverso per il servizio SPID. Si può fare, ma è più lavoro e più fragile. Soluzione scelta: **hosting a contenitori**
 (Render o Railway) con il `Dockerfile` di `apps/web/`.
 
+## Passi rapidi (Render, piano gratuito)
+
+1. Render → **New → Blueprint** → scegli il repository `granderoberto/InsiemePerMilano`.
+2. Nel pannello del servizio, *Environment*: incolla il contenuto di `.env.produzione` (file locale, non versionato; generato con la chiave segreta e i valori del database).
+3. Dopo il primo deploy copia l'indirizzo (es. `https://la-nostra-citta.onrender.com`) e imposta `DJANGO_ALLOWED_HOSTS` (solo il nome host), `DJANGO_CSRF_ORIGINS` (con `https://`) e `SITE_URL`; poi *Manual Deploy*.
+4. Apri `/salute/?db=1`: deve rispondere `ok`.
+
 ## 1. Database (Aiven)
 
 Già pronto (`defaultdb`). Prima del primo avvio in produzione:
@@ -27,7 +34,7 @@ Cambiare la password di `avnadmin` e creare un utente applicativo con soli i per
 
 1. Crea un account su Render e collega il repository GitHub: **New → Blueprint** (legge `render.yaml`).
 2. Compila le variabili marcate `sync: false` (vedi `.env.example`): `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_ORIGINS`, `SITE_URL`, `DB_*`, `DB_CA_PEM`, `EMAIL_*`.
-3. Il disco persistente (`/data`, variabile `DATA_DIR`) **non esiste nel piano gratuito**: serve un piano a pagamento (verificare prezzi sul sito). Senza disco, le foto caricate sparirebbero a ogni riavvio.
+3. `render.yaml` usa il **piano gratuito** (nessun costo, nessun disco: le foto caricate si perdono a ogni riavvio e il sito si addormenta dopo un po' di inattività, la prima richiesta è lenta). Per conservare i file: `plan: starter` e decommentare il blocco `disk`. Il disco persistente (`/data`, variabile `DATA_DIR`) **non esiste nel piano gratuito**: serve un piano a pagamento (verificare prezzi sul sito). Senza disco, le foto caricate sparirebbero a ogni riavvio.
 4. `DJANGO_SECRET_KEY` viene generata alla creazione e **non deve cambiare**: da essa derivano le chiavi che cifrano i segreti 2FA e l'archivio temporaneo.
 5. Dominio: *Settings → Custom Domains* e record DNS indicati da Render; HTTPS è automatico.
 6. Controllo di stato: `/salute/` (con `?db=1` verifica anche il database).

@@ -9,5 +9,6 @@ RUN pip install -r requirements.txt
 COPY . .
 RUN DJANGO_SECRET_KEY=solo-per-collectstatic python manage.py collectstatic --noinput
 EXPOSE 8000
+# All'avvio si applicano le migrazioni di Django (tabelle di sessioni e admin; lo schema del dominio è in db/migrations).
 # Il disco persistente va montato su DATA_DIR (foto, video, archivio temporaneo della verifica)
-CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-2} --timeout 60 --access-logfile -"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi --bind 0.0.0.0:${PORT:-8000} --workers ${WEB_CONCURRENCY:-2} --timeout 60 --access-logfile -"]
