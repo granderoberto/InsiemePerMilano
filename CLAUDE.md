@@ -10,7 +10,7 @@ Autore: Roberto Grande (GitHub: Bertox0). Lingua del progetto: **italiano** (doc
 |---|---|---|
 | 1. Analisi dei requisiti | fatto | `docs/specifiche_utente.md` |
 | 2a. Modello ER (Chen) | fatto | `docs/modello_er.pdf`, `docs/modello_er.md` |
-| 2b. Schema logico normalizzato | fatto (MySQL 8) | `db/schema.sql`, `db/schema.dbml` |
+| 2b. Schema logico normalizzato | fatto (MySQL 8) | `db/schema.sql`, `db/schema.dbml`, `docs/modello_logico.{md,png,svg}` |
 | Database su Aiven (MySQL) | **fatto** (fase 1 completata: migrazioni, 88 NIL, dati demo, verifica) | `db/migrations/`, `db/README.md` |
 | 3. Architettura di integrazione IA (schema a blocchi) | **fatto** | `docs/architettura_ia.md`, `docs/architettura_ia.png` (generato da `tools/ia/schema_blocchi.py`) |
 | Implementazione della web app | **in corso**: sito funzionante (Django 5.2); SPID/CIE con protocollo vero su ambiente di prova; IA simulata | `apps/web/`, `apps/spid/`, `docs/spike_django_spid.md` |
@@ -22,6 +22,7 @@ docs/
   specifiche_utente.md   specifica funzionale completa (fonte di verità)
   modello_er.md          entità, PK, associazioni con cardinalità, vincoli extra-diagramma
   modello_er.{pdf,svg,png}  diagramma Chen generato
+  modello_logico.{md,svg,png}  modello logico (schema relazionale, dizionario, normalizzazione): generato da db/schema.sql con tools/logico/genera.py
 db/
   schema.sql             MySQL 8.0+: tabelle, ENUM, CHECK, trigger, viste, seed (riferimento completo)
   schema.dbml            stesso schema per dbdiagram.io (solo tabelle e relazioni)
@@ -47,7 +48,7 @@ tools/er/
 ## Regole di lavoro
 
 - `docs/specifiche_utente.md` è la fonte di verità. Ogni modifica funzionale parte da lì, poi si propaga a ER e schema.
-- **Quattro artefatti da tenere sincronizzati**: `db/schema.sql`, `db/migrations/`, `db/schema.dbml`, `tools/er/gen.py`. Se cambi una tabella o una colonna, aggiorna tutti e rigenera il diagramma. Le modifiche allo schema già applicato su Aiven vanno in una **nuova migrazione** (`003_...sql`), non modificando 001/002.
+- **Quattro artefatti da tenere sincronizzati**: `db/schema.sql`, `db/migrations/`, `db/schema.dbml`, `tools/er/gen.py`. Se cambi una tabella o una colonna, aggiorna tutti, rigenera il diagramma ER e il modello logico (`DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib tools/.venv/bin/python tools/logico/genera.py`, legge `db/schema.sql`, non serve il database). Le modifiche allo schema già applicato su Aiven vanno in una **nuova migrazione** (`003_...sql`), non modificando 001/002.
 - Nel modello ER **non compaiono FK**: le rappresentano le associazioni. Le tabelle ponte (`sostegni`, `classificazioni`, `consensi`) nell'ER sono associazioni N:N con attributi. `INVIA` è ternaria.
 - `schema.dbml` va incollato nell'editor di dbdiagram.io. `schema.sql` **no**: contiene `DELIMITER` e trigger che il parser DBML rifiuta.
 - **Database: MySQL 8** (scelta dell'autore; il servizio Aiven Free è 8.4.8, con `sql_require_primary_key=ON` e `log_bin_trust_function_creators=ON`: i trigger si creano senza privilegi extra). Convenzioni: InnoDB, utf8mb4, DATETIME(3) sempre in UTC (`SET time_zone = '+00:00'`), ENUM inline. Lo schema va eseguito con il client `mysql` (serve `DELIMITER`), non con un driver che invia una query alla volta.

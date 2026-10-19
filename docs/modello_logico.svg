@@ -1,0 +1,282 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1710 1220" width="1710" height="1220" font-family="Helvetica, Arial, sans-serif">
+<rect width="1710" height="1220" fill="#ffffff"/>
+<defs><marker id="fr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#101010"/></marker></defs>
+<rect x="40" y="1164" width="16" height="16" fill="#e30613" stroke="#101010" stroke-width="1.5"/><text x="64" y="1177" font-size="14" fill="#101010">Utenti e accesso</text>
+<rect x="340" y="1164" width="16" height="16" fill="#009a44" stroke="#101010" stroke-width="1.5"/><text x="364" y="1177" font-size="14" fill="#101010">Segnalazioni</text>
+<rect x="640" y="1164" width="16" height="16" fill="#ffc400" stroke="#101010" stroke-width="1.5"/><text x="664" y="1177" font-size="14" fill="#101010">Community</text>
+<rect x="940" y="1164" width="16" height="16" fill="#0a5eb0" stroke="#101010" stroke-width="1.5"/><text x="964" y="1177" font-size="14" fill="#101010">Moderazione, notifiche e log</text>
+<text x="40" y="1204" font-size="12.5" fill="#444">PK = chiave primaria · FK = chiave esterna. La freccia punta alla tabella riferita (lato «1»). Sono mostrate solo le colonne chiave: gli altri attributi sono nel dizionario.</text>
+<path d="M380.0,150.0 L311.0,150.0 L311.0,128.0 L290.0,128.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="380.0" cy="150.0" r="3.2" fill="#101010"/>
+<path d="M290.0,746.0 L317.0,746.0 L317.0,128.0 L380.0,128.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="290.0" cy="746.0" r="3.2" fill="#101010"/>
+<path d="M290.0,766.0 L323.0,766.0 L323.0,136.0 L380.0,136.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="290.0" cy="766.0" r="3.2" fill="#101010"/>
+<path d="M290.0,562.0 L329.0,562.0 L329.0,144.0 L380.0,144.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="290.0" cy="562.0" r="3.2" fill="#101010"/>
+<path d="M290.0,582.0 L335.0,582.0 L335.0,152.0 L380.0,152.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="290.0" cy="582.0" r="3.2" fill="#101010"/>
+<path d="M290.0,602.0 L341.0,602.0 L341.0,160.0 L380.0,160.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="290.0" cy="602.0" r="3.2" fill="#101010"/>
+<path d="M290.0,274.0 L347.0,274.0 L347.0,168.0 L380.0,168.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="290.0" cy="274.0" r="3.2" fill="#101010"/>
+<path d="M290.0,398.0 L353.0,398.0 L353.0,176.0 L380.0,176.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="290.0" cy="398.0" r="3.2" fill="#101010"/>
+<path d="M290.0,418.0 L327.0,418.0 L327.0,252.0 L290.0,252.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="290.0" cy="418.0" r="3.2" fill="#101010"/>
+<path d="M1650.0,264.0 L1687.0,264.0 L1687.0,128.0 L1650.0,128.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="1650.0" cy="264.0" r="3.2" fill="#101010"/>
+<path d="M1650.0,284.0 L1693.0,284.0 L1693.0,136.0 L1650.0,136.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="1650.0" cy="284.0" r="3.2" fill="#101010"/>
+<path d="M1060.0,150.0 L991.0,150.0 L991.0,27.0 L651.0,27.0 L651.0,128.0 L630.0,128.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="1060.0" cy="150.0" r="3.2" fill="#101010"/>
+<path d="M1060.0,170.0 L997.0,170.0 L997.0,34.0 L317.0,34.0 L317.0,136.0 L290.0,136.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="1060.0" cy="170.0" r="3.2" fill="#101010"/>
+<path d="M1310.0,190.0 L1331.0,190.0 L1331.0,128.0 L1400.0,128.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="1310.0" cy="190.0" r="3.2" fill="#101010"/>
+<path d="M1060.0,210.0 L1003.0,210.0 L1003.0,41.0 L657.0,41.0 L657.0,136.0 L630.0,136.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="1060.0" cy="210.0" r="3.2" fill="#101010"/>
+<path d="M1310.0,354.0 L1347.0,354.0 L1347.0,128.0 L1310.0,128.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="1310.0" cy="354.0" r="3.2" fill="#101010"/>
+<path d="M1310.0,478.0 L1353.0,478.0 L1353.0,136.0 L1310.0,136.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="1310.0" cy="478.0" r="3.2" fill="#101010"/>
+<path d="M1310.0,498.0 L1337.0,498.0 L1337.0,386.0 L1400.0,386.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="1310.0" cy="498.0" r="3.2" fill="#101010"/>
+<path d="M970.0,722.0 L991.0,722.0 L991.0,128.0 L1060.0,128.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="970.0" cy="722.0" r="3.2" fill="#101010"/>
+<path d="M970.0,742.0 L991.0,742.0 L991.0,48.0 L1331.0,48.0 L1331.0,136.0 L1400.0,136.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="970.0" cy="742.0" r="3.2" fill="#101010"/>
+<path d="M970.0,762.0 L997.0,762.0 L997.0,55.0 L1337.0,55.0 L1337.0,144.0 L1400.0,144.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="970.0" cy="762.0" r="3.2" fill="#101010"/>
+<path d="M720.0,782.0 L651.0,782.0 L651.0,144.0 L630.0,144.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="720.0" cy="782.0" r="3.2" fill="#101010"/>
+<path d="M720.0,130.0 L657.0,130.0 L657.0,152.0 L630.0,152.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="720.0" cy="130.0" r="3.2" fill="#101010"/>
+<path d="M970.0,150.0 L997.0,150.0 L997.0,136.0 L1060.0,136.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="970.0" cy="150.0" r="3.2" fill="#101010"/>
+<path d="M970.0,294.0 L1003.0,294.0 L1003.0,144.0 L1060.0,144.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="970.0" cy="294.0" r="3.2" fill="#101010"/>
+<path d="M720.0,314.0 L663.0,314.0 L663.0,160.0 L630.0,160.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="720.0" cy="314.0" r="3.2" fill="#101010"/>
+<path d="M970.0,334.0 L1019.0,334.0 L1019.0,272.0 L970.0,272.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="970.0" cy="334.0" r="3.2" fill="#101010"/>
+<path d="M720.0,354.0 L669.0,354.0 L669.0,168.0 L630.0,168.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="720.0" cy="354.0" r="3.2" fill="#101010"/>
+<path d="M970.0,926.0 L1009.0,926.0 L1009.0,152.0 L1060.0,152.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="970.0" cy="926.0" r="3.2" fill="#101010"/>
+<path d="M970.0,946.0 L1025.0,946.0 L1025.0,1088.0 L970.0,1088.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="970.0" cy="946.0" r="3.2" fill="#101010"/>
+<path d="M720.0,966.0 L675.0,966.0 L675.0,176.0 L630.0,176.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="720.0" cy="966.0" r="3.2" fill="#101010"/>
+<path d="M720.0,498.0 L681.0,498.0 L681.0,184.0 L630.0,184.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="720.0" cy="498.0" r="3.2" fill="#101010"/>
+<path d="M970.0,518.0 L1015.0,518.0 L1015.0,160.0 L1060.0,160.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="970.0" cy="518.0" r="3.2" fill="#101010"/>
+<path d="M970.0,538.0 L1031.0,538.0 L1031.0,280.0 L970.0,280.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="970.0" cy="538.0" r="3.2" fill="#101010"/>
+<path d="M720.0,558.0 L651.0,558.0 L651.0,62.0 L323.0,62.0 L323.0,724.0 L290.0,724.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="720.0" cy="558.0" r="3.2" fill="#101010"/>
+<path d="M720.0,578.0 L687.0,578.0 L687.0,192.0 L630.0,192.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="720.0" cy="578.0" r="3.2" fill="#101010"/>
+<path d="M630.0,344.0 L679.0,344.0 L679.0,200.0 L630.0,200.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="630.0" cy="344.0" r="3.2" fill="#101010"/>
+<path d="M630.0,468.0 L685.0,468.0 L685.0,208.0 L630.0,208.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="630.0" cy="468.0" r="3.2" fill="#101010"/>
+<path d="M630.0,632.0 L691.0,632.0 L691.0,216.0 L630.0,216.0" fill="none" stroke="#101010" stroke-opacity=".6" stroke-width="1.5" stroke-linejoin="round" marker-end="url(#fr)"/>
+<circle cx="630.0" cy="632.0" r="3.2" fill="#101010"/>
+<rect x="40" y="90" width="250" height="80" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="40" y="90" width="250" height="30" fill="#101010"/><rect x="40" y="115" width="250" height="5" fill="#e30613"/>
+<text x="50" y="110" font-size="15" font-weight="700" fill="#ffffff">quartieri</text>
+<text x="50" y="135" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="280" y="135" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="50" y="155" font-size="12" fill="#666" font-style="italic">+ 3 altri attributi</text>
+<rect x="40" y="214" width="250" height="100" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="40" y="214" width="250" height="30" fill="#101010"/><rect x="40" y="239" width="250" height="5" fill="#e30613"/>
+<text x="50" y="234" font-size="15" font-weight="700" fill="#ffffff">documenti_normativi</text>
+<text x="50" y="259" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="280" y="259" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="50" y="279" font-size="13" font-weight="400" fill="#101010">id_amministratore</text>
+<text x="280" y="279" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="50" y="299" font-size="12" fill="#666" font-style="italic">+ 4 altri attributi</text>
+<rect x="40" y="358" width="250" height="100" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="40" y="358" width="250" height="30" fill="#101010"/><rect x="40" y="383" width="250" height="5" fill="#e30613"/>
+<text x="50" y="378" font-size="15" font-weight="700" fill="#ffffff">consensi</text>
+<text x="50" y="403" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id_utente</text>
+<text x="280" y="403" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK FK</text>
+<text x="50" y="423" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id_documento</text>
+<text x="280" y="423" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK FK</text>
+<text x="50" y="443" font-size="12" fill="#666" font-style="italic">+ 1 altri attributi</text>
+<rect x="40" y="502" width="250" height="140" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="40" y="502" width="250" height="30" fill="#101010"/><rect x="40" y="527" width="250" height="5" fill="#e30613"/>
+<text x="50" y="522" font-size="15" font-weight="700" fill="#ffffff">sospensioni</text>
+<text x="50" y="547" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="280" y="547" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="50" y="567" font-size="13" font-weight="400" fill="#101010">id_utente</text>
+<text x="280" y="567" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="50" y="587" font-size="13" font-weight="400" fill="#101010">id_moderatore</text>
+<text x="280" y="587" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="50" y="607" font-size="13" font-weight="400" fill="#101010">id_revocante</text>
+<text x="280" y="607" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="50" y="627" font-size="12" fill="#666" font-style="italic">+ 4 altri attributi</text>
+<rect x="40" y="686" width="250" height="120" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="40" y="686" width="250" height="30" fill="#101010"/><rect x="40" y="711" width="250" height="5" fill="#e30613"/>
+<text x="50" y="706" font-size="15" font-weight="700" fill="#ffffff">verifiche_identita</text>
+<text x="50" y="731" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="280" y="731" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="50" y="751" font-size="13" font-weight="400" fill="#101010">id_utente</text>
+<text x="280" y="751" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="50" y="771" font-size="13" font-weight="400" fill="#101010">id_revisore</text>
+<text x="280" y="771" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="50" y="791" font-size="12" fill="#666" font-style="italic">+ 14 altri attributi</text>
+<rect x="380" y="90" width="250" height="150" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="380" y="90" width="250" height="30" fill="#101010"/><rect x="380" y="115" width="250" height="5" fill="#e30613"/>
+<text x="390" y="110" font-size="15" font-weight="700" fill="#ffffff">utenti</text>
+<text x="390" y="135" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="620" y="135" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="390" y="155" font-size="13" font-weight="400" fill="#101010">id_quartiere</text>
+<text x="620" y="155" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="390" y="175" font-size="12" fill="#666" font-style="italic">+ 17 altri attributi</text>
+<rect x="380" y="284" width="250" height="100" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="380" y="284" width="250" height="30" fill="#101010"/><rect x="380" y="309" width="250" height="5" fill="#0a5eb0"/>
+<text x="390" y="304" font-size="15" font-weight="700" fill="#ffffff">notifiche</text>
+<text x="390" y="329" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="620" y="329" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="390" y="349" font-size="13" font-weight="400" fill="#101010">id_utente</text>
+<text x="620" y="349" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="390" y="369" font-size="12" fill="#666" font-style="italic">+ 5 altri attributi</text>
+<rect x="380" y="428" width="250" height="100" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="380" y="428" width="250" height="30" fill="#101010"/><rect x="380" y="453" width="250" height="5" fill="#0a5eb0"/>
+<text x="390" y="448" font-size="15" font-weight="700" fill="#ffffff">preferenze_notifica</text>
+<text x="390" y="473" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id_utente</text>
+<text x="620" y="473" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK FK</text>
+<text x="390" y="493" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">tipo</text>
+<text x="620" y="493" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="390" y="513" font-size="12" fill="#666" font-style="italic">+ 2 altri attributi</text>
+<rect x="380" y="572" width="250" height="100" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="380" y="572" width="250" height="30" fill="#101010"/><rect x="380" y="597" width="250" height="5" fill="#0a5eb0"/>
+<text x="390" y="592" font-size="15" font-weight="700" fill="#ffffff">log_attivita</text>
+<text x="390" y="617" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="620" y="617" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="390" y="637" font-size="13" font-weight="400" fill="#101010">id_utente</text>
+<text x="620" y="637" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="390" y="657" font-size="12" fill="#666" font-style="italic">+ 7 altri attributi</text>
+<rect x="720" y="90" width="250" height="100" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="720" y="90" width="250" height="30" fill="#101010"/><rect x="720" y="115" width="250" height="5" fill="#ffc400"/>
+<text x="730" y="110" font-size="15" font-weight="700" fill="#ffffff">sostegni</text>
+<text x="730" y="135" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id_utente</text>
+<text x="960" y="135" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK FK</text>
+<text x="730" y="155" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id_segnalazione</text>
+<text x="960" y="155" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK FK</text>
+<text x="730" y="175" font-size="12" fill="#666" font-style="italic">+ 1 altri attributi</text>
+<rect x="720" y="234" width="250" height="160" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="720" y="234" width="250" height="30" fill="#101010"/><rect x="720" y="259" width="250" height="5" fill="#ffc400"/>
+<text x="730" y="254" font-size="15" font-weight="700" fill="#ffffff">commenti</text>
+<text x="730" y="279" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="960" y="279" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="730" y="299" font-size="13" font-weight="400" fill="#101010">id_segnalazione</text>
+<text x="960" y="299" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="319" font-size="13" font-weight="400" fill="#101010">id_autore</text>
+<text x="960" y="319" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="339" font-size="13" font-weight="400" fill="#101010">id_padre</text>
+<text x="960" y="339" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="359" font-size="13" font-weight="400" fill="#101010">id_moderatore_nascosto</text>
+<text x="960" y="359" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="379" font-size="12" fill="#666" font-style="italic">+ 8 altri attributi</text>
+<rect x="720" y="438" width="250" height="180" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="720" y="438" width="250" height="30" fill="#101010"/><rect x="720" y="463" width="250" height="5" fill="#0a5eb0"/>
+<text x="730" y="458" font-size="15" font-weight="700" fill="#ffffff">richieste_revisione</text>
+<text x="730" y="483" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="960" y="483" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="730" y="503" font-size="13" font-weight="400" fill="#101010">id_richiedente</text>
+<text x="960" y="503" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="523" font-size="13" font-weight="400" fill="#101010">id_segnalazione</text>
+<text x="960" y="523" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="543" font-size="13" font-weight="400" fill="#101010">id_commento</text>
+<text x="960" y="543" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="563" font-size="13" font-weight="400" fill="#101010">id_verifica</text>
+<text x="960" y="563" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="583" font-size="13" font-weight="400" fill="#101010">id_moderatore</text>
+<text x="960" y="583" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="603" font-size="12" fill="#666" font-style="italic">+ 5 altri attributi</text>
+<rect x="720" y="662" width="250" height="160" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="720" y="662" width="250" height="30" fill="#101010"/><rect x="720" y="687" width="250" height="5" fill="#009a44"/>
+<text x="730" y="682" font-size="15" font-weight="700" fill="#ffffff">cambi_stato</text>
+<text x="730" y="707" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="960" y="707" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="730" y="727" font-size="13" font-weight="400" fill="#101010">id_segnalazione</text>
+<text x="960" y="727" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="747" font-size="13" font-weight="400" fill="#101010">id_stato_da</text>
+<text x="960" y="747" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="767" font-size="13" font-weight="400" fill="#101010">id_stato_a</text>
+<text x="960" y="767" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="787" font-size="13" font-weight="400" fill="#101010">id_operatore</text>
+<text x="960" y="787" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="807" font-size="12" fill="#666" font-style="italic">+ 2 altri attributi</text>
+<rect x="720" y="866" width="250" height="140" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="720" y="866" width="250" height="30" fill="#101010"/><rect x="720" y="891" width="250" height="5" fill="#ffc400"/>
+<text x="730" y="886" font-size="15" font-weight="700" fill="#ffffff">invii</text>
+<text x="730" y="911" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="960" y="911" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="730" y="931" font-size="13" font-weight="400" fill="#101010">id_segnalazione</text>
+<text x="960" y="931" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="951" font-size="13" font-weight="400" fill="#101010">id_candidato</text>
+<text x="960" y="951" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="971" font-size="13" font-weight="400" fill="#101010">id_moderatore</text>
+<text x="960" y="971" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="730" y="991" font-size="12" fill="#666" font-style="italic">+ 1 altri attributi</text>
+<rect x="720" y="1050" width="250" height="80" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="720" y="1050" width="250" height="30" fill="#101010"/><rect x="720" y="1075" width="250" height="5" fill="#ffc400"/>
+<text x="730" y="1070" font-size="15" font-weight="700" fill="#ffffff">candidati</text>
+<text x="730" y="1095" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="960" y="1095" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="730" y="1115" font-size="12" fill="#666" font-style="italic">+ 4 altri attributi</text>
+<rect x="1060" y="90" width="250" height="160" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1060" y="90" width="250" height="30" fill="#101010"/><rect x="1060" y="115" width="250" height="5" fill="#009a44"/>
+<text x="1070" y="110" font-size="15" font-weight="700" fill="#ffffff">segnalazioni</text>
+<text x="1070" y="135" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="1300" y="135" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="1070" y="155" font-size="13" font-weight="400" fill="#101010">id_autore</text>
+<text x="1300" y="155" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="1070" y="175" font-size="13" font-weight="400" fill="#101010">id_quartiere</text>
+<text x="1300" y="175" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="1070" y="195" font-size="13" font-weight="400" fill="#101010">id_stato</text>
+<text x="1300" y="195" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="1070" y="215" font-size="13" font-weight="400" fill="#101010">id_moderatore_nascosta</text>
+<text x="1300" y="215" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="1070" y="235" font-size="12" fill="#666" font-style="italic">+ 14 altri attributi</text>
+<rect x="1060" y="294" width="250" height="100" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1060" y="294" width="250" height="30" fill="#101010"/><rect x="1060" y="319" width="250" height="5" fill="#009a44"/>
+<text x="1070" y="314" font-size="15" font-weight="700" fill="#ffffff">media</text>
+<text x="1070" y="339" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="1300" y="339" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="1070" y="359" font-size="13" font-weight="400" fill="#101010">id_segnalazione</text>
+<text x="1300" y="359" font-size="11" font-weight="700" text-anchor="end" fill="#555">FK</text>
+<text x="1070" y="379" font-size="12" fill="#666" font-style="italic">+ 16 altri attributi</text>
+<rect x="1060" y="438" width="250" height="100" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1060" y="438" width="250" height="30" fill="#101010"/><rect x="1060" y="463" width="250" height="5" fill="#009a44"/>
+<text x="1070" y="458" font-size="15" font-weight="700" fill="#ffffff">classificazioni</text>
+<text x="1070" y="483" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id_segnalazione</text>
+<text x="1300" y="483" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK FK</text>
+<text x="1070" y="503" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id_categoria</text>
+<text x="1300" y="503" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK FK</text>
+<text x="1070" y="523" font-size="12" fill="#666" font-style="italic">+ 2 altri attributi</text>
+<rect x="1400" y="90" width="250" height="90" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1400" y="90" width="250" height="30" fill="#101010"/><rect x="1400" y="115" width="250" height="5" fill="#009a44"/>
+<text x="1410" y="110" font-size="15" font-weight="700" fill="#ffffff">stati</text>
+<text x="1410" y="135" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="1640" y="135" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="1410" y="155" font-size="12" fill="#666" font-style="italic">+ 3 altri attributi</text>
+<rect x="1400" y="224" width="250" height="80" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1400" y="224" width="250" height="30" fill="#101010"/><rect x="1400" y="249" width="250" height="5" fill="#009a44"/>
+<text x="1410" y="244" font-size="15" font-weight="700" fill="#ffffff">transizioni_ammesse</text>
+<text x="1410" y="269" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id_stato_da</text>
+<text x="1640" y="269" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK FK</text>
+<text x="1410" y="289" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id_stato_a</text>
+<text x="1640" y="289" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK FK</text>
+<rect x="1400" y="348" width="250" height="80" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1400" y="348" width="250" height="30" fill="#101010"/><rect x="1400" y="373" width="250" height="5" fill="#009a44"/>
+<text x="1410" y="368" font-size="15" font-weight="700" fill="#ffffff">categorie</text>
+<text x="1410" y="393" font-size="13" font-weight="700" fill="#101010" text-decoration="underline">id</text>
+<text x="1640" y="393" font-size="11" font-weight="700" text-anchor="end" fill="#555">PK</text>
+<text x="1410" y="413" font-size="12" fill="#666" font-style="italic">+ 3 altri attributi</text>
+</svg>

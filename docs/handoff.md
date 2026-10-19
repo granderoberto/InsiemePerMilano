@@ -16,6 +16,10 @@
 - Contenuto bloccato dall'IA: resta non pubblico; revisione accolta = approvato con `esito_moderazione` ancora `bloccato`.
 - Modifiche allo schema: nuova migrazione, non si toccano quelle già applicate. Ultima: `004_statistiche_attivita.sql` (filtro attività nella vista statistiche; prima la 003, 2FA TOTP; applicate su `defaultdb` e `la_nostra_citta_test`).
 
+## Modello logico (2026-10-19)
+
+`docs/modello_logico.md` (+ `.png`/`.svg`): schema relazionale, dizionario, vincoli, passaggio dall'ER, normalizzazione. Si rigenera da `db/schema.sql` con `tools/logico/genera.py`.
+
 ## Verifica del documento (2026-10-12)
 
 Ora è facoltativa alla registrazione: l'account credenziali diventa attivo alla conferma dell'email; per **pubblicare** serve `identita_verificata` (SPID/CIE, verifica approvata, oppure moderatore/amministratore). Sostenere e commentare restano possibili senza verifica. Nessuna modifica allo schema.

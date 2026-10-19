@@ -13,7 +13,7 @@ Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua d
 |---|---|---|
 | 1. Analisi dei requisiti | fatto | [`docs/specifiche_utente.md`](docs/specifiche_utente.md) |
 | 2a. Modello ER (notazione di Chen) | fatto | [`docs/modello_er.pdf`](docs/modello_er.pdf), [`docs/modello_er.md`](docs/modello_er.md) |
-| 2b. Schema logico normalizzato | fatto (MySQL 8) | [`db/schema.sql`](db/schema.sql), [`db/schema.dbml`](db/schema.dbml) |
+| 2b. Schema logico normalizzato | fatto (MySQL 8) | [`docs/modello_logico.md`](docs/modello_logico.md), [`db/schema.sql`](db/schema.sql), [`db/schema.dbml`](db/schema.dbml) |
 | Database su Aiven con dati demo | fatto | [`db/`](db/README.md), [`tools/`](tools/) |
 | 3. Architettura di integrazione IA (schema a blocchi) | fatto | [`docs/architettura_ia.md`](docs/architettura_ia.md), [`docs/architettura_ia.png`](docs/architettura_ia.png) |
 | Implementazione della web app | in corso (prima versione funzionante, Django) | [`apps/web/`](apps/web/README.md), [`docs/spike_django_spid.md`](docs/spike_django_spid.md) |
@@ -36,6 +36,7 @@ Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua d
 │   ├── specifiche_utente.md   specifica funzionale completa (fonte di verità)
 │   ├── modello_er.md          entità, chiavi, associazioni con cardinalità, vincoli extra-diagramma
 │   ├── modello_er.{pdf,svg,png}   diagramma ER generato
+│   ├── modello_logico.{md,svg,png}   modello logico: schema relazionale, dizionario, normalizzazione, diagramma
 │   ├── handoff.md             stato del lavoro e prossimi passi
 │   ├── spike_django_spid.md   esiti della prova tecnica su Django e sull'SDK SPID/CIE
 │   └── prompt/
