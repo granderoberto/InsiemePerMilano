@@ -52,6 +52,22 @@ Il `Dockerfile` non è stato provato in questo ambiente (Docker non installato):
 
 I limiti del piano gratuito di Brevo vanno verificati sul sito del fornitore.
 
+### Alternativa: Gmail (senza dominio proprio)
+
+Va bene per una demo o un uso piccolo (circa 500 messaggi al giorno; il mittente è sempre l'indirizzo Gmail).
+
+1. Sull'account Google attiva la **verifica in due passaggi** (Sicurezza → Verifica in due passaggi).
+2. Crea una **password per le app**: <https://myaccount.google.com/apppasswords> → nome «La Nostra Città» → Google mostra 16 caratteri (si usa senza spazi). Non è la password dell'account e si può revocare.
+3. In `.env` (locale) e nelle variabili di Render imposta:
+   - `EMAIL_HOST=smtp.gmail.com`, `EMAIL_PORT=587`, `EMAIL_TLS=1`
+   - `EMAIL_USER=tuoindirizzo@gmail.com`
+   - `EMAIL_PASSWORD=` la password per le app
+   - `EMAIL_FROM=La Nostra Città <tuoindirizzo@gmail.com>` (Gmail sostituisce comunque il mittente con l'account autenticato)
+   - `SITE_URL=https://la-nostra-citta.onrender.com` (per i link nelle email)
+4. Prova: `cd apps/web && .venv/bin/python manage.py prova_email tuoindirizzo@gmail.com`. Se arriva, la registrazione e il recupero password funzionano.
+
+Se Google rifiuta l'accesso: la verifica in due passaggi non è attiva, la password per le app è sbagliata o ha spazi, oppure l'account è un account di lavoro/scuola che blocca le password per le app.
+
 ## 4. Dopo il primo avvio
 
 - Accedi come amministratore e controlla `/amministrazione/`. Crea l'amministratore vero e disattiva quelli demo (password `DemoMilano2026!` pubblica nel repository).
