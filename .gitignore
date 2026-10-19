@@ -37,3 +37,6 @@ skills-lock.json
 apps/web/modelli/*
 !apps/web/modelli/scarica.sh
 !apps/web/modelli/README.md
+
+# fac-simile di documento per provare la verifica (generato da tools/demo/documento_prova.py)
+apps/web/prova_documento/
