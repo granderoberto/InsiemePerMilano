@@ -103,7 +103,7 @@ box(1320, 660, 440, 90, "Fornitori di intelligenza artificiale", ["oggi simulati
 freccia([(1220, 705), (1320, 705)], "IA_BACKEND", 1270, 693, tratteggio=True)
 box(1320, 770, 440, 90, "Gmail · SMTP", ["smtp.gmail.com:587 (STARTTLS) · password per le app", "conferma dell'email, recupero password, avvisi"], GIALLO, piccolo=True)
 freccia([(1220, 815), (1320, 815)], "SMTP", 1270, 803)
-box(1320, 880, 440, 110, "Chiamati dal browser dell'utente", ["Leaflet (unpkg) · tile OpenStreetMap", "Nominatim per cercare un indirizzo", "geolocalizzazione e fotocamera del dispositivo"], INK, tratteggio=True, piccolo=True)
+box(1320, 880, 440, 110, "Servizi esterni usati dal browser", ["Leaflet (libreria delle mappe, da unpkg)", "OpenStreetMap: sfondo delle mappe e ricerca indirizzi", "geolocalizzazione e fotocamera del dispositivo"], INK, tratteggio=True, piccolo=True)
 freccia([(185, 220), (185, 245)], None)  # placeholder invisibile (non usato)
 o.pop()
 

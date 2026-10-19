@@ -3,7 +3,7 @@ Uso: DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib tools/.venv/bin/python tools/a
 import html, pathlib
 
 RADICE = pathlib.Path(__file__).resolve().parents[2]
-W, H = 1400, 860
+W, H = 1400, 910
 INK, ROSSO, VERDE, GIALLO, BLU, VIOLA = "#101010", "#e30613", "#009a44", "#ffc400", "#0a5eb0", "#8e4ea0"
 o = []
 
@@ -75,7 +75,7 @@ for i, c in enumerate([ROSSO, VERDE, GIALLO, BLU, VIOLA]): o.append(f'<circle cx
 
 # riga principale
 nodo(200, 330, "persone", "Persone", ["cittadini, moderatori,", "amministratore"], ROSSO)
-nodo(700, 330, "sito", "Il sito web", ["Django su Render"], VERDE)
+nodo(700, 330, "sito", "Il sito web", ["Django su Render", "con mappe e moduli"], VERDE)
 nodo(1200, 330, "database", "Il database", ["MySQL su Aiven"], GIALLO)
 freccia([(284, 330), (616, 330)], "HTTPS", 450, 310)
 freccia([(784, 330), (1116, 330)], "dati", 950, 310, doppia=True)
@@ -85,21 +85,21 @@ t(770, 122, "GitHub", 22, 800, INK, "start")
 t(770, 146, "il codice e i documenti", 14, 400, "#444", "start")
 freccia([(700, 182), (700, 244)], "deploy", 748, 214)
 # satelliti
-nodo(200, 690, "mappa", "Mappe", ["OpenStreetMap"], BLU, r=64)
+nodo(200, 690, "mappa", "OpenStreetMap", ["sfondo delle mappe", "e ricerca indirizzi"], BLU, r=64)
 nodo(560, 690, "email", "Email", ["Gmail"], GIALLO, r=64)
 nodo(840, 690, "identita", "SPID / CIE", ["ambiente di prova"], VIOLA, tratteggio=True, r=64)
 nodo(1120, 690, "ia", "Intelligenza", ["artificiale simulata"], VERDE, tratteggio=True, r=64)
-freccia([(200, 520), (200, 622)], "mappe e indirizzi", 200, 572)
+freccia([(200, 540), (200, 622)], "dal browser", 200, 586)
 # dal sito: una linea comune che si divide verso email, SPID/CIE e IA
 o.append(f'<path d="M700 520 L700 548 M560 548 L1120 548" fill="none" stroke="{INK}" stroke-width="5" stroke-linejoin="round"/>')
 freccia([(560, 548), (560, 622)], "email", 560, 590)
 freccia([(840, 548), (840, 622)], "accesso", 840, 590, tratteggio=True)
 freccia([(1120, 548), (1120, 622)], "controlli", 1120, 590, tratteggio=True)
 # legenda
-o.append(f'<line x1="50" y1="826" x2="110" y2="826" stroke="{INK}" stroke-width="5"/>')
-t(122, 831, "in uso", 15, 400, INK, "start")
-o.append(f'<line x1="230" y1="826" x2="290" y2="826" stroke="{INK}" stroke-width="5" stroke-dasharray="10 7"/>')
-t(302, 831, "simulato o di prova", 15, 400, INK, "start")
+o.append(f'<line x1="50" y1="876" x2="110" y2="876" stroke="{INK}" stroke-width="5"/>')
+t(122, 881, "in uso", 15, 400, INK, "start")
+o.append(f'<line x1="230" y1="876" x2="290" y2="876" stroke="{INK}" stroke-width="5" stroke-dasharray="10 7"/>')
+t(302, 881, "simulato o di prova", 15, 400, INK, "start")
 o.append("</svg>")
 svg = "\n".join(o)
 (RADICE / "docs" / "architettura_lite.svg").write_text(svg, encoding="utf-8")

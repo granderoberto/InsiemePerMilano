@@ -168,9 +168,9 @@
 <text x="1270" y="804" font-size="12" font-weight="700" fill="#101010" text-anchor="middle">SMTP</text>
 <rect x="1320" y="880" width="440" height="110" fill="#ffffff" stroke="#101010" stroke-width="2" stroke-dasharray="8 5"/>
 <rect x="1320" y="880" width="440" height="28" fill="#101010"/><rect x="1320" y="903" width="440" height="5" fill="#101010"/>
-<text x="1330" y="899" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Chiamati dal browser dell&#x27;utente</text>
-<text x="1330" y="930" font-size="12" font-weight="400" fill="#101010" text-anchor="start">Leaflet (unpkg) · tile OpenStreetMap</text>
-<text x="1330" y="946" font-size="12" font-weight="400" fill="#101010" text-anchor="start">Nominatim per cercare un indirizzo</text>
+<text x="1330" y="899" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Servizi esterni usati dal browser</text>
+<text x="1330" y="930" font-size="12" font-weight="400" fill="#101010" text-anchor="start">Leaflet (libreria delle mappe, da unpkg)</text>
+<text x="1330" y="946" font-size="12" font-weight="400" fill="#101010" text-anchor="start">OpenStreetMap: sfondo delle mappe e ricerca indirizzi</text>
 <text x="1330" y="962" font-size="12" font-weight="400" fill="#101010" text-anchor="start">geolocalizzazione e fotocamera del dispositivo</text>
 <rect x="440" y="940" width="780" height="120" fill="#ffffff" stroke="#101010" stroke-width="2" stroke-dasharray="8 5"/>
 <rect x="440" y="940" width="780" height="28" fill="#101010"/><rect x="440" y="963" width="780" height="5" fill="#8e4ea0"/>

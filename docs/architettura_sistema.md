@@ -19,7 +19,7 @@ Sorgente vettoriale: [`architettura_sistema.svg`](architettura_sistema.svg). Il 
 | Servizio SPID/CIE | Django separato con l'SDK OpenID Connect; consegna l'identità al sito con un token firmato | `apps/spid/` |
 | Email | SMTP (Gmail con password per le app) per conferma dell'indirizzo e recupero password | `core/services/email.py`, `docs/produzione.md` |
 | Intelligenza artificiale | un'interfaccia unica con un fornitore simulato; i fornitori veri sono da scegliere | `core/services/ia/`, `docs/architettura_ia.md` |
-| Servizi del browser | Leaflet, tile OpenStreetMap, Nominatim, geolocalizzazione e fotocamera | `apps/web/static/js/` |
+| Mappe | le mappe fanno parte del sito (Leaflet, segnaposto dal database, confini dei quartieri); solo lo sfondo e la ricerca degli indirizzi arrivano da OpenStreetMap, chiamati dal browser | `apps/web/static/js/` |
 | Rilascio | commit su GitHub, deploy automatico su Render con il `Dockerfile` | `render.yaml`, `apps/web/Dockerfile` |
 
 ## Flussi principali
