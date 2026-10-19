@@ -1,0 +1,4 @@
+{% load static %}<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-gesture-handling@1.2.2/dist/leaflet-gesture-handling.min.js"></script>
+<script>window.URL_CONTORNI = "{% url 'quartieri_geojson' %}"; window.URL_QUARTIERE = "{% url 'quartiere_da_posizione' %}";</script>
+<script src="{% static 'js/quartiere.js' %}?v={{ versione_css }}"></script>

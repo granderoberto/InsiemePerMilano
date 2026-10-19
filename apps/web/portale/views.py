@@ -382,7 +382,14 @@ def quartiere_da_posizione(request):
     except (KeyError, ValueError):
         return JsonResponse({"errore": "coordinate non valide"}, status=400)
     q = Quartiere.objects.filter(pk=qid).first() if qid else None
-    return JsonResponse({"dentro_milano": q is not None, "quartiere": q.nome_leggibile if q else None})
+    return JsonResponse({"dentro_milano": q is not None, "id": q.id if q else None, "quartiere": q.nome_leggibile if q else None})
+
+
+def quartieri_geojson(request):
+    """Contorni dei quartieri di Milano per la scelta da mappa (cambiano di rado: la risposta si può tenere in cache)."""
+    r = JsonResponse(geo.contorni_geojson())
+    r["Cache-Control"] = "public, max-age=86400"
+    return r
 
 
 # ------------------------------------------------------------------ accesso
@@ -567,7 +574,9 @@ def media_file(request, path):
 
 # ------------------------------------------------------------------ normative
 def pagina_normative(request):
-    return render(request, "portale/normative.html", {"documenti": normative.ultime_versioni().values()})
+    ordine = ["privacy", "termini_uso", "cookie", "intelligenza_artificiale", "biometrici", "eta_minima"]
+    docs = normative.ultime_versioni()
+    return render(request, "portale/normative.html", {"documenti": [docs[t] for t in ordine if t in docs] + [d for t, d in docs.items() if t not in ordine]})
 
 
 @login_required

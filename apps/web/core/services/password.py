@@ -75,7 +75,7 @@ def valida(p: str, nome="", cognome="", email="") -> list:
     if not r["simbolo"]:
         errori.append("Almeno un simbolo (per esempio ! ? % & # @ -).")
     if not r["massimo"]:
-        errori.append(f"Al massimo {MAX_BYTE} byte (circa 70 caratteri): è il limite della cifratura usata.")
+        errori.append("Troppo lunga: al massimo 72 caratteri (le lettere accentate e le emoji ne contano di più).")
     if errori:
         return errori
     if _radice(p) in _COMUNI or any(c in _radice(p) for c in _COMUNI if len(c) >= 6 and len(_radice(p)) <= len(c) + 3):

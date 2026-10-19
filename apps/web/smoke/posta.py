@@ -43,7 +43,7 @@ esito("il link usa SITE_URL e NON compare a schermo", m and "/conferma-email/" i
 esito("account ancora in attesa", u.stato_account == "in_attesa_verifica")
 Client().get(link_in(m[0][1])); u.refresh_from_db(); esito("il link ricevuto attiva l'account", u.stato_account == "attivo" and u.email_verificata_il)
 # --- reinvio con limite
-n0 = len(raccolta.msg); u2 = Utente.objects.filter(stato_account="in_attesa_verifica", metodo_registrazione="credenziali", email_verificata_il__isnull=True).first()
+n0 = len(raccolta.msg); u2 = Utente.objects.filter(stato_account="in_attesa_verifica", metodo_registrazione="credenziali", email_verificata_il__isnull=True, id__lte=154).first()
 if u2:
     d = Client(); d.login(email=u2.email, password=PW)
     for i in range(5): d.post("/profilo/conferma/")

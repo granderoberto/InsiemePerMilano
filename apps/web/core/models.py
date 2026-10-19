@@ -3,10 +3,31 @@
 Tutti `managed = False`: lo schema è dei file db/migrations/*.sql (vedi CLAUDE.md, regola di convivenza).
 Se cambi una colonna nel SQL, aggiorna qui il modello nello stesso commit.
 """
+import re
+
 import bcrypt
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.db.models.functions import Now
+
+
+_ACCENTI = {"A": "À", "E": "È", "I": "Ì", "O": "Ò", "U": "Ù"}
+_MINUSCOLE = {"DEI", "DEGLI", "DELLE", "DEL", "DELLA", "DI", "IN", "SUL", "E"}
+_TUTTE_MAIUSCOLE = {"QT", "XXII"}
+_SIGLE = {"Q.RE": "Quartiere", "PTA": "Porta", "P.TA": "Porta", "S.": "San"}
+
+
+def nome_quartiere(nome):
+    """«CITTA' STUDI» → «Città Studi», «PTA ROMANA» → «Porta Romana», «XXII MARZO» → «XXII Marzo»."""
+    nome = re.sub(r"([A-Z])'(?=\s|$)", lambda m: _ACCENTI.get(m.group(1), m.group(1)), nome.upper())
+    parole = []
+    for p in nome.split():
+        if p in _SIGLE: parole.append(_SIGLE[p])
+        elif p in _MINUSCOLE: parole.append(p.lower())
+        elif p in _TUTTE_MAIUSCOLE: parole.append(p)
+        else: parole.append("-".join(x.capitalize() for x in p.split("-")))
+    parole[0] = parole[0][:1].upper() + parole[0][1:]
+    return " ".join(parole)
 
 
 class Quartiere(models.Model):
@@ -25,7 +46,7 @@ class Quartiere(models.Model):
 
     @property
     def nome_leggibile(self):
-        return self.nome.title()
+        return nome_quartiere(self.nome)
 
 
 class UtenteManager(BaseUserManager):

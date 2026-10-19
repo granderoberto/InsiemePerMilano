@@ -1,5 +1,6 @@
-{% extends "base.html" %}{% block titolo %}Normative{% endblock %}
+{% extends "base.html" %}{% load portale_extra %}{% block titolo %}Normative{% endblock %}
 {% block contenuto %}<h1>Normative</h1>
 <p class="avviso avviso-simulazione">I testi qui sotto sono <strong>segnaposto</strong> della versione dimostrativa e non hanno valore legale.</p>
-{% for d in documenti %}<section class="riquadro" id="{{ d.tipo }}"><h2>{{ d.tipo|cut:"_"|title }} <span class="piccolo">· versione {{ d.versione }}, {{ d.pubblicato_il|date:"j F Y" }}</span></h2><p style="white-space:pre-line">{{ d.testo }}</p></section>{% endfor %}
+<nav class="indice-normative" aria-label="Documenti"><ul>{% for d in documenti %}<li><a href="#{{ d.tipo }}">{{ d.tipo|titolo_normativa }}</a></li>{% endfor %}</ul></nav>
+{% for d in documenti %}<section class="riquadro riquadro-testo" id="{{ d.tipo }}"><h2>{{ d.tipo|titolo_normativa }}</h2><p class="piccolo">Versione {{ d.versione }} · pubblicata il {{ d.pubblicato_il|date:"j F Y" }}</p><p class="testo-normativa">{{ d.testo }}</p><p class="piccolo"><a href="#contenuto">Torna all'inizio</a></p></section>{% endfor %}
 {% endblock %}

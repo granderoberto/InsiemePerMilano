@@ -7,16 +7,36 @@ from core.models import Categoria, Quartiere, Utente
 import time
 
 from django.core import signing
+from django.utils.safestring import mark_safe
 
 from core.services import file_documento, password
 
+class QuartiereMilano(forms.ModelChoiceField):
+    """Scelta del quartiere (NIL del Comune di Milano) dall'elenco o dalla mappa (static/js/quartiere.js)."""
+
+    def __init__(self, **kw):
+        kw.setdefault("queryset", Quartiere.objects.order_by("nome"))
+        kw.setdefault("required", False)
+        kw.setdefault("empty_label", "— nessuno —")
+        kw.setdefault("widget", forms.Select(attrs={"data-mappa-quartiere": "1"}))
+        super().__init__(**kw)
+
+    def label_from_instance(self, q):
+        return q.nome_leggibile
+
+
+def _l(tipo, testo):
+    """Testo del documento come collegamento alla pagina delle normative (si apre in un'altra scheda: il modulo resta com'è)."""
+    return f'<a href="/normative/#{tipo}" target="_blank" rel="noopener">{testo}</a>'
+
+
 MESSAGGI_CONSENSI = {
-    "privacy": "Ho letto l'informativa sulla privacy (GDPR, art. 13)",
-    "biometrici": "Acconsento al trattamento dei dati biometrici per il confronto del selfie (GDPR, art. 9)",
-    "intelligenza_artificiale": "Ho letto l'informativa sull'uso dell'intelligenza artificiale e so di poter chiedere la revisione di una persona (art. 22)",
-    "termini_uso": "Accetto i termini d'uso e il regolamento della community",
-    "cookie": "Ho letto la cookie policy",
-    "eta_minima": "Dichiaro di avere almeno 14 anni",
+    "privacy": mark_safe(f"Ho letto l'{_l('privacy', 'informativa sulla privacy')} (GDPR, art. 13)"),
+    "biometrici": mark_safe(f"Acconsento al {_l('biometrici', 'trattamento dei dati biometrici')} per il confronto del selfie (GDPR, art. 9)"),
+    "intelligenza_artificiale": mark_safe(f"Ho letto l'{_l('intelligenza_artificiale', 'informativa sull&#x27;uso dell&#x27;intelligenza artificiale')} e so di poter chiedere la revisione di una persona (art. 22)"),
+    "termini_uso": mark_safe(f"Accetto i {_l('termini_uso', 'termini d&#x27;uso')} e il regolamento della community"),
+    "cookie": mark_safe(f"Ho letto la {_l('cookie', 'cookie policy')}"),
+    "eta_minima": mark_safe(f"Dichiaro di avere almeno 14 anni ({_l('eta_minima', 'perché')})"),
 }
 
 
@@ -96,13 +116,11 @@ class RegistrazioneForm(forms.Form):
     nome = forms.CharField(label="Nome", max_length=50)
     cognome = forms.CharField(label="Cognome", max_length=50)
     email = forms.EmailField(label="Email", max_length=254)
-    password = forms.CharField(label="Password", widget=forms.PasswordInput(attrs=_NUOVA),
-                               help_text="Almeno 8 caratteri, con una maiuscola, un numero e un simbolo.")
+    password = forms.CharField(label="Password", widget=forms.PasswordInput(attrs=_NUOVA))
     password2 = forms.CharField(label="Ripeti la password", widget=forms.PasswordInput(attrs={"autocomplete": "new-password", "data-conferma": "password"}))
     data_nascita = forms.DateField(label="Data di nascita", widget=forms.DateInput(attrs={"type": "date"}),
                                    help_text="Età minima: 14 anni.")
-    quartiere = forms.ModelChoiceField(label="Quartiere di residenza (facoltativo)", queryset=Quartiere.objects.all(),
-                                       required=False, empty_label="— nessuno —")
+    quartiere = QuartiereMilano(label="Quartiere di residenza (facoltativo)")
     privacy = forms.BooleanField(label=MESSAGGI_CONSENSI["privacy"])
     intelligenza_artificiale = forms.BooleanField(label=MESSAGGI_CONSENSI["intelligenza_artificiale"])
     termini_uso = forms.BooleanField(label=MESSAGGI_CONSENSI["termini_uso"])
@@ -146,7 +164,7 @@ class SpidCompletaForm(forms.Form):
     """Primo accesso con SPID/CIE: nome, cognome e codice fiscale arrivano dal gestore di identità e non si modificano."""
     email = forms.EmailField(label="Email", max_length=254)
     data_nascita = forms.DateField(label="Data di nascita", required=False, widget=forms.DateInput(attrs={"type": "date"}))
-    quartiere = forms.ModelChoiceField(label="Quartiere di residenza (facoltativo)", queryset=Quartiere.objects.all(), required=False, empty_label="— nessuno —")
+    quartiere = QuartiereMilano(label="Quartiere di residenza (facoltativo)")
     privacy = forms.BooleanField(label=MESSAGGI_CONSENSI["privacy"])
     intelligenza_artificiale = forms.BooleanField(label=MESSAGGI_CONSENSI["intelligenza_artificiale"])
     termini_uso = forms.BooleanField(label=MESSAGGI_CONSENSI["termini_uso"])
@@ -180,8 +198,7 @@ _NUOVA = {"data-password": "nuova", "autocomplete": "new-password"}
 
 
 class PasswordForm(forms.Form):
-    password = forms.CharField(label="Nuova password", widget=forms.PasswordInput(attrs=_NUOVA),
-                               help_text="Almeno 8 caratteri, con una maiuscola, un numero e un simbolo.")
+    password = forms.CharField(label="Nuova password", widget=forms.PasswordInput(attrs=_NUOVA))
     password2 = forms.CharField(label="Ripeti la password", widget=forms.PasswordInput(attrs={"autocomplete": "new-password", "data-conferma": "password"}))
 
     def __init__(self, *a, utente=None, **kw):

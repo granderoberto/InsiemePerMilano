@@ -75,7 +75,7 @@ FORM: segnaletica milanese (direzione scelta dall'autore). FINISH: unreviewed an
     <div>
     <h2>La piattaforma</h2>
     <p><strong>La Nostra Città, Il Nostro Futuro</strong><br>Progetto d'esame per il comitato «Insieme per Milano».</p>
-    <p class="piccolo"><a href="{% url 'normative' %}">Normative (privacy, termini d'uso, cookie)</a></p>
+    <p class="piccolo"><a href="{% url 'normative' %}#privacy">Privacy</a> · <a href="{% url 'normative' %}#termini_uso">Termini d'uso</a> · <a href="{% url 'normative' %}#cookie">Cookie policy</a> · <a href="{% url 'normative' %}#intelligenza_artificiale">Intelligenza artificiale</a> · <a href="{% url 'normative' %}">Tutte le normative</a></p>
     </div>
     <div>
     <h2>Nota</h2>
@@ -96,6 +96,7 @@ document.querySelectorAll('form[method="post"]').forEach(f => f.addEventListener
   setTimeout(() => { delete f.dataset.inviato; b.textContent = b.dataset.testo; b.removeAttribute('aria-busy'); }, 30000);
 }));
 </script>
+<script src="{% static 'js/password.js' %}?v={{ versione_css }}"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

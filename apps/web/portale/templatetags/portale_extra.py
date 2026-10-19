@@ -11,6 +11,16 @@ def classe_categoria(nome):
     return "cat-" + slugify(nome or "")
 
 
+TITOLI_NORMATIVE = {"privacy": "Informativa sulla privacy", "termini_uso": "Termini d'uso e regolamento della community", "cookie": "Cookie policy",
+                    "intelligenza_artificiale": "Informativa sull'uso dell'intelligenza artificiale", "biometrici": "Consenso al trattamento dei dati biometrici",
+                    "eta_minima": "Età minima per registrarsi"}
+
+
+@register.filter
+def titolo_normativa(tipo):
+    return TITOLI_NORMATIVE.get(tipo, tipo.replace("_", " ").capitalize())
+
+
 @register.filter
 def url_media(percorso):
     return "/" + percorso.lstrip("/")

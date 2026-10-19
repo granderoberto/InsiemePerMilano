@@ -19,6 +19,7 @@ urlpatterns = [
     path("api/segnalazioni/<int:pk>/sostieni/", views.sostieni_json, name="sostieni_json"),
     path("api/suggerisci-categorie/", views.suggerisci_categorie, name="suggerisci_categorie"),
     path("api/quartiere/", views.quartiere_da_posizione, name="quartiere_da_posizione"),
+    path("api/quartieri.geojson", views.quartieri_geojson, name="quartieri_geojson"),
     path("accedi/", views.accedi, name="accedi"),
     path("accedi/2fa/", views_mfa.secondo_passo, name="accedi_2fa"),
     path("profilo/2fa/", views_mfa.attiva, name="mfa_attiva"),

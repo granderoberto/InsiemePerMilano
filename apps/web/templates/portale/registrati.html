@@ -1,4 +1,5 @@
 {% extends "base.html" %}{% block titolo %}Registrati{% endblock %}
+{% block head %}{% include "portale/_quartiere_head.html" %}{% endblock %}
 {% block contenuto %}
 <div class="accesso">
   <h1>Registrati</h1>
@@ -20,4 +21,4 @@
   <p>Hai già un account? <a href="{% url 'accedi' %}">Accedi</a>.</p>
 </div>
 {% endblock %}
-{% block scripts %}{% load static %}<script src="{% static 'js/password.js' %}?v={{ versione_css }}"></script>{% endblock %}
+{% block scripts %}{% include "portale/_quartiere_scripts.html" %}{% endblock %}
