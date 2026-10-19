@@ -16,6 +16,7 @@ from django.http import FileResponse, Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
@@ -23,7 +24,7 @@ from core.models import (APPROVATA, PRESENTATA, Candidato, Categoria, Classifica
                          DocumentoNormativo, Media, Notifica, PreferenzaNotifica, Quartiere, RichiestaRevisione, Segnalazione, Sostegno, Stato,
                          Utente, VerificaIdentita)
 from core.queries import con_conteggi
-from core.services import geo, ia, log, media as servizio_media, normative, simili
+from core.services import archivio_media, geo, ia, log, media as servizio_media, normative, simili
 from core.services.errori import RegolaViolata, traduci
 from core.services.stati import cambia_stato
 
@@ -108,7 +109,7 @@ def applica_filtri(qs, g):
 
 def con_dettagli(qs):
     return qs.prefetch_related(
-        Prefetch("media", queryset=Media.objects.filter(copertina=True), to_attr="copertina_lista"),
+        Prefetch("media", queryset=Media.objects.filter(tipo="foto").order_by("-copertina", "ordine"), to_attr="copertina_lista"),
         Prefetch("classificazioni", queryset=Classificazione.objects.select_related("categoria"), to_attr="cat_lista"))
 
 
@@ -328,11 +329,11 @@ def nuova(request):
                 s = crea_segnalazione(request.user, d, qid, salvati, d["categorie"])
             except (RegolaViolata, servizio_media.MediaNonValido) as e:
                 for m in salvati:
-                    (Path(settings.MEDIA_ROOT) / m["percorso"]).unlink(missing_ok=True)
+                    servizio_media.rimuovi(m["percorso"])
                 form.add_error(None, str(e))
             except DatabaseError as e:
                 for m in salvati:
-                    (Path(settings.MEDIA_ROOT) / m["percorso"]).unlink(missing_ok=True)
+                    servizio_media.rimuovi(m["percorso"])
                 form.add_error(None, str(traduci(e)))
             else:
                 messages.success(request, "Segnalazione inviata: ora è in attesa della valutazione di un moderatore.")
@@ -558,18 +559,34 @@ def salute(request):
 
 
 # ------------------------------------------------------------------ file multimediali
+def _file_demo(path):
+    """I media dei dati demo hanno percorsi fittizi (media/demo/<id>.jpg|mp4): si mostra un'immagine o un video di esempio della stessa categoria."""
+    m = re.fullmatch(r"demo/(\d+)\.(jpg|mp4)", path)
+    if not m:
+        return None
+    mid, radice = int(m.group(1)), Path(settings.BASE_DIR) / "static" / "demo"
+    if m.group(2) == "mp4":
+        video = sorted((radice / "video").glob("*.mp4"))
+        return video[mid % len(video)] if video else None
+    nome = (Media.objects.filter(pk=mid).values_list("segnalazione__classificazioni__categoria__nome", flat=True).first()) or ""
+    cartella = radice / slugify(nome)
+    foto = sorted(cartella.glob("*.jpg")) if cartella.is_dir() else sorted(radice.glob("*/*.jpg"))
+    return foto[mid % len(foto)] if foto else None
+
+
 def media_file(request, path):
     radice = (Path(settings.MEDIA_ROOT) / "media").resolve()
     f = (radice / path).resolve()
     if f.is_file() and radice in f.parents:
         return FileResponse(open(f, "rb"))
-    # i dati demo hanno percorsi fittizi: restituisco un segnaposto
-    tinta = int(hashlib.md5(path.encode()).hexdigest()[:6], 16) % 360
-    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Immagine di esempio">'
-           f'<rect width="640" height="400" fill="hsl({tinta} 35% 82%)"/><circle cx="320" cy="170" r="54" fill="hsl({tinta} 30% 62%)"/>'
-           f'<path d="M0 400 L180 250 L300 330 L430 220 L640 400Z" fill="hsl({tinta} 32% 70%)"/>'
-           f'<text x="320" y="318" text-anchor="middle" font-family="sans-serif" font-size="22" fill="hsl({tinta} 30% 28%)">Foto di esempio (dati demo)</text></svg>')
-    return HttpResponse(svg, content_type="image/svg+xml")
+    demo = _file_demo(path)
+    if demo:
+        r = FileResponse(open(demo, "rb")); r["Cache-Control"] = "public, max-age=86400"; return r
+    # il file non è sul disco (disco temporaneo dell'hosting): lo si rimette a posto dall'archivio nel database
+    if archivio_media.ripristina("media/" + path):
+        if f.is_file() and radice in f.parents:
+            return FileResponse(open(f, "rb"))
+    raise Http404()
 
 
 # ------------------------------------------------------------------ normative

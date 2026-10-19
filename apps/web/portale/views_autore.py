@@ -85,7 +85,7 @@ def modifica(request, pk):
                                          punteggio_violenza=Decimal("0.020"))
             for m in esistenti:
                 if m.id in rimuovi:
-                    _file_media(m).unlink(missing_ok=True)
+                    servizio_media.rimuovi(m.percorso)
             dopo = {"titolo": s.titolo, "descrizione": s.descrizione, "tipo": s.tipo, "indirizzo": s.indirizzo,
                     "latitudine": str(s.latitudine), "longitudine": str(s.longitudine), "id_quartiere": qid,
                     "categorie": [c.id for c in d["categorie"]], "n_media": len(tenuti) + len(nuovi)}
@@ -98,11 +98,11 @@ def modifica(request, pk):
                          reverse("dettaglio", args=[s.id]))
         except (RegolaViolata, servizio_media.MediaNonValido) as e:
             for m in nuovi:
-                (Path(settings.MEDIA_ROOT) / m["percorso"]).unlink(missing_ok=True)
+                servizio_media.rimuovi(m["percorso"])
             form.add_error(None, str(e))
         except DatabaseError as e:
             for m in nuovi:
-                (Path(settings.MEDIA_ROOT) / m["percorso"]).unlink(missing_ok=True)
+                servizio_media.rimuovi(m["percorso"])
             form.add_error(None, str(traduci(e)))
         else:
             messages.success(request, "Segnalazione aggiornata. Ha ripassato i controlli automatici.")

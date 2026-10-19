@@ -27,7 +27,7 @@ db/
   schema.sql             MySQL 8.0+: tabelle, ENUM, CHECK, trigger, viste, seed (riferimento completo)
   schema.dbml            stesso schema per dbdiagram.io (solo tabelle e relazioni)
   test_vincoli.sql       casi di test dei vincoli (righe "ERRORE ATTESO" devono fallire)
-  migrations/            001_schema.sql, 002_dati_riferimento.sql, 003_mfa_segreto.sql, 004_statistiche_attivita.sql (applicate da tools/db/migrate.sh)
+  migrations/            001_schema.sql, 002_dati_riferimento.sql, 003_mfa_segreto.sql, 004_statistiche_attivita.sql, 005_media_contenuti.sql (applicate da tools/db/migrate.sh)
   data/                  GeoJSON sorgente dei NIL e dei Municipi (Comune di Milano, CC BY) + README fonti
   README.md              come ricreare il database da zero
 docs/prompt/
@@ -156,6 +156,10 @@ Note sui dati:
 - `v_statistiche_utenti` conta come attività solo `creazione`/`commento`/`sostegno` su `segnalazioni`, `commenti`, `sostegni` (migrazione 004).
 - Per `confine` si è valutato il tipo spaziale (`POLYGON SRID 4326` + SPATIAL): funziona con `ST_Contains(geom, ST_SRID(POINT(lon, lat), 4326))`, ma 2 poligoni (`CASCINA MERLATA`, `ASSIANO`) risultano invalidi per MySQL. Decisione rinviata; oggi il controllo punto-in-poligono va fatto nell'applicazione.
 - Il servizio Free si spegne se inattivo: se la connessione fallisce, riaccenderlo dalla console Aiven.
+
+## File caricati (foto e video)
+
+Salvati su disco in `MEDIA_ROOT` (`DATA_DIR/media`), ridotti (lato massimo 2400 px), con EXIF e profilo colore tolti; i video senza metadati (serve `ffmpeg`/`ffprobe`, installato nel `Dockerfile`). Ogni file è copiato anche nel database, a pezzi da 4 MB, nella tabella tecnica `media_contenuti` (migrazione 005): se il disco dell'hosting è temporaneo (piano gratuito di Render) `/media/...` ripristina il file dal database. HEIC (iPhone) → JPEG. Le foto e i video dei **dati demo** hanno percorsi fittizi (`media/demo/<id>`): la vista `media_file` mostra immagini e video di esempio disegnati (`apps/web/static/demo/`, generati da `tools/demo/genera_foto.py`, non sono fotografie reali). Prova: `apps/web/smoke/media.py`.
 
 ## Produzione
 

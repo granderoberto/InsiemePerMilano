@@ -212,6 +212,14 @@ CREATE TABLE media (
   )
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Copia dei file caricati nel database (a pezzi da 4 MB): serve se il disco dell'hosting è temporaneo. Tabella tecnica, non entità del dominio.
+CREATE TABLE media_contenuti (
+  percorso VARCHAR(255) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+  parte    SMALLINT NOT NULL,
+  dati     MEDIUMBLOB NOT NULL,
+  PRIMARY KEY (percorso, parte)
+) ENGINE=InnoDB;
+
 CREATE TABLE classificazioni (
   id_segnalazione INT NOT NULL,
   id_categoria    SMALLINT NOT NULL,

@@ -34,7 +34,7 @@ Cambiare la password di `avnadmin` e creare un utente applicativo con soli i per
 
 1. Crea un account su Render e collega il repository GitHub: **New → Blueprint** (legge `render.yaml`).
 2. Compila le variabili marcate `sync: false` (vedi `.env.example`): `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_ORIGINS`, `SITE_URL`, `DB_*`, `DB_CA_PEM`, `EMAIL_*`.
-3. `render.yaml` usa il **piano gratuito** (nessun costo, nessun disco: le foto caricate si perdono a ogni riavvio e il sito si addormenta dopo un po' di inattività, la prima richiesta è lenta). Per conservare i file: `plan: starter` e decommentare il blocco `disk`. Il disco persistente (`/data`, variabile `DATA_DIR`) **non esiste nel piano gratuito**: serve un piano a pagamento (verificare prezzi sul sito). Senza disco, le foto caricate sparirebbero a ogni riavvio.
+3. `render.yaml` usa il **piano gratuito** (nessun costo, nessun disco: le foto caricate si perdono a ogni riavvio e il sito si addormenta dopo un po' di inattività, la prima richiesta è lenta). Per conservare i file: `plan: starter` e decommentare il blocco `disk`. Il disco persistente (`/data`, variabile `DATA_DIR`) **non esiste nel piano gratuito**: serve un piano a pagamento (verificare prezzi sul sito). Senza disco, i file sul disco spariscono a ogni riavvio, ma sono anche copiati nel database (tabella `media_contenuti`) e si ripristinano da lì alla prima richiesta.
 4. `DJANGO_SECRET_KEY` viene generata alla creazione e **non deve cambiare**: da essa derivano le chiavi che cifrano i segreti 2FA e l'archivio temporaneo.
 5. Dominio: *Settings → Custom Domains* e record DNS indicati da Render; HTTPS è automatico.
 6. Controllo di stato: `/salute/` (con `?db=1` verifica anche il database).

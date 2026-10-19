@@ -267,6 +267,14 @@ Table media {
   }
 }
 
+// Tabella tecnica: copia dei file caricati nel database (a pezzi da 4 MB), per dischi di hosting temporanei. Non è un'entità del dominio.
+Table media_contenuti {
+  percorso varchar(255) [not null, note: 'come media.percorso']
+  parte smallint [not null]
+  dati mediumblob [not null]
+  indexes { (percorso, parte) [pk] }
+}
+
 Table classificazioni {
   id_segnalazione integer [not null, ref: > segnalazioni.id]
   id_categoria smallint [not null, ref: > categorie.id]

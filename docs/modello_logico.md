@@ -40,6 +40,8 @@ Il modello logico traduce il modello ER ([`modello_er.md`](modello_er.md)) in un
 
 **MEDIA** ( <u>id</u>, *id_segnalazione*, tipo, percorso, mime_type, dimensione_byte, durata_sec, ordine, copertina, copertina_di, exif_lat, exif_lon, esito_visione, punteggio_sessuale, punteggio_violenza, testo_ocr, esito_testo_ocr, caricato_il )
 
+**MEDIA_CONTENUTI** ( <u>percorso</u>, <u>parte</u>, dati )
+
 **CLASSIFICAZIONI** ( <u>*id_segnalazione*</u>, <u>*id_categoria*</u>, origine, confidenza )
 
 **CAMBI_STATO** ( <u>id</u>, *id_segnalazione*, *id_stato_da*, *id_stato_a*, *id_operatore*, nota, avvenuto_il )
@@ -309,6 +311,16 @@ Vincoli CHECK:
 - `chk_media_punt_viol`: `punteggio_violenza BETWEEN 0 AND 1`
 - `chk_limiti_media`: `(tipo = 'foto' AND mime_type IN ('image/jpeg','image/png','image/heic') AND dimensione_byte <= 10485760 AND durata_sec IS NULL) OR (tipo = 'video' AND mime_type IN ('video/mp4','video/quicktime') AND dimensione_byte <= 52428800 AND durata_sec BETWEEN 1 AND 60)`
 
+#### `media_contenuti`
+
+Tabella tecnica (non è un'entità del dominio): copia dei file caricati a pezzi da 4 MB, per ripristinarli se il disco dell'hosting è temporaneo.
+
+| Colonna | Tipo | Null | Note |
+|---|---|---|---|
+| `percorso` | `VARCHAR(255)` | no | PK (composta) |
+| `parte` | `SMALLINT` | no | PK (composta) |
+| `dati` | `MEDIUMBLOB` | no |  |
+
 #### `classificazioni`
 
 Categorie assegnate a una segnalazione, con origine (IA, utente, moderatore) e confidenza (associazione N:N).
@@ -531,7 +543,7 @@ Vincoli CHECK:
 | `preferenze_notifica` | `id_utente` | `utenti` | `id` | RESTRICT (predefinita) |
 | `log_attivita` | `id_utente` | `utenti` | `id` | RESTRICT (predefinita) |
 
-Totale: 39 chiavi esterne tra 21 tabelle.
+Totale: 39 chiavi esterne tra 22 tabelle.
 
 ## Dal modello ER al modello logico
 

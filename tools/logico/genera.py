@@ -7,7 +7,7 @@ SQL = (RADICE / "db" / "schema.sql").read_text(encoding="utf-8")
 
 DOMINI = [
     ("Utenti e accesso", ["quartieri", "utenti", "verifiche_identita", "sospensioni", "documenti_normativi", "consensi"]),
-    ("Segnalazioni", ["stati", "transizioni_ammesse", "categorie", "segnalazioni", "media", "classificazioni", "cambi_stato"]),
+    ("Segnalazioni", ["stati", "transizioni_ammesse", "categorie", "segnalazioni", "media", "media_contenuti", "classificazioni", "cambi_stato"]),
     ("Community", ["sostegni", "commenti", "candidati", "invii"]),
     ("Moderazione, notifiche e log", ["richieste_revisione", "notifiche", "preferenze_notifica", "log_attivita"]),
 ]
@@ -23,6 +23,7 @@ DESCRIZIONI = {
     "categorie": "Categorie tematiche (ambiente, mobilità, decoro, sicurezza, giovani) attivabili dall'amministratore.",
     "segnalazioni": "Segnalazioni e proposte dei cittadini, con posizione, stato, esito della moderazione IA ed eliminazione logica.",
     "media": "Foto e video allegati (1-10 per segnalazione) con gli esiti dei controlli visivi.",
+    "media_contenuti": "Tabella tecnica (non è un'entità del dominio): copia dei file caricati a pezzi da 4 MB, per ripristinarli se il disco dell'hosting è temporaneo.",
     "classificazioni": "Categorie assegnate a una segnalazione, con origine (IA, utente, moderatore) e confidenza (associazione N:N).",
     "cambi_stato": "Cronologia degli stati di una segnalazione, con chi e quando.",
     "sostegni": "Sostegno di un utente a una segnalazione (associazione N:N, uno per coppia).",
@@ -220,7 +221,7 @@ COLONNE = [
     ["quartieri", "documenti_normativi", "consensi", "sospensioni", "verifiche_identita"],
     ["utenti", "notifiche", "preferenze_notifica", "log_attivita"],
     ["sostegni", "commenti", "richieste_revisione", "cambi_stato", "invii", "candidati"],
-    ["segnalazioni", "media", "classificazioni"],
+    ["segnalazioni", "media", "media_contenuti", "classificazioni"],
     ["stati", "transizioni_ammesse", "categorie"],
 ]
 ALTEZZA_MINIMA = {"utenti": 150, "segnalazioni": 150, "stati": 90}
