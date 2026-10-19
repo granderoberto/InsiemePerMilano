@@ -52,7 +52,22 @@ Il `Dockerfile` non è stato provato in questo ambiente (Docker non installato):
 
 I limiti del piano gratuito di Brevo vanno verificati sul sito del fornitore.
 
-### Alternativa: Gmail (senza dominio proprio)
+### Su Render gratuito: Gmail API (HTTPS)
+
+**Render nel piano gratuito blocca l'SMTP in uscita** (porte 25, 465 e 587): con l'SMTP di Gmail il sito dice «non siamo riusciti a spedire l'email di conferma». Si risolve inviando con l'**API di Gmail** (porta 443), gratis e senza dominio proprio. Il codice è `core/email_backend.py`; basta compilare tre variabili.
+
+1. Vai su <https://console.cloud.google.com> con l'account Gmail e crea un **progetto** (nome libero, per esempio «La Nostra Citta»).
+2. **API e servizi → Libreria → Gmail API → Abilita**.
+3. **Schermata di consenso OAuth** (Google Auth platform): tipo di utente *Esterno*; nome app, email di assistenza e di contatto; negli **ambiti** aggiungi `.../auth/gmail.send`; tra gli **utenti di test** aggiungi il tuo indirizzo Gmail. Poi premi **Pubblica l'app** (stato «In produzione»): senza, il token scade dopo 7 giorni. Google mostrerà «app non verificata»: per uso personale va bene.
+4. **Credenziali → Crea credenziali → ID client OAuth → Tipo: App desktop**. Copia *ID client* e *Client secret*.
+5. Nel `.env` scrivi `GMAIL_CLIENT_ID=` e `GMAIL_CLIENT_SECRET=` (e `EMAIL_FROM=La Nostra Città <tuoindirizzo@gmail.com>`; deve essere l'account autenticato).
+6. Lancia `tools/.venv/bin/python tools/email/ottieni_token_gmail.py`: si apre il browser, accedi, scegli «Avanzate → Vai a … (non sicuro)» e consenti l'invio di email. Lo script scrive `GMAIL_REFRESH_TOKEN` nel `.env` senza mostrarlo.
+7. Prova: `cd apps/web && .venv/bin/python manage.py prova_email tuoindirizzo@gmail.com`.
+8. Su Render aggiungi `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`, `EMAIL_FROM` e `SITE_URL`; poi *Manual Deploy*. Con le variabili `GMAIL_*` presenti, l'API ha la precedenza sull'SMTP.
+
+La prova automatica `apps/web/smoke/gmail_api.py` controlla il codice contro un finto server (nessuna email vera).
+
+### Alternativa: Gmail con SMTP (in locale o su un hosting che non lo blocca)
 
 Va bene per una demo o un uso piccolo (circa 500 messaggi al giorno; il mittente è sempre l'indirizzo Gmail).
 
@@ -66,7 +81,7 @@ Va bene per una demo o un uso piccolo (circa 500 messaggi al giorno; il mittente
    - `SITE_URL=https://la-nostra-citta.onrender.com` (per i link nelle email)
 4. Prova: `cd apps/web && .venv/bin/python manage.py prova_email tuoindirizzo@gmail.com`. Se arriva, la registrazione e il recupero password funzionano.
 
-Se Google rifiuta l'accesso: la verifica in due passaggi non è attiva, la password per le app è sbagliata o ha spazi, oppure l'account è un account di lavoro/scuola che blocca le password per le app.
+Su Render gratuito questo metodo **non funziona** (SMTP bloccato): usa la Gmail API qui sopra. Se Google rifiuta l'accesso: la verifica in due passaggi non è attiva, la password per le app è sbagliata o ha spazi, oppure l'account è un account di lavoro/scuola che blocca le password per le app.
 
 ## 4. Dopo il primo avvio
 

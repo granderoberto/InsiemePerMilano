@@ -171,7 +171,11 @@ SIMULAZIONE_VERIFICA_DOCUMENTO = IA_BACKEND.endswith(".simulato")
 
 # Email: con EMAIL_HOST in .env si usa un server SMTP vero; senza, escono sulla console del server (solo sviluppo)
 EMAIL_HOST = _e("EMAIL_HOST")
-EMAIL_BACKEND = ("django.core.mail.backends.smtp.EmailBackend" if EMAIL_HOST else "django.core.mail.backends.console.EmailBackend")
+# API di Gmail (HTTPS): per gli hosting che bloccano l'SMTP in uscita (Render gratuito). Ha la precedenza sull'SMTP.
+GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN = _e("GMAIL_CLIENT_ID"), _e("GMAIL_CLIENT_SECRET"), _e("GMAIL_REFRESH_TOKEN")
+GMAIL_API_ATTIVA = bool(GMAIL_CLIENT_ID and GMAIL_CLIENT_SECRET and GMAIL_REFRESH_TOKEN)
+EMAIL_BACKEND = ("core.email_backend.GmailApiBackend" if GMAIL_API_ATTIVA
+                 else "django.core.mail.backends.smtp.EmailBackend" if EMAIL_HOST else "django.core.mail.backends.console.EmailBackend")
 EMAIL_PORT = int(_e("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = _e("EMAIL_USER")
 EMAIL_HOST_PASSWORD = _e("EMAIL_PASSWORD")

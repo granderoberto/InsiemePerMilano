@@ -12,8 +12,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, destinatario, **opzioni):
         if "console" in settings.EMAIL_BACKEND:
-            raise CommandError("EMAIL_HOST non è impostato: le email escono solo sulla console. Vedi docs/produzione.md.")
-        self.stdout.write(f"Server {settings.EMAIL_HOST}:{settings.EMAIL_PORT} (SSL={settings.EMAIL_USE_SSL}, STARTTLS={settings.EMAIL_USE_TLS}), mittente {settings.DEFAULT_FROM_EMAIL}")
+            raise CommandError("Né EMAIL_HOST né le credenziali dell'API di Gmail sono impostati: le email escono solo sulla console. Vedi docs/produzione.md.")
+        if settings.EMAIL_BACKEND.endswith("GmailApiBackend"):
+            self.stdout.write(f"API di Gmail (HTTPS), mittente {settings.DEFAULT_FROM_EMAIL}")
+        else:
+            self.stdout.write(f"Server {settings.EMAIL_HOST}:{settings.EMAIL_PORT} (SSL={settings.EMAIL_USE_SSL}, STARTTLS={settings.EMAIL_USE_TLS}), mittente {settings.DEFAULT_FROM_EMAIL}")
         msg = EmailMultiAlternatives("Prova di invio · La Nostra Città", "Se leggi questo messaggio, l'invio delle email funziona.", settings.DEFAULT_FROM_EMAIL, [destinatario])
         msg.attach_alternative("<p>Se leggi questo messaggio, <strong>l'invio delle email funziona</strong>.</p>", "text/html")
         try:

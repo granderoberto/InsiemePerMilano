@@ -26,6 +26,9 @@ services:
       - { key: DB_PASSWORD, sync: false }
       - { key: DJANGO_DB_NAME, value: defaultdb }
       - { key: DB_CA_PEM, sync: false }
+      - { key: GMAIL_CLIENT_ID, sync: false }
+      - { key: GMAIL_CLIENT_SECRET, sync: false }
+      - { key: GMAIL_REFRESH_TOKEN, sync: false }
       - { key: EMAIL_HOST, sync: false }
       - { key: EMAIL_USER, sync: false }
       - { key: EMAIL_PASSWORD, sync: false }
