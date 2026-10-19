@@ -5,7 +5,6 @@ certs/
 __pycache__/
 node_modules/
 .venv/
-spike/
 apps/web/media/
 *.sqlite3
 
@@ -24,3 +23,12 @@ apps/web/tmp_verifiche/
 apps/web/static_raccolti/
 .env.*
 !.env.example
+
+# strumenti dell'assistente e file generati localmente
+.claude/
+.claudeignore
+graphify-out/
+skills-lock.json
+.impeccable/critique/
+.impeccable/live/
+.impeccable/config.local.json

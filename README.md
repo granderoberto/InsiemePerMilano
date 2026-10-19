@@ -64,11 +64,14 @@ Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua d
     ├── db/migrate.sh          applica le migrazioni a un database (idempotente)
     ├── geo/import_quartieri.py   importa gli 88 NIL nella tabella `quartieri`
     ├── seed/                  seed.py: dati demo deterministici; README con la password demo
+    ├── demo/                  genera_foto.py: immagini e video di esempio dei dati demo (apps/web/static/demo/)
+    ├── logico/                genera.py: modello logico (md, svg, png) generato da db/schema.sql
+    ├── architettura/          disegna.py: schema dell'architettura del sistema (docs/architettura_sistema)
     └── er/                    gen.py (dati del modello ER) e pipeline che disegna il diagramma
 ```
 
 Non sono nel repository, per scelta: `.env` (credenziali), `certs/` (certificato del servizio),
-`tools/.venv/` (ambiente Python) e `spike/` (prove tecniche locali). Sono elencati in `.gitignore`.
+`tools/.venv/` (ambiente Python). Sono elencati in `.gitignore`.
 
 ## Il database in breve
 
