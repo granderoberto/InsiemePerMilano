@@ -30,6 +30,29 @@ class ErroreGmailApi(Exception):
     pass
 
 
+RISERVATI = ("example.com", "example.org", "example.net", "example.edu", "invalid", "test", "localhost", "local")
+
+
+def indirizzo_riservato(indirizzo: str) -> bool:
+    """Domini riservati dalle norme di Internet agli esempi (RFC 2606): l'indirizzo non esiste, la mail rimbalzerebbe."""
+    dominio = indirizzo.rsplit("@", 1)[-1].lower().strip(" >")
+    return any(dominio == d or dominio.endswith("." + d) for d in RISERVATI)
+
+
+def senza_riservati(messaggi):
+    """Toglie dai messaggi i destinatari riservati e scarta quelli rimasti senza destinatari."""
+    if not getattr(settings, "EMAIL_SALTA_INDIRIZZI_RISERVATI", True):
+        return messaggi
+    pulite = []
+    for m in messaggi:
+        m.to = [a for a in m.to if not indirizzo_riservato(a)]
+        if m.to or m.cc or m.bcc:
+            pulite.append(m)
+        else:
+            log.info("Email non inviata: destinatario con dominio riservato (indirizzo di esempio)")
+    return pulite
+
+
 def _richiesta(url, dati=None, intestazioni=None, timeout=15):
     corpo = None if dati is None else (dati if isinstance(dati, bytes) else json.dumps(dati).encode())
     req = urllib.request.Request(url, data=corpo, headers=intestazioni or {}, method="POST" if corpo is not None else "GET")
@@ -60,7 +83,7 @@ def access_token():
 class GmailApiBackend(BaseEmailBackend):
     def send_messages(self, email_messages):
         inviati = 0
-        for m in email_messages:
+        for m in senza_riservati(list(email_messages)):
             try:
                 grezzo = base64.urlsafe_b64encode(m.message().as_bytes()).decode()
                 _richiesta(getattr(settings, "GMAIL_SEND_URL", "https://gmail.googleapis.com/gmail/v1/users/me/messages/send"),

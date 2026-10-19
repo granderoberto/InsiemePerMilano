@@ -12,7 +12,7 @@ def esegui(utente, tentativo, tipo_documento, fronte, retro, selfie):
         for f in (fronte, retro, selfie):
             if f:
                 area.salva(f[0])  # qui in futuro: l'IA legge i file dall'area temporanea cifrata
-        r = ia.verifica_documento(fronte, selfie)
+        r = ia.verifica_documento(fronte, retro, selfie, {"nome": utente.nome, "cognome": utente.cognome, "data_nascita": utente.data_nascita, "tipo_documento": tipo_documento})
     v = VerificaIdentita.objects.create(
         utente=utente, tentativo=tentativo, tipo_documento=tipo_documento, punteggio=r["punteggio"], esito_ia=r["esito"], motivo=r["motivo"], **r["flag"])
     log.registra_molti([(utente, "verifica_identita", "verifiche_identita", v.id, None, {"tentativo": tentativo, "tipo_documento": tipo_documento}),

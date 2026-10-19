@@ -10,3 +10,6 @@ gunicorn>=22
 whitenoise>=6.6
 pillow-heif>=0.18
 certifi>=2024.7
+pytesseract>=0.3.10
+opencv-python-headless>=4.10
+numpy>=1.26

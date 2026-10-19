@@ -1,6 +1,6 @@
 """Sicurezza del ritorno SPID/CIE sul sito (token del ponte) e dei reindirizzamenti. Non serve il servizio SPID acceso."""
 import os, sys, hashlib, time, uuid, django
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); os.chdir(sys.path[0]); os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"; django.setup()
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); os.chdir(sys.path[0]); os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"; os.environ["LNC_PROVE"] = "1"; django.setup()
 from unittest import mock
 from django.conf import settings
 from django.core import signing

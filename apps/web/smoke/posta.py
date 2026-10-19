@@ -10,7 +10,7 @@ raccolta = Raccolta()
 s = socket.socket(); s.bind(("127.0.0.1", 0)); porta = s.getsockname()[1]; s.close()
 srv = Controller(raccolta, hostname="127.0.0.1", port=porta); srv.start()
 os.environ.update(EMAIL_HOST="127.0.0.1", EMAIL_PORT=str(porta), EMAIL_TLS="0", EMAIL_FROM="La Nostra Città <noreply@test.example>", SITE_URL="https://lanostracitta.test")
-os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"
+os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"; os.environ["LNC_PROVE"] = "smtp"   # SMTP solo verso il finto server locale, mai Gmail
 import django; django.setup()
 from django.conf import settings
 from django.test import Client

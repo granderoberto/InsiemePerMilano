@@ -102,7 +102,7 @@ pip install cairosvg && tools/er/run.sh
 
 **Accesso:** SPID/CIE (identità già certificata, account subito attivo, si salva solo l'hash SHA-256 del codice fiscale per garantire un account per persona) oppure credenziali: l'account diventa attivo con la conferma dell'email. La **verifica IA del documento è facoltativa alla registrazione ma necessaria per pubblicare segnalazioni** (`Utente.identita_verificata`: SPID/CIE, verifica approvata dall'IA o da un moderatore, oppure ruolo moderatore/amministratore). Chi non è verificato legge, sostiene e commenta; se prova a pubblicare viene portato a `/profilo/verifica/`. Il consenso biometrico (art. 9) si chiede solo all'avvio della verifica.
 
-**Verifica IA del documento:** OCR, corrispondenza dati, validità, autenticità, confronto selfie/foto documento. Punteggio 0-100: ≥85 approvata, 50-84 da rivedere (coda moderatore), <50 rifiutata. Max 3 tentativi, revisione umana sempre richiedibile. Immagini cancellate dopo la verifica.
+**Verifica IA del documento:** OCR, corrispondenza dati, validità, autenticità, confronto selfie/foto documento. Oggi **vera e locale** (`core/services/ia/documento_reale.py`: Tesseract, MRZ, OpenCV YuNet+SFace; modelli in `apps/web/modelli/` non versionati, `sh apps/web/modelli/scarica.sh`); l'autenticità è solo coerenza degli elementi (i dubbi vanno al moderatore); senza Tesseract/modelli si usa il simulato. Punteggio 0-100: ≥85 approvata, 50-84 da rivedere (coda moderatore), <50 rifiutata. Max 3 tentativi, revisione umana sempre richiedibile. Immagini cancellate dopo la verifica.
 
 **Normative in registrazione:** informativa GDPR art. 13, informativa IA con diritto a revisione umana (art. 22), termini d'uso, cookie policy, età minima 14 anni. Si registra la versione accettata; nuova versione = nuova accettazione.
 
@@ -168,6 +168,10 @@ Note sui dati:
 ## File caricati (foto e video)
 
 Salvati su disco in `MEDIA_ROOT` (`DATA_DIR/media`), ridotti (lato massimo 2400 px), con EXIF e profilo colore tolti; i video senza metadati (serve `ffmpeg`/`ffprobe`, installato nel `Dockerfile`). Ogni file è copiato anche nel database, a pezzi da 4 MB, nella tabella tecnica `media_contenuti` (migrazione 005): se il disco dell'hosting è temporaneo (piano gratuito di Render) `/media/...` ripristina il file dal database. HEIC (iPhone) → JPEG. Le foto e i video dei **dati demo** hanno percorsi fittizi (`media/demo/<id>`): la vista `media_file` mostra immagini e video di esempio disegnati (`apps/web/static/demo/`, generati da `tools/demo/genera_foto.py`, non sono fotografie reali). Prova: `apps/web/smoke/media.py`.
+
+## Prove automatiche e email
+
+Le prove in `apps/web/smoke/` impostano `LNC_PROVE`: usano `locmem` (o il finto SMTP locale di `posta.py`) e **mai** Gmail, anche se `.env` ha le credenziali. In più i backend reali (`core/email_backend.py`, `core/email_smtp.py`) non inviano a domini riservati (`example.*`, `.invalid`, `.test`…). Il 2026-10-19 alcune prove avevano mandato email vere a indirizzi `@example.org` prima di questa protezione.
 
 ## Produzione
 

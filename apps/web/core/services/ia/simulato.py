@@ -5,7 +5,6 @@ Vanno sostituiti da chiamate ai servizi di IA: vedi il materiale 3 (architettura
 """
 import re
 
-from .simulato_documento import verifica_documento  # noqa: F401  (stesso contratto)
 
 INSULTI = ("idiota", "imbecille", "stronzo", "merda", "cretino", "schifoso", "bastardo")
 MINACCE = ("ti ammazzo", "ti uccido", "ti spacco", "ti butto giù", "vi ammazzo")

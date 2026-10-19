@@ -1,7 +1,8 @@
 """Verifica dell'identità con documento e selfie (facoltativa alla registrazione, necessaria per pubblicare):
 file, archivio temporaneo, esiti, tentativi, consenso biometrico, blocco della pubblicazione."""
 import os, sys, glob, django
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); os.chdir(sys.path[0]); os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"; django.setup()
+os.environ["IA_DOCUMENTO"] = "simulato"   # questa prova controlla il flusso con il controllo simulato (punteggi fissi); la prova vera è verifica_reale.py
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); os.chdir(sys.path[0]); os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"; os.environ["LNC_PROVE"] = "1"; django.setup()
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client

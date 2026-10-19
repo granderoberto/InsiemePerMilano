@@ -2,7 +2,7 @@ import os
 
 from django.conf import settings
 
-from core.services import email
+from core.services import email, ia
 
 
 def _versione_css():
@@ -25,5 +25,5 @@ def sito(request):
         "EMAIL_ATTIVA": email.configurata(),
         "SPID_CIE_ATTIVO": settings.SPID_CIE_ATTIVO,
         "SPID_AMBIENTE_PROVA": settings.SPID_AMBIENTE_PROVA,
-        "SIMULAZIONE_VERIFICA_DOCUMENTO": settings.SIMULAZIONE_VERIFICA_DOCUMENTO,
+        "SIMULAZIONE_VERIFICA_DOCUMENTO": ia.documento_e_simulato(),
     }

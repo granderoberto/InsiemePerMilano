@@ -1,3 +1,4 @@
 # solo per i controlli in smoke/ (non servono per far girare il sito)
 aiosmtpd>=1.4
 requests>=2.32
+scikit-image>=0.22   # volto di prova (smoke/_documenti.py)

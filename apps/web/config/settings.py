@@ -168,18 +168,24 @@ SPID_AMBIENTE_PROVA = (os.environ.get("SPID_AMBIENTE_PROVA") or _env.get("SPID_A
 
 # Fornitore dei controlli IA (modulo con il contratto di core/services/ia/__init__.py). Oggi solo il simulato.
 IA_BACKEND = os.environ.get("IA_BACKEND") or _env.get("IA_BACKEND", "core.services.ia.simulato")
-SIMULAZIONE_VERIFICA_DOCUMENTO = IA_BACKEND.endswith(".simulato")
+# Verifica del documento: «auto» usa i controlli veri (Tesseract + OpenCV, core/services/ia/documento_reale.py) se disponibili, altrimenti il simulato
+IA_DOCUMENTO = _e("IA_DOCUMENTO", "auto")   # auto | reale | simulato
 
 # Email: con EMAIL_HOST in .env si usa un server SMTP vero; senza, escono sulla console del server (solo sviluppo)
 EMAIL_HOST = _e("EMAIL_HOST")
 # API di Gmail (HTTPS): per gli hosting che bloccano l'SMTP in uscita (Render gratuito). Ha la precedenza sull'SMTP.
 GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN = _e("GMAIL_CLIENT_ID"), _e("GMAIL_CLIENT_SECRET"), _e("GMAIL_REFRESH_TOKEN")
-GMAIL_API_ATTIVA = bool(GMAIL_CLIENT_ID and GMAIL_CLIENT_SECRET and GMAIL_REFRESH_TOKEN)
+GMAIL_API_ATTIVA = bool(GMAIL_CLIENT_ID and GMAIL_CLIENT_SECRET and GMAIL_REFRESH_TOKEN) and not os.environ.get("LNC_PROVE")
 EMAIL_BACKEND = ("core.email_backend.GmailApiBackend" if GMAIL_API_ATTIVA
-                 else "django.core.mail.backends.smtp.EmailBackend" if EMAIL_HOST else "django.core.mail.backends.console.EmailBackend")
+                 else "core.email_smtp.SmtpSicuro" if EMAIL_HOST else "django.core.mail.backends.console.EmailBackend")
+if os.environ.get("LNC_PROVE") == "1":   # prove automatiche (smoke/): mai email vere, anche se nel .env ci sono le credenziali
+    EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+EMAIL_SALTA_INDIRIZZI_RISERVATI = not os.environ.get("LNC_PROVE")   # niente email verso example.org e simili (indirizzi inventati: rimbalzano)
 EMAIL_PORT = int(_e("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = _e("EMAIL_USER")
 EMAIL_HOST_PASSWORD = _e("EMAIL_PASSWORD")
+if os.environ.get("LNC_PROVE"):   # le prove parlano solo con il finto server locale: niente credenziali vere
+    EMAIL_HOST_USER = EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_SSL = _e("EMAIL_SSL", "0") == "1"                 # porta 465
 EMAIL_USE_TLS = not EMAIL_USE_SSL and _e("EMAIL_TLS", "1") == "1"  # porta 587 (STARTTLS)
 EMAIL_TIMEOUT = 15

@@ -1,7 +1,7 @@
 """Accesso con SPID/CIE di PUNTA A PUNTA sull'ambiente di prova ufficiale: sito → servizio RP → gestore di identità di prova
 → servizio RP → sito. Richiede: sito su :8000 e apps/spid/demo/avvia.sh in esecuzione."""
 import os, re, sys, hashlib
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); os.chdir(sys.path[0]); os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); os.chdir(sys.path[0]); os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"; os.environ["LNC_PROVE"] = "1"
 import django; django.setup()
 import requests
 from core.models import Utente, Consenso, LogAttivita

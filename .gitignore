@@ -32,3 +32,8 @@ skills-lock.json
 .impeccable/critique/
 .impeccable/live/
 .impeccable/config.local.json
+
+# modelli della verifica del documento (si scaricano con apps/web/modelli/scarica.sh)
+apps/web/modelli/*
+!apps/web/modelli/scarica.sh
+!apps/web/modelli/README.md

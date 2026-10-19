@@ -393,3 +393,4 @@ table { max-width: 100%; }
 .indice-normative a { font-weight: 700; }
 .riquadro-testo { scroll-margin-top: 100px; }
 .testo-normativa { white-space: pre-line; max-width: 72ch; }
+.consigli { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }

@@ -131,7 +131,7 @@ Le soglie vanno **tarate sui dati reali**: per questo ogni punteggio è salvato 
 | Registro | `log_attivita` con operazione `decisione_ia` |
 | Code del moderatore | `/moderazione/` in `apps/web` |
 | Controlli IA | **simulati** in `apps/web/core/services/ia/simulato.py` (parole chiave ed espressioni regolari) dietro l'interfaccia unica `core/services/ia/__init__.py`; il fornitore si sceglie con `IA_BACKEND` |
-| Verifica del documento | caricamento **vero** (fronte, retro, selfie dalla fotocamera, JPG/PNG/PDF fino a 5 MB, controlli sui byte dei file), archivio temporaneo cifrato (`core/services/temporaneo.py`) con cancellazione a fine verifica, massimo 3 tentativi; il controllo è **simulato** in `core/services/ia/simulato_documento.py` (qualità delle immagini al posto di OCR, dati, validità, autenticità e volto) |
+| Verifica del documento | **controlli veri** in `core/services/ia/documento_reale.py` (OCR con Tesseract, zona a lettura ottica con codici di controllo in `mrz.py`, confronto dei dati col modulo, validità, volto con OpenCV YuNet+SFace); se Tesseract o i modelli mancano (`apps/web/modelli/scarica.sh`) si usa il simulato (`IA_DOCUMENTO=auto`). L'autenticità è solo coerenza degli elementi, non una perizia: i casi dubbi vanno al moderatore. Caricamento **vero** (fronte, retro, selfie dalla fotocamera, JPG/PNG/PDF fino a 5 MB, controlli sui byte dei file), archivio temporaneo cifrato (`core/services/temporaneo.py`) con cancellazione a fine verifica, massimo 3 tentativi; il controllo è **simulato** in `core/services/ia/simulato_documento.py` (qualità delle immagini al posto di OCR, dati, validità, autenticità e volto) |
 
 ## Passi per l'IA vera
 

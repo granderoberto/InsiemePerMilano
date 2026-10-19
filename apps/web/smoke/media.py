@@ -1,6 +1,6 @@
 """Caricamento di foto e video: formati, limiti, metadati, atomicità, archivio nel database, modifica, file demo."""
 import io, os, sys, glob, shutil, subprocess, tempfile, datetime, django
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); os.chdir(sys.path[0]); os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"; django.setup()
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); os.chdir(sys.path[0]); os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"; os.environ["LNC_PROVE"] = "1"; django.setup()
 from pathlib import Path
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile

@@ -1,6 +1,6 @@
 """Invio con l'API di Gmail: prova contro un finto server locale (nessuna email vera)."""
 import os, sys, json, base64, email, threading, django
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); os.chdir(sys.path[0]); os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"; django.setup()
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))); os.chdir(sys.path[0]); os.environ["DJANGO_SETTINGS_MODULE"]="config.settings"; os.environ["LNC_PROVE"] = "1"; django.setup()
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs
 from django.core.mail import EmailMultiAlternatives, get_connection
@@ -22,7 +22,7 @@ class Finto(BaseHTTPRequestHandler):
 srv = HTTPServer(("127.0.0.1", 0), Finto); porta = srv.server_address[1]
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 base = f"http://127.0.0.1:{porta}"
-with override_settings(GMAIL_CLIENT_ID="cid", GMAIL_CLIENT_SECRET="seg", GMAIL_REFRESH_TOKEN="rt", GMAIL_TOKEN_URL=base + "/token", GMAIL_SEND_URL=base + "/send"):
+with override_settings(EMAIL_SALTA_INDIRIZZI_RISERVATI=False, GMAIL_CLIENT_ID="cid", GMAIL_CLIENT_SECRET="seg", GMAIL_REFRESH_TOKEN="rt", GMAIL_TOKEN_URL=base + "/token", GMAIL_SEND_URL=base + "/send"):
     email_backend._token.update(valore=None, scade=0)
     conn = get_connection("core.email_backend.GmailApiBackend")
     m = EmailMultiAlternatives("Conferma il tuo indirizzo · Città", "Ciao, conferma qui: https://esempio/x", "La Nostra Città <mittente@gmail.com>", ["destinatario@example.org"], connection=conn)

@@ -12,7 +12,7 @@ MOTIVI = {"ok_lettura_ocr": "Documento non leggibile: foto troppo piccola o sfoc
           "ok_confronto_volto": "Il volto nel selfie non corrisponde alla foto del documento"}
 
 
-def verifica_documento(fronte, selfie):
+def verifica_documento(fronte, retro, selfie, dati=None):
     """fronte e selfie: (bytes, tipo, (larghezza, altezza)|None) come da file_documento.leggi."""
     dim_f, dim_s = fronte[2], selfie[2]
     flag = {

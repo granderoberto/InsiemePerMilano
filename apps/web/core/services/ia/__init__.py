@@ -7,11 +7,15 @@ Contratto:
   controlla_testo(testo)                              -> (esito, punteggio_rischio 0-1)      esito: ok | dubbio | bloccato
   suggerisci_categorie(titolo, descrizione)           -> [(nome_categoria, confidenza 0-1)]
   coerenza_immagine_testo(titolo, descrizione, n)     -> punteggio 0-1 (1 = coerente)
-  verifica_documento(fronte, selfie)                  -> {flag, punteggio 0-100, esito, motivo}   esito: approvata | da_rivedere | rifiutata
+  verifica_documento(fronte, retro, selfie, dati)     -> {flag, punteggio 0-100, esito, motivo}   esito: approvata | da_rivedere | rifiutata
+                                                          dati: {nome, cognome, data_nascita, tipo_documento}
+
+La verifica del documento ha un fornitore a parte (`IA_DOCUMENTO`: `auto` = quello vero se Tesseract e i modelli ci sono, altrimenti il simulato).
 
 Se il fornitore non risponde, l'esito è `dubbio` («controllo non disponibile»): nel dubbio decide una persona, mai il silenzio.
 """
 import logging
+from functools import lru_cache
 from importlib import import_module
 
 from django.conf import settings
@@ -49,9 +53,33 @@ def coerenza_immagine_testo(titolo: str, descrizione: str, n_media: int):
         return 0.5
 
 
-def verifica_documento(fronte, selfie):
+@lru_cache(maxsize=1)
+def _documento_reale():
+    scelta = getattr(settings, "IA_DOCUMENTO", "auto")
+    if scelta == "simulato":
+        return False
     try:
-        return _backend().verifica_documento(fronte, selfie)
+        from . import documento_reale
+        if documento_reale.disponibile():
+            return True
+    except Exception:  # noqa: BLE001
+        log.exception("Verifica documento: moduli veri non utilizzabili")
+    if scelta == "reale":
+        log.error("IA_DOCUMENTO=reale ma Tesseract o i modelli mancano: si usa il simulato")
+    return False
+
+
+def documento_e_simulato() -> bool:
+    return not _documento_reale()
+
+
+def verifica_documento(fronte, retro, selfie, dati=None):
+    try:
+        if _documento_reale():
+            from . import documento_reale
+            return documento_reale.verifica_documento(fronte, retro, selfie, dati)
+        from . import simulato_documento
+        return simulato_documento.verifica_documento(fronte, retro, selfie, dati)
     except Exception:
         log.exception("IA: verifica_documento non riuscito")
         flag = {k: False for k in ("ok_lettura_ocr", "ok_corrispondenza_dati", "ok_validita", "ok_autenticita", "ok_confronto_volto")}

@@ -3,6 +3,12 @@
 <h1>Verifica la tua identità</h1>
 <p>Serve per <strong>pubblicare segnalazioni</strong>: così ogni segnalazione ha dietro una persona vera. Leggere, sostenere e commentare non lo richiede.{% if tentativo > 1 %} Tentativo {{ tentativo }} di 3.{% endif %}</p>
 {% if SIMULAZIONE_VERIFICA_DOCUMENTO %}<p class="avviso avviso-simulazione"><strong>Versione dimostrativa.</strong> I file vengono caricati, cifrati e cancellati a fine verifica, ma il controllo con l'intelligenza artificiale è simulato.</p>{% endif %}
+{% if not SIMULAZIONE_VERIFICA_DOCUMENTO %}<div class="riquadro"><h2>Come fotografare il documento</h2><ul class="consigli">
+<li>Appoggialo su uno sfondo scuro e liscio, con luce uniforme: niente riflessi né ombre.</li>
+<li>Inquadra tutto il documento, dritto e a fuoco: i testi devono essere leggibili.</li>
+<li>Carta d'identità e passaporto: carica anche il <strong>retro</strong> con le tre righe di codici (o la pagina dei dati del passaporto).</li>
+<li>Il selfie va scattato adesso con la fotocamera: il volto ben visibile, senza occhiali scuri né cappello.</li></ul>
+<p class="piccolo">La verifica legge il testo e i codici del documento e confronta il volto con il selfie. I casi dubbi li guarda un moderatore. Le immagini si cancellano appena finita.</p></div>{% endif %}
 <p class="piccolo">Hai SPID o CIE? Entrando con quelli l'identità è già certificata e non serve caricare nulla.</p>
 <form method="post" enctype="multipart/form-data" class="riquadro" novalidate>{% csrf_token %}
 {% if form.non_field_errors %}<p class="avviso avviso-error" role="alert">{{ form.non_field_errors|join:" " }}</p>{% endif %}
