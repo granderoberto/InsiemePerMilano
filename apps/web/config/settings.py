@@ -6,6 +6,7 @@ non da Django: vedi la regola di convivenza in CLAUDE.md.
 """
 import os
 import tempfile
+from email.utils import parseaddr
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -183,4 +184,7 @@ EMAIL_USE_SSL = _e("EMAIL_SSL", "0") == "1"                 # porta 465
 EMAIL_USE_TLS = not EMAIL_USE_SSL and _e("EMAIL_TLS", "1") == "1"  # porta 587 (STARTTLS)
 EMAIL_TIMEOUT = 15
 DEFAULT_FROM_EMAIL = _e("EMAIL_FROM", "La Nostra Città <noreply@insiemepermilano.example>")
+# Il mittente deve essere «Nome <indirizzo>»: se in EMAIL_FROM manca l'indirizzo (errore di configurazione frequente) si usa quello dell'account
+if "@" not in parseaddr(DEFAULT_FROM_EMAIL)[1]:
+    DEFAULT_FROM_EMAIL = f"La Nostra Città <{EMAIL_HOST_USER or 'noreply@insiemepermilano.example'}>"
 SITE_URL = _e("SITE_URL")  # es. https://lanostracitta.example : usato nei link delle email (obbligatorio in produzione)
