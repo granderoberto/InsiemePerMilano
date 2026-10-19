@@ -16,7 +16,9 @@ Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua d
 | 2b. Schema logico normalizzato | fatto (MySQL 8) | [`docs/modello_logico.md`](docs/modello_logico.md), [`db/schema.sql`](db/schema.sql), [`db/schema.dbml`](db/schema.dbml) |
 | Database su Aiven con dati demo | fatto | [`db/`](db/README.md), [`tools/`](tools/) |
 | 3. Architettura di integrazione IA (schema a blocchi) | fatto | [`docs/architettura_ia.md`](docs/architettura_ia.md), [`docs/architettura_ia.png`](docs/architettura_ia.png) |
-| Implementazione della web app | in corso (prima versione funzionante, Django) | [`apps/web/`](apps/web/README.md), [`docs/spike_django_spid.md`](docs/spike_django_spid.md) |
+| Implementazione della web app | funzionante e online (Django su Render); IA e SPID/CIE ancora simulati/di prova | [`apps/web/`](apps/web/README.md), [`docs/spike_django_spid.md`](docs/spike_django_spid.md) |
+| Messa online (hosting, email) | fatto (Render + Aiven; email via Gmail) | [`docs/produzione.md`](docs/produzione.md), [`render.yaml`](render.yaml), [`docs/spid_produzione.md`](docs/spid_produzione.md) |
+| Modello logico | fatto | [`docs/modello_logico.md`](docs/modello_logico.md) |
 
 ## Da dove iniziare a leggere
 
@@ -25,6 +27,7 @@ Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua d
 3. [`db/schema.sql`](db/schema.sql): come il modello diventa tabelle, trigger e viste.
 4. [`CLAUDE.md`](CLAUDE.md): regole di lavoro, comandi, decisioni di dominio e di stack. È il documento più completo per chi (persona o assistente) deve continuare il lavoro.
 5. [`docs/handoff.md`](docs/handoff.md): stato aggiornato e cosa resta da fare.
+6. [`PRODUCT.md`](PRODUCT.md) (utenti, scopo, vincoli) e [`DESIGN.md`](DESIGN.md) (sistema grafico «segnaletica milanese»).
 
 ## Struttura del repository
 
@@ -32,11 +35,15 @@ Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua d
 .
 ├── README.md                  questo file
 ├── CLAUDE.md                  regole di lavoro, comandi, decisioni, stack, regola migrazioni SQL/Django
+├── PRODUCT.md, DESIGN.md      contesto del prodotto e sistema grafico
+├── render.yaml, .env.example  messa online su Render; variabili d'ambiente (senza valori)
 ├── docs/
 │   ├── specifiche_utente.md   specifica funzionale completa (fonte di verità)
 │   ├── modello_er.md          entità, chiavi, associazioni con cardinalità, vincoli extra-diagramma
 │   ├── modello_er.{pdf,svg,png}   diagramma ER generato
 │   ├── modello_logico.{md,svg,png}   modello logico: schema relazionale, dizionario, normalizzazione, diagramma
+│   ├── produzione.md, spid_produzione.md   messa online, email, adesione a SPID/CIE
+│   ├── accessibilita.md, architettura_ia.md   accessibilità; schema a blocchi dell'IA
 │   ├── handoff.md             stato del lavoro e prossimi passi
 │   ├── spike_django_spid.md   esiti della prova tecnica su Django e sull'SDK SPID/CIE
 │   └── prompt/
@@ -49,7 +56,7 @@ Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua d
 │   ├── schema.sql             schema completo di riferimento (tabelle, trigger, viste, dati iniziali)
 │   ├── schema.dbml            stesso schema per dbdiagram.io (solo tabelle e relazioni)
 │   ├── test_vincoli.sql       casi di test dei vincoli (le righe "ERRORE ATTESO" devono fallire)
-│   ├── migrations/            001_schema.sql, 002_dati_riferimento.sql (applicate da migrate.sh)
+│   ├── migrations/            001-005 (schema, dati di riferimento, 2FA, statistiche, archivio dei file); applicate da migrate.sh
 │   └── data/                  GeoJSON sorgente di NIL e Municipi (Comune di Milano) + README con le fonti
 └── tools/
     ├── requirements.txt       dipendenze Python degli script
@@ -64,10 +71,10 @@ Non sono nel repository, per scelta: `.env` (credenziali), `certs/` (certificato
 
 ## Il database in breve
 
-MySQL 8 su Aiven (piano Free), InnoDB, utf8mb4, DATETIME sempre in UTC. **21 tabelle** (più `schema_migrations`, che tiene traccia delle migrazioni), 7 trigger, 3 viste.
+MySQL 8 su Aiven (piano Free), InnoDB, utf8mb4, DATETIME sempre in UTC. **22 tabelle** (più `schema_migrations`, che tiene traccia delle migrazioni), 7 trigger, 3 viste. Una è tecnica (`media_contenuti`, copia dei file caricati) e non è nel modello ER.
 
 - **Utenti e accesso:** `utenti`, `verifiche_identita`, `sospensioni`, `documenti_normativi`, `consensi`, `quartieri`.
-- **Segnalazioni:** `segnalazioni`, `media`, `categorie`, `classificazioni`, `stati`, `transizioni_ammesse`, `cambi_stato`.
+- **Segnalazioni:** `segnalazioni`, `media`, `media_contenuti`, `categorie`, `classificazioni`, `stati`, `transizioni_ammesse`, `cambi_stato`.
 - **Community:** `sostegni`, `commenti`, `candidati`, `invii`.
 - **Moderazione e tracciabilità:** `richieste_revisione`, `notifiche`, `preferenze_notifica`, `log_attivita` (solo aggiunte: i trigger bloccano UPDATE e DELETE).
 - **Viste per le statistiche:** `v_classifica_segnalazioni`, `v_statistiche_utenti`, `v_classifica_utenti_pubblica`.
@@ -103,7 +110,7 @@ Per il diagramma ER: modificare `tools/er/gen.py` e lanciare `tools/er/run.sh`. 
 - **Segreti:** mai nel repository. Credenziali solo in `.env`; gli script non stampano la password.
 - **Dati demo:** tutti fittizi (nomi generati, email `@example.*`, codici fiscali casuali salvati solo come hash).
 
-## Stack previsto
+## Stack
 
 App principale in **Django 5.2 LTS**, con MySQL su Aiven. L'accesso SPID/CIE passa da un servizio separato basato
 sull'SDK [`spid-cie-oidc-django`](https://github.com/italia/spid-cie-oidc-django). Motivi, prove e regole di convivenza

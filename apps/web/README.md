@@ -4,7 +4,7 @@ Portale civico "La Nostra Città, Il Nostro Futuro". Template server-side, Leafl
 
 ## Avvio in locale
 
-Servono `.env` e `certs/ca.pem` nella radice del repository (vedi `db/README.md`) e il servizio Aiven acceso.
+Servono `.env` e `certs/ca.pem` nella radice del repository (vedi `db/README.md`) e il servizio Aiven acceso (il piano Free si spegne se inattivo). Il sito è online su Render: vedi `docs/produzione.md`.
 
 ```bash
 cd apps/web
@@ -35,11 +35,11 @@ Database usato: `DJANGO_DB_NAME` (default `la_nostra_citta_test`, stessi dati de
 - **Controlli IA** su testi, categorie, coerenza: interfaccia unica in `core/services/ia/__init__.py` (se il fornitore non risponde l'esito è «dubbio»); fornitore scelto con `IA_BACKEND` (oggi `core.services.ia.simulato`).
 - **Accesso SPID/CIE**: vero protocollo OpenID Connect con federazione tramite il servizio `apps/spid` (README dedicato), oggi sull'**ambiente di prova** ufficiale (gestore di identità finto). Per l'uso reale serve l'adesione di un ente.
 - **Email**: senza `EMAIL_HOST` in `.env` escono sulla console del server e il link compare a schermo (solo sviluppo). Con un server SMTP vero si configurano in `.env`: `EMAIL_HOST`, `EMAIL_PORT` (587 con STARTTLS, oppure 465 con `EMAIL_SSL=1`), `EMAIL_USER`, `EMAIL_PASSWORD`, `EMAIL_FROM` e `SITE_URL` (l'indirizzo pubblico del sito, usato nei link). Il link non compare mai a schermo con SMTP vero. Limiti: 3 email all'ora per indirizzo e tipo, 10 richieste di recupero all'ora per IP.
-- **Password** (`core/services/password.py`): almeno 8 caratteri con maiuscola, numero e simbolo (specifica), al massimo 72 byte (limite di bcrypt), non una password comune nemmeno con sostituzioni (`P4ssw0rd!`), non basata su nome, cognome o email, niente sequenze (`12345678A!`). Il profilo permette di cambiarla (serve quella attuale; le altre sessioni si chiudono e arriva un avviso via email).
+- **Password** (`core/services/password.py`): almeno 8 caratteri con maiuscola, numero e simbolo (specifica), al massimo 72 caratteri (limite di bcrypt, spiegato all'utente solo se superato); l'aiuto compare solo mentre si digita, non una password comune nemmeno con sostituzioni (`P4ssw0rd!`), non basata su nome, cognome o email, niente sequenze (`12345678A!`). Il profilo permette di cambiarla (serve quella attuale; le altre sessioni si chiudono e arriva un avviso via email).
 - Recupero password: link a scadenza (2 ore) e monouso, risposta identica se l'indirizzo non esiste, avviso di sicurezza dopo il cambio.
 - Eliminazione dell'account (profilo → «Elimina il mio account»): si cancellano i dati personali e le notifiche; segnalazioni, commenti, sostegni e registro restano come «Utente eliminato». L'ultimo amministratore non può eliminarsi.
 - Accessibilità: vedi `docs/accessibilita.md`.
-- Non c'è ancora: richiesta di revisione per i commenti bloccati, eliminazione dell'account, esportazione delle statistiche personali. `/gestione/` è l'admin standard di Django (non usato).
+- Non c'è ancora: richiesta di revisione per i commenti bloccati, esportazione delle statistiche personali. `/gestione/` è l'admin standard di Django (non usato).
 
 ## Struttura
 
@@ -48,8 +48,9 @@ config/       impostazioni e URL
 core/         modelli del dominio (managed=False), accesso, servizi (geo, stati, log, media, ia), query condivise
 portale/      viste pubbliche e utente, form, template tag
 moderazione/  area moderatore
-templates/, static/   HTML, CSS, JavaScript (mappa.js, posizione.js)
-smoke/        controlli di prova (letture, scrittura, autore, amministrazione, account, 2FA, simili) (scrivono nel DB di test: lanciarli solo lì)
+amministrazione/  area amministratore
+templates/, static/   HTML, CSS (site.css), font Archivo (fonts/), JavaScript (mappa, posizione, quartiere, password, modulo, selfie), immagini e video demo (demo/)
+smoke/        controlli di prova (letture, scrittura, autore, amministrazione, account, 2FA, simili, posta, SPID, verifica documento, eliminazione, media, conferma da amministratore) (scrivono nel DB di test: lanciarli solo lì)
 ```
 
 Regole sullo schema: vedi "Regola di convivenza" in `CLAUDE.md`. I modelli rispecchiano `db/migrations/*.sql`.

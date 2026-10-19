@@ -59,6 +59,8 @@ SELECT COUNT(*) FROM information_schema.triggers WHERE trigger_schema = DATABASE
 | `db/migrations/001_schema.sql` | schema senza dati iniziali |
 | `db/migrations/002_dati_riferimento.sql` | stati, transizioni ammesse, categorie |
 | `db/migrations/003_mfa_segreto.sql` | colonna `utenti.mfa_segreto` e vincolo per l'autenticazione a due fattori |
+| `db/migrations/004_statistiche_attivita.sql` | la vista `v_statistiche_utenti` conta come attività solo segnalazioni, commenti e sostegni |
+| `db/migrations/005_media_contenuti.sql` | tabella tecnica `media_contenuti`: copia dei file caricati, per dischi di hosting temporanei |
 | `db/schema.dbml` | per dbdiagram.io (solo tabelle e relazioni) |
 | `db/test_vincoli.sql` | casi di test dei vincoli |
 | `db/data/` | GeoJSON dei NIL e dei Municipi, con fonte e licenza |
@@ -68,4 +70,4 @@ SELECT COUNT(*) FROM information_schema.triggers WHERE trigger_schema = DATABASE
 - Connessione rifiutata o timeout: il servizio Free potrebbe essere spento, riaccenderlo dalla console Aiven.
 - Errore 1419 alla creazione dei trigger: attivare `log_bin_trust_function_creators`
   dalla Advanced configuration del servizio (oggi è già ON).
-- Se lo schema cambia, aggiungere una nuova migrazione (`003_...sql`) e tenere allineati `schema.sql`, `schema.dbml` e `tools/er/gen.py`.
+- Se lo schema cambia, aggiungere una nuova migrazione (`006_...sql`) e tenere allineati `schema.sql`, `schema.dbml` e `tools/er/gen.py`.

@@ -1,46 +1,47 @@
-# Handoff (2026-09-29)
+# Handoff (2026-10-19)
 
 ## Dove siamo
 
-- Fase 1 (database su Aiven) **conclusa**. Prova tecnica su Django + SDK SPID/CIE **conclusa**, stack **deciso** (ultimo commit: `4804fd0`).
-- Leggere prima `CLAUDE.md` (regole, comandi, stack, regola migrazioni SQL/Django), `db/README.md` (ricreare il DB) e `docs/spike_django_spid.md` (esiti della prova).
-- `defaultdb` (principale): 22 tabelle, 7 trigger, 3 viste, 88 NIL, dati demo (154 utenti, 300 segnalazioni, 1916 sostegni, 397 commenti, 5095 log), ~5 MB.
-- `la_nostra_citta_test`: stesso schema e dati; per le prove distruttive. Server MySQL 8.4.8.
-- Credenziali in `.env` e `certs/ca.pem` (non versionati). Password demo degli utenti: `tools/seed/README.md`.
+Il sito è **online** su https://la-nostra-citta.onrender.com (Render, piano gratuito, Docker) con il database su Aiven (`defaultdb`, dati demo). Il codice è su GitHub (`granderoberto/InsiemePerMilano`, ramo `main`).
+
+Leggere prima `CLAUDE.md` (regole, comandi, decisioni, stack), `PRODUCT.md` (utenti e scopo), `DESIGN.md` (sistema grafico), `docs/produzione.md` (hosting ed email) e `db/README.md` (ricreare il database).
+
+## Cosa c'è
+
+- **Materiali della traccia**: analisi (`docs/specifiche_utente.md`), modello ER (`docs/modello_er.*`), **modello logico** (`docs/modello_logico.*`, generato da `db/schema.sql` con `tools/logico/genera.py`), schema a blocchi dell'IA (`docs/architettura_ia.*`).
+- **Database** MySQL 8 su Aiven: 22 tabelle, 7 trigger, 3 viste, migrazioni 001-005. Dati demo: 154 utenti, 300 segnalazioni. `la_nostra_citta_test` per le prove distruttive.
+- **Sito Django** (`apps/web`): pubblico, utente, autore, moderazione, amministrazione; registrazione con conferma email; **verifica del documento facoltativa, necessaria per pubblicare** (`Utente.identita_verificata`); 2FA; recupero password; eliminazione account; scelta del quartiere da mappa; foto e video con copia nel database; interfaccia unica per i controlli IA (`core/services/ia/`).
+- **Grafica**: «segnaletica milanese» (Archivo self-hosted, linee M1-M5 come codice, percorso della segnalazione come linea della metropolitana).
+- **SPID/CIE** (`apps/spid`): protocollo vero su ambiente di prova; per l'uso reale serve l'adesione di un ente (`docs/spid_produzione.md`).
+- **Email**: SMTP configurabile da variabili d'ambiente (`EMAIL_*`, `SITE_URL`); provato con Gmail (password per le app). Comando `manage.py prova_email`.
 
 ## Decisioni
 
-- **Stack**: Django 5.2 LTS (app principale) + SDK `spid-cie-oidc-django` isolato in un servizio separato (progetto e database propri). L'SDK dichiara `Django<5.0` (fuori supporto): va forzato su 5.2 e le sue migrazioni MySQL richiedono `max_length` 1024 → 700 (campo `kid`). Fallback: Node.js (solo RP).
-- Modelli Django sul dominio: `managed=False`; utente di autenticazione su `utenti` (niente `auth_user`); vedi le 11 regole in `CLAUDE.md`.
-- `quartieri.id` = `ID_NIL`; `municipio` approssimato per 16 NIL su 88.
+- Stack: Django 5.2 LTS; modelli sul dominio `managed=False`; schema solo da migrazioni SQL (regola di convivenza in `CLAUDE.md`).
+- Hosting: Render (non Vercel: servono disco, processi di lunga durata e un secondo servizio). Piano gratuito: il disco è temporaneo, per questo i file caricati sono copiati nel database (`media_contenuti`).
 - Contenuto bloccato dall'IA: resta non pubblico; revisione accolta = approvato con `esito_moderazione` ancora `bloccato`.
-- Modifiche allo schema: nuova migrazione, non si toccano quelle già applicate. Ultima: `004_statistiche_attivita.sql` (filtro attività nella vista statistiche; prima la 003, 2FA TOTP; applicate su `defaultdb` e `la_nostra_citta_test`).
+- I media dei dati demo mostrano immagini e video **di esempio disegnati** (`apps/web/static/demo/`), non fotografie.
 
-## Modello logico (2026-10-19)
+## Parti simulate o di prova
 
-`docs/modello_logico.md` (+ `.png`/`.svg`): schema relazionale, dizionario, vincoli, passaggio dall'ER, normalizzazione. Si rigenera da `db/schema.sql` con `tools/logico/genera.py`.
+- Verifica del documento e moderazione IA: simulate (`core/services/ia/simulato*.py`).
+- SPID/CIE: gestore di identità di prova.
+- Foto dei dati demo: illustrazioni.
 
-## Verifica del documento (2026-10-12)
+## Da fare / aperto
 
-Ora è facoltativa alla registrazione: l'account credenziali diventa attivo alla conferma dell'email; per **pubblicare** serve `identita_verificata` (SPID/CIE, verifica approvata, oppure moderatore/amministratore). Sostenere e commentare restano possibili senza verifica. Nessuna modifica allo schema.
-
-## Prossimo passo
-
-Il sito gira (`apps/web/`, vedi il suo README): portale pubblico, area utente (registrazione con conferma email, recupero password, preferenze), autore (modifica/elimina/revisione), moderazione, amministrazione (utenti, ruoli, sospensioni, registro, statistiche con CSV, categorie, normative). Mancano l'IA vera (oggi simulata); il servizio SPID/CIE c'è (`apps/spid/`) e funziona sull'ambiente di prova, per l'uso reale serve l'adesione di un ente, oltre allo schema a blocchi dell'IA (materiale 3).
-
-Attenzione: il servizio Aiven Free si spegne dopo pochi giorni di inattività e può cambiare stato; se `nslookup` dell'host dà NXDOMAIN, riaccenderlo dalla console.
-
-## Aperto
-
-1. **SPID/CIE reali**: il flusso è costruito e provato su ambiente di prova (`apps/spid/README.md`). Per la produzione serve un ente che aderisca (probabilmente la scuola) o un soggetto aggregatore, più chiavi e trust mark veri.
-2. Materiale 3 della traccia (schema a blocchi dell'IA): **fatto** in `docs/architettura_ia.md`. Da fare: sostituire i controlli IA simulati con servizi veri.
-3. Colonna spaziale per `quartieri.confine`: rinviata; 2 poligoni (`CASCINA MERLATA`, `ASSIANO`) invalidi per MySQL.
-5. **Cambiare la password di `avnadmin` su Aiven** (condivisa in chiaro in chat).
-6. `spike/` (317 MB, ignorata da git): tenere o eliminare.
+1. **Sicurezza**: gli account demo (anche amministratore e moderatori) hanno una password pubblica nel repository e sono presenti online. Cambiarla o usare un database pulito prima di un uso vero. Cambiare anche la password di `avnadmin` su Aiven (era stata condivisa in chiaro).
+2. **Aiven Free si spegne** dopo pochi giorni di inattività: se il sito non carica i dati, riaccenderlo dalla console.
+3. **SPID/CIE reali**: richiesta di adesione dell'ente (`docs/spid_produzione.md`).
+4. **IA vera** al posto della simulata (`docs/architettura_ia.md`, «Passi per l'IA vera»).
+5. Accessibilità: prove con screen reader e dispositivi reali (`docs/accessibilita.md`).
+6. Provare online registrazione, email e caricamento di foto e video (il `Dockerfile` non è stato provato in locale).
+7. Colonna spaziale per `quartieri.confine` (2 poligoni invalidi per MySQL).
+8. Normative: sostituire i testi segnaposto con quelli del comitato.
 
 ## Attenzione
 
-- Il servizio Aiven Free si spegne se inattivo: se la connessione fallisce, riaccenderlo dalla console.
-- `tools/seed/seed.py` è distruttivo sulle tabelle non di riferimento; `test_vincoli.sql` va eseguito solo su un database di test con `quartieri` vuota.
+- `tools/seed/seed.py` è distruttivo sulle tabelle non di riferimento: mai sul database di produzione se contiene dati veri.
+- Non stampare né committare mai password o chiavi: `.env`, `.env.produzione` e `certs/` non sono versionati.
 - Le migrazioni Django su MySQL non sono atomiche: provarle prima su `la_nostra_citta_test`.
-- Non stampare mai la password né scriverla in file versionati.
+- Le prove in `apps/web/smoke/` scrivono nel database di test: dopo averle usate, `tools/seed/seed.py la_nostra_citta_test`.

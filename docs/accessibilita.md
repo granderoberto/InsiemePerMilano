@@ -7,7 +7,7 @@ descrizioni alternative per immagini e video, compatibilità con gli screen read
 
 | Requisito | Come |
 |---|---|
-| Contrasti | colori definiti come variabili in `static/css/site.css`, con tema chiaro e scuro (`prefers-color-scheme`); i testi verificati sono sopra 4,5:1 |
+| Contrasti | colori definiti come variabili in `static/css/site.css` (inchiostro e carta, cinque colori di linea usati solo come codice, mai come unico segnale: ogni stato e categoria ha anche il testo), con tema chiaro e scuro (`prefers-color-scheme`); i testi verificati sono sopra 4,5:1 |
 | Testo ridimensionabile | dimensioni in `rem`, nessun testo in immagini; layout fluido |
 | Tastiera | ordine naturale del documento, collegamento «Vai al contenuto» come primo elemento, contorno di focus di 3 px sempre visibile, nessuna trappola; pulsanti e collegamenti veri (non `div` cliccabili) |
 | Alternative testuali | `alt` su ogni foto di segnalazione, `aria-label` sui video e sulla mappa; il segnaposto delle foto demo ha un'etichetta |
@@ -16,6 +16,8 @@ descrizioni alternative per immagini e video, compatibilità con gli screen read
 | Mappa | la mappa interattiva ha un'alternativa equivalente: l'elenco (scheda «Elenco») e il modulo con indirizzo/GPS per scegliere il luogo |
 | Movimento | `prefers-reduced-motion` rispettato |
 | Dispositivi piccoli | layout a una colonna, bersagli di almeno 34-40 px, griglie con `min(…, 100%)` per non causare scorrimento orizzontale a 320 px |
+
+> Dopo il rifacimento grafico «segnaletica milanese» (2026-10-12) axe-core è stato rilanciato su home, dettaglio, accesso, registrazione, nuova segnalazione, profilo, moderazione e normative: nessuna violazione, salvo la distanza tra due segnaposto molto vicini della mappa. Le prove a mano non sono state rifatte.
 
 ## Verifiche fatte (2026-10-07)
 

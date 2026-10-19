@@ -13,13 +13,18 @@ Autore: Roberto Grande (GitHub: Bertox0). Lingua del progetto: **italiano** (doc
 | 2b. Schema logico normalizzato | fatto (MySQL 8) | `db/schema.sql`, `db/schema.dbml`, `docs/modello_logico.{md,png,svg}` |
 | Database su Aiven (MySQL) | **fatto** (fase 1 completata: migrazioni, 88 NIL, dati demo, verifica) | `db/migrations/`, `db/README.md` |
 | 3. Architettura di integrazione IA (schema a blocchi) | **fatto** | `docs/architettura_ia.md`, `docs/architettura_ia.png` (generato da `tools/ia/schema_blocchi.py`) |
-| Implementazione della web app | **in corso**: sito funzionante (Django 5.2); SPID/CIE con protocollo vero su ambiente di prova; IA simulata | `apps/web/`, `apps/spid/`, `docs/spike_django_spid.md` |
+| Implementazione della web app | **funzionante e online** (https://la-nostra-citta.onrender.com, Render + Aiven); SPID/CIE con protocollo vero su ambiente di prova; IA simulata | `apps/web/`, `apps/spid/`, `docs/spike_django_spid.md` |
+| Modello logico | **fatto** (generato da `db/schema.sql`) | `docs/modello_logico.{md,png,svg}` |
+| Messa online | **fatta** (Render, email Gmail) | `docs/produzione.md`, `render.yaml` |
 
 ## Struttura
 
 ```
+PRODUCT.md, DESIGN.md      contesto del prodotto e sistema grafico («segnaletica milanese»)
+render.yaml, .env.example  hosting su Render; variabili d'ambiente (senza valori)
 docs/
   specifiche_utente.md   specifica funzionale completa (fonte di verità)
+  produzione.md, spid_produzione.md, accessibilita.md, handoff.md   messa online ed email; adesione a SPID/CIE; accessibilità; stato del lavoro
   modello_er.md          entità, PK, associazioni con cardinalità, vincoli extra-diagramma
   modello_er.{pdf,svg,png}  diagramma Chen generato
   modello_logico.{md,svg,png}  modello logico (schema relazionale, dizionario, normalizzazione): generato da db/schema.sql con tools/logico/genera.py
@@ -37,6 +42,7 @@ apps/spid/               servizio SPID/CIE (Relying Party OpenID Connect con SDK
 tools/db/migrate.sh      applica le migrazioni a un database (idempotente, tabella schema_migrations)
 tools/geo/import_quartieri.py   importa gli 88 NIL in `quartieri`
 tools/ia/schema_blocchi.py   genera lo schema a blocchi dell'IA (docs/architettura_ia.{svg,png})
+tools/demo/genera_foto.py    genera le immagini e i video di esempio dei dati demo (apps/web/static/demo/)
 tools/seed/              seed.py (dati demo deterministici) + README con password demo e scelte
 tools/requirements.txt   dipendenze Python (venv in tools/.venv, ignorato da git)
 .env, certs/ca.pem       credenziali e certificato Aiven: NON versionati (.gitignore)
@@ -149,7 +155,7 @@ pip install cairosvg && tools/er/run.sh
 
 ## Stato del database (fase 1 conclusa)
 
-Su Aiven ci sono `defaultdb` (principale, popolato) e `la_nostra_citta_test` (prove distruttive). 22 tabelle, 7 trigger, 3 viste, circa 5 MB. Dati demo: 154 utenti, 300 segnalazioni, 1916 sostegni, 397 commenti, 5095 righe di log; password demo `DemoMilano2026!` (vedi `tools/seed/README.md`).
+Su Aiven ci sono `defaultdb` (principale, popolato; usato dal sito online) e `la_nostra_citta_test` (prove distruttive). 22 tabelle (inclusa la tecnica `media_contenuti`), 7 trigger, 3 viste, circa 5 MB più i file in `media_contenuti`. Dati demo: 154 utenti, 300 segnalazioni, 1916 sostegni, 397 commenti, 5095 righe di log; password demo `DemoMilano2026!` (vedi `tools/seed/README.md`).
 
 Note sui dati:
 - `quartieri` = 88 NIL (Comune di Milano, CC BY). `quartieri.id` = `ID_NIL` della fonte. Il `municipio` è ricavato per maggiore sovrapposizione: per 16 NIL che attraversano più Municipi è un'approssimazione.
@@ -167,10 +173,13 @@ Guide: `docs/produzione.md` (hosting a contenitori, scelto Render/Railway al pos
 
 ## Prossimi passi suggeriti
 
-1. Completare l'app (`apps/web/README.md`, elenco "Non c'è ancora"). Account, documento e selfie, SPID/CIE (ambiente di prova), eliminazione dell'account: fatti. Accessibilità: controlli automatici fatti, prove con screen reader da fare (`docs/accessibilita.md`). Poi l'adesione dell'ente a SPID/CIE e le email vere (SMTP).
-2. Sostituire i controlli IA simulati con servizi veri (vedi "Passi per l'IA vera" in `docs/architettura_ia.md`).
-3. Decidere sulla colonna spaziale per `confine`.
-4. Cambiare la password dell'utente `avnadmin` su Aiven (è stata condivisa in chiaro in chat).
+1. **Sicurezza**: gli account demo (anche amministratore e moderatori) hanno una password pubblica e sono online; cambiarla o usare un database pulito. Cambiare la password di `avnadmin` su Aiven (condivisa in chiaro in chat).
+2. Provare online registrazione, email (Gmail) e caricamento di foto e video; il `Dockerfile` non è stato provato in locale.
+3. Adesione di un ente a SPID/CIE (`docs/spid_produzione.md`).
+4. Sostituire i controlli IA simulati con servizi veri (`docs/architettura_ia.md`, «Passi per l'IA vera»).
+5. Accessibilità: prove con screen reader e dispositivi reali (`docs/accessibilita.md`).
+6. Colonna spaziale per `confine`; normative con i testi veri del comitato.
+7. Aiven Free si spegne se inattivo: se il sito non carica i dati, riaccenderlo.
 
 ## graphify
 

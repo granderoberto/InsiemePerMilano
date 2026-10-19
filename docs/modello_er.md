@@ -4,6 +4,8 @@ Progetto: La Nostra Città, Il Nostro Futuro
 
 Notazione: ● attributo chiave (PK), ○ attributo semplice. Le chiavi esterne non compaiono: nel modello concettuale le rappresentano le associazioni, e diventano FK solo nello schema logico.
 
+Nota: la tabella `media_contenuti` (copia dei file caricati, per dischi di hosting temporanei) è tecnica e non è un'entità del dominio: non compare nell'ER, ma sì nel modello logico.
+
 ## Entità
 
 ### UTENTE
