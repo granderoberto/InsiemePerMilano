@@ -7,6 +7,8 @@ dell'identità, classificazione, moderazione e controllo di coerenza, ma l'ultim
 
 Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua del progetto: **italiano**.
 
+**Sito online:** <https://la-nostra-citta.onrender.com>. È ospitato su Render (piano gratuito), quindi la prima visita dopo un po' di inattività può essere lenta; i dati sono dimostrativi.
+
 ## Stato
 
 | Materiale richiesto dalla traccia | Stato | Dove |
