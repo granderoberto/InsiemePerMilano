@@ -7,6 +7,7 @@ GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN."""
 import base64
 import json
 import logging
+import ssl
 import time
 import urllib.error
 import urllib.parse
@@ -16,6 +17,12 @@ from django.conf import settings
 from django.core.mail.backends.base import BaseEmailBackend
 
 log = logging.getLogger(__name__)
+
+try:  # certificati aggiornati (le installazioni di Python da python.org su macOS non hanno quelli di sistema)
+    import certifi
+    _CONTESTO = ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    _CONTESTO = ssl.create_default_context()
 _token = {"valore": None, "scade": 0.0}
 
 
@@ -27,7 +34,7 @@ def _richiesta(url, dati=None, intestazioni=None, timeout=15):
     corpo = None if dati is None else (dati if isinstance(dati, bytes) else json.dumps(dati).encode())
     req = urllib.request.Request(url, data=corpo, headers=intestazioni or {}, method="POST" if corpo is not None else "GET")
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
+        with urllib.request.urlopen(req, timeout=timeout, context=_CONTESTO) as r:
             return json.loads(r.read() or b"{}")
     except urllib.error.HTTPError as e:
         dettaglio = e.read()[:300].decode("utf-8", "replace")

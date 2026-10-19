@@ -1,7 +1,13 @@
 """Ottiene (una volta) il token per inviare email con l'API di Gmail e lo scrive nel .env come GMAIL_REFRESH_TOKEN.
 Prima: in .env metti GMAIL_CLIENT_ID e GMAIL_CLIENT_SECRET (vedi docs/produzione.md, «Gmail API»).
 Uso: tools/.venv/bin/python tools/email/ottieni_token_gmail.py   (si apre il browser: accedi con l'account Gmail e consenti l'invio)"""
-import http.server, json, pathlib, re, secrets, sys, threading, urllib.parse, urllib.request, webbrowser
+import http.server, json, pathlib, re, secrets, ssl, sys, threading, urllib.parse, urllib.request, webbrowser
+
+try:  # le installazioni di Python da python.org su macOS non hanno i certificati di sistema
+    import certifi
+    CONTESTO = ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    CONTESTO = ssl.create_default_context()
 
 RADICE = pathlib.Path(__file__).resolve().parents[2]
 ENV = RADICE / ".env"
@@ -50,7 +56,7 @@ if "code" not in risultato:
     sys.exit("Autorizzazione non riuscita: " + risultato.get("errore", "?"))
 dati = urllib.parse.urlencode({"code": risultato["code"], "client_id": cid, "client_secret": segreto, "redirect_uri": redirect, "grant_type": "authorization_code"}).encode()
 try:
-    r = json.load(urllib.request.urlopen(urllib.request.Request("https://oauth2.googleapis.com/token", data=dati), timeout=20))
+    r = json.load(urllib.request.urlopen(urllib.request.Request("https://oauth2.googleapis.com/token", data=dati), timeout=20, context=CONTESTO))
 except Exception as e:  # noqa: BLE001
     sys.exit(f"Scambio del codice non riuscito: {e}")
 if "refresh_token" not in r:
