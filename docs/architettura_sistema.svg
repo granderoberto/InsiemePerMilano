@@ -1,0 +1,196 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1780 1230" width="1780" height="1230" font-family="Helvetica, Arial, sans-serif">
+<rect width="1780" height="1230" fill="#ffffff"/>
+<defs><marker id="fr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#101010"/></marker></defs>
+<rect x="0" y="0" width="1780" height="8" fill="#e30613"/>
+<text x="40" y="46" font-size="26" font-weight="800" fill="#101010" text-anchor="start">Architettura di «La Nostra Città, Il Nostro Futuro»</text>
+<text x="40" y="68" font-size="13" font-weight="400" fill="#444" text-anchor="start">Piattaforma civica per il comitato «Insieme per Milano» · stato a ottobre 2026 · tratto pieno = in uso, tratteggiato = simulato, di prova o esterno</text>
+<circle cx="1560" cy="40" r="9" fill="#e30613" stroke="#101010" stroke-width="2.5"/>
+<circle cx="1600" cy="40" r="9" fill="#009a44" stroke="#101010" stroke-width="2.5"/>
+<circle cx="1640" cy="40" r="9" fill="#ffc400" stroke="#101010" stroke-width="2.5"/>
+<circle cx="1680" cy="40" r="9" fill="#0a5eb0" stroke="#101010" stroke-width="2.5"/>
+<circle cx="1720" cy="40" r="9" fill="#8e4ea0" stroke="#101010" stroke-width="2.5"/>
+<line x1="1560" y1="40" x2="1720" y2="40" stroke="#101010" stroke-width="3" />
+<circle cx="1560" cy="40" r="9" fill="#e30613" stroke="#101010" stroke-width="2.5"/>
+<circle cx="1600" cy="40" r="9" fill="#009a44" stroke="#101010" stroke-width="2.5"/>
+<circle cx="1640" cy="40" r="9" fill="#ffc400" stroke="#101010" stroke-width="2.5"/>
+<circle cx="1680" cy="40" r="9" fill="#0a5eb0" stroke="#101010" stroke-width="2.5"/>
+<circle cx="1720" cy="40" r="9" fill="#8e4ea0" stroke="#101010" stroke-width="2.5"/>
+<rect x="40" y="110" width="290" height="110" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="40" y="110" width="290" height="28" fill="#101010"/><rect x="40" y="133" width="290" height="5" fill="#e30613"/>
+<text x="50" y="129" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Cittadino / visitatore</text>
+<text x="50" y="160" font-size="13" font-weight="400" fill="#101010" text-anchor="start">Browser da telefono o computer</text>
+<text x="50" y="178" font-size="13" font-weight="400" fill="#101010" text-anchor="start">legge, segnala, sostiene, commenta</text>
+<text x="50" y="196" font-size="13" font-weight="400" fill="#101010" text-anchor="start">accesso: SPID/CIE o email + password</text>
+<rect x="40" y="250" width="290" height="90" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="40" y="250" width="290" height="28" fill="#101010"/><rect x="40" y="273" width="290" height="5" fill="#009a44"/>
+<text x="50" y="269" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Moderatore</text>
+<text x="50" y="300" font-size="13" font-weight="400" fill="#101010" text-anchor="start">code: contenuti dubbi, verifiche,</text>
+<text x="50" y="318" font-size="13" font-weight="400" fill="#101010" text-anchor="start">richieste di revisione, presentazioni</text>
+<rect x="40" y="370" width="290" height="90" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="40" y="370" width="290" height="28" fill="#101010"/><rect x="40" y="393" width="290" height="5" fill="#ffc400"/>
+<text x="50" y="389" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Amministratore</text>
+<text x="50" y="420" font-size="13" font-weight="400" fill="#101010" text-anchor="start">utenti e ruoli, registro delle attività,</text>
+<text x="50" y="438" font-size="13" font-weight="400" fill="#101010" text-anchor="start">statistiche, categorie, normative</text>
+<rect x="40" y="500" width="290" height="90" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="40" y="500" width="290" height="28" fill="#101010"/><rect x="40" y="523" width="290" height="5" fill="#0a5eb0"/>
+<text x="50" y="519" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Sviluppatore</text>
+<text x="50" y="550" font-size="13" font-weight="400" fill="#101010" text-anchor="start">VS Code · prove automatiche (smoke)</text>
+<text x="50" y="568" font-size="13" font-weight="400" fill="#101010" text-anchor="start">migrazioni SQL, modello ER e logico</text>
+<rect x="40" y="640" width="290" height="100" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="40" y="640" width="290" height="28" fill="#101010"/><rect x="40" y="663" width="290" height="5" fill="#8e4ea0"/>
+<text x="50" y="659" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">GitHub</text>
+<text x="50" y="690" font-size="13" font-weight="400" fill="#101010" text-anchor="start">granderoberto/InsiemePerMilano</text>
+<text x="50" y="708" font-size="13" font-weight="400" fill="#101010" text-anchor="start">ramo main · documentazione e codice</text>
+<text x="50" y="726" font-size="13" font-weight="400" fill="#101010" text-anchor="start">nessun segreto nel repository</text>
+<path d="M185,590 L185,640" fill="none" stroke="#101010" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#fr)"/>
+<rect x="200.0" y="605" width="64.0" height="19" fill="#ffffff"/>
+<text x="232" y="619" font-size="12" font-weight="700" fill="#101010" text-anchor="middle">git push</text>
+<path d="M330,165 L440,165" fill="none" stroke="#101010" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#fr)"/>
+<rect x="363.5" y="141" width="43.0" height="19" fill="#ffffff"/>
+<text x="385" y="155" font-size="12" font-weight="700" fill="#101010" text-anchor="middle">HTTPS</text>
+<path d="M330,295 L440,295" fill="none" stroke="#101010" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#fr)"/>
+<path d="M330,415 L440,415" fill="none" stroke="#101010" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#fr)"/>
+<path d="M330,700 L440,700" fill="none" stroke="#101010" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#fr)"/>
+<rect x="321.5" y="676" width="127.0" height="19" fill="#ffffff"/>
+<text x="385" y="690" font-size="12" font-weight="700" fill="#101010" text-anchor="middle">deploy automatico</text>
+<rect x="440" y="90" width="780" height="800" fill="#f2f2f0" stroke="#101010" stroke-width="2"/>
+<rect x="440" y="90" width="780" height="30" fill="#101010"/><rect x="440" y="115" width="780" height="5" fill="#e30613"/>
+<text x="452" y="111" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Render · servizio web (immagine Docker con ffmpeg · gunicorn 1 processo × 4 thread · HTTPS di Render)</text>
+<rect x="460" y="140" width="235" height="135" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="460" y="140" width="235" height="28" fill="#101010"/><rect x="460" y="163" width="235" height="5" fill="#e30613"/>
+<text x="470" y="159" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">portale</text>
+<text x="470" y="190" font-size="12" font-weight="400" fill="#101010" text-anchor="start">pubblico: elenco, mappa, dettaglio</text>
+<text x="470" y="206" font-size="12" font-weight="400" fill="#101010" text-anchor="start">utente: registrazione, accesso, 2FA,</text>
+<text x="470" y="222" font-size="12" font-weight="400" fill="#101010" text-anchor="start">profilo, verifica documento</text>
+<text x="470" y="238" font-size="12" font-weight="400" fill="#101010" text-anchor="start">autore: nuova segnalazione, modifica</text>
+<rect x="712" y="140" width="235" height="135" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="712" y="140" width="235" height="28" fill="#101010"/><rect x="712" y="163" width="235" height="5" fill="#009a44"/>
+<text x="722" y="159" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">moderazione</text>
+<text x="722" y="190" font-size="12" font-weight="400" fill="#101010" text-anchor="start">approva, rifiuta, presenta ai</text>
+<text x="722" y="206" font-size="12" font-weight="400" fill="#101010" text-anchor="start">candidati, nascondi, decide le</text>
+<text x="722" y="222" font-size="12" font-weight="400" fill="#101010" text-anchor="start">verifiche e le richieste di</text>
+<text x="722" y="238" font-size="12" font-weight="400" fill="#101010" text-anchor="start">revisione</text>
+<rect x="964" y="140" width="235" height="135" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="964" y="140" width="235" height="28" fill="#101010"/><rect x="964" y="163" width="235" height="5" fill="#ffc400"/>
+<text x="974" y="159" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">amministrazione</text>
+<text x="974" y="190" font-size="12" font-weight="400" fill="#101010" text-anchor="start">utenti, ruoli, sospensioni,</text>
+<text x="974" y="206" font-size="12" font-weight="400" fill="#101010" text-anchor="start">azzeramento 2FA, registro,</text>
+<text x="974" y="222" font-size="12" font-weight="400" fill="#101010" text-anchor="start">statistiche (CSV), categorie,</text>
+<text x="974" y="238" font-size="12" font-weight="400" fill="#101010" text-anchor="start">testi normativi</text>
+<rect x="460" y="295" width="739" height="225" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="460" y="295" width="739" height="28" fill="#101010"/><rect x="460" y="318" width="739" height="5" fill="#0a5eb0"/>
+<text x="470" y="314" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">core · servizi condivisi (Django 5.2, template server-side)</text>
+<text x="478" y="349" font-size="13" font-weight="800" fill="#101010" text-anchor="start">Account</text>
+<text x="478" y="371" font-size="12" font-weight="400" fill="#101010" text-anchor="start">password (criteri) · bcrypt</text>
+<text x="478" y="390" font-size="12" font-weight="400" fill="#101010" text-anchor="start">token firmati (email, reset)</text>
+<text x="478" y="409" font-size="12" font-weight="400" fill="#101010" text-anchor="start">2FA TOTP (segreto cifrato)</text>
+<text x="478" y="428" font-size="12" font-weight="400" fill="#101010" text-anchor="start">normative e consensi</text>
+<text x="720" y="349" font-size="13" font-weight="800" fill="#101010" text-anchor="start">Segnalazioni</text>
+<text x="720" y="371" font-size="12" font-weight="400" fill="#101010" text-anchor="start">stati e transizioni</text>
+<text x="720" y="390" font-size="12" font-weight="400" fill="#101010" text-anchor="start">geo: quartiere dal punto (NIL)</text>
+<text x="720" y="409" font-size="12" font-weight="400" fill="#101010" text-anchor="start">media: foto/video ridotti, senza EXIF</text>
+<text x="720" y="428" font-size="12" font-weight="400" fill="#101010" text-anchor="start">segnalazioni simili in zona</text>
+<text x="962" y="349" font-size="13" font-weight="800" fill="#101010" text-anchor="start">Controlli e tracce</text>
+<text x="962" y="371" font-size="12" font-weight="400" fill="#101010" text-anchor="start">interfaccia IA unica (ia/): testo,</text>
+<text x="962" y="390" font-size="12" font-weight="400" fill="#101010" text-anchor="start">categorie, coerenza, documento</text>
+<text x="962" y="409" font-size="12" font-weight="400" fill="#101010" text-anchor="start">log delle attività (solo aggiunte)</text>
+<text x="962" y="428" font-size="12" font-weight="400" fill="#101010" text-anchor="start">email: SMTP, limiti di invio</text>
+<rect x="478" y="460" width="703" height="48" fill="#ffffff" stroke="#101010" stroke-width="1.5"/>
+<text x="490" y="479" font-size="12" font-weight="400" fill="#101010" text-anchor="start">Modelli del dominio: managed=False (lo schema viene solo dalle migrazioni SQL) · utente di accesso su `utenti` (bcrypt)</text>
+<text x="490" y="497" font-size="12" font-weight="400" fill="#101010" text-anchor="start">Archivio temporaneo cifrato per documento e selfie: cancellato a fine verifica · copia dei file nel database</text>
+<rect x="460" y="540" width="360" height="120" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="460" y="540" width="360" height="28" fill="#101010"/><rect x="460" y="563" width="360" height="5" fill="#101010"/>
+<text x="470" y="559" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Pagine e file statici</text>
+<text x="470" y="590" font-size="12" font-weight="400" fill="#101010" text-anchor="start">HTML server-side · CSS «segnaletica milanese»</text>
+<text x="470" y="606" font-size="12" font-weight="400" fill="#101010" text-anchor="start">font Archivo (self-hosted) · JavaScript</text>
+<text x="470" y="622" font-size="12" font-weight="400" fill="#101010" text-anchor="start">mappe (Leaflet), scelta del quartiere,</text>
+<text x="470" y="638" font-size="12" font-weight="400" fill="#101010" text-anchor="start">immagini e video demo · WhiteNoise</text>
+<rect x="838" y="540" width="361" height="120" fill="#ffffff" stroke="#101010" stroke-width="2" stroke-dasharray="8 5"/>
+<rect x="838" y="540" width="361" height="28" fill="#101010"/><rect x="838" y="563" width="361" height="5" fill="#101010"/>
+<text x="848" y="559" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Disco /data (temporaneo sul piano gratuito)</text>
+<text x="848" y="590" font-size="12" font-weight="400" fill="#101010" text-anchor="start">media/  foto e video caricati</text>
+<text x="848" y="606" font-size="12" font-weight="400" fill="#101010" text-anchor="start">tmp_verifiche/  documenti, cifrati</text>
+<text x="848" y="622" font-size="12" font-weight="400" fill="#101010" text-anchor="start">se manca un file: ripristino dal database</text>
+<text x="848" y="638" font-size="12" font-weight="400" fill="#101010" text-anchor="start">(tabella media_contenuti)</text>
+<rect x="460" y="680" width="739" height="90" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="460" y="680" width="739" height="28" fill="#101010"/><rect x="460" y="703" width="739" height="5" fill="#101010"/>
+<text x="470" y="699" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Sicurezza e controllo</text>
+<text x="470" y="730" font-size="12" font-weight="400" fill="#101010" text-anchor="start">HTTPS obbligatorio · cookie protetti · CSRF · intestazioni di sicurezza · limiti di tentativi (blocco 15 min dopo 5 errori)</text>
+<text x="470" y="746" font-size="12" font-weight="400" fill="#101010" text-anchor="start">controllo di stato /salute/ · variabili d&#x27;ambiente per chiavi e credenziali (mai nel codice) · migrazioni Django all&#x27;avvio</text>
+<rect x="460" y="790" width="739" height="80" fill="#ffffff" stroke="#101010" stroke-width="2" stroke-dasharray="8 5"/>
+<rect x="460" y="790" width="739" height="28" fill="#101010"/><rect x="460" y="813" width="739" height="5" fill="#101010"/>
+<text x="470" y="809" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Cartella apps/web (stesso codice in locale)</text>
+<text x="470" y="840" font-size="12" font-weight="400" fill="#101010" text-anchor="start">In locale: `manage.py runserver` su 127.0.0.1:8000 con il database di prova la_nostra_citta_test e le email sulla console.</text>
+<text x="470" y="856" font-size="12" font-weight="400" fill="#101010" text-anchor="start">In produzione: gli stessi file, con DJANGO_DEBUG=0 e il database principale.</text>
+<rect x="1320" y="90" width="440" height="540" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1320" y="90" width="440" height="30" fill="#101010"/><rect x="1320" y="115" width="440" height="5" fill="#009a44"/>
+<text x="1332" y="111" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Aiven · MySQL 8.4 · defaultdb</text>
+<rect x="1338" y="140" width="404" height="100" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1338" y="140" width="404" height="28" fill="#101010"/><rect x="1338" y="163" width="404" height="5" fill="#e30613"/>
+<text x="1348" y="159" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Utenti e accesso</text>
+<text x="1348" y="190" font-size="12" font-weight="400" fill="#101010" text-anchor="start">utenti · verifiche_identita · sospensioni</text>
+<text x="1348" y="206" font-size="12" font-weight="400" fill="#101010" text-anchor="start">documenti_normativi · consensi · quartieri (88 NIL)</text>
+<rect x="1338" y="255" width="404" height="120" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1338" y="255" width="404" height="28" fill="#101010"/><rect x="1338" y="278" width="404" height="5" fill="#009a44"/>
+<text x="1348" y="274" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Segnalazioni</text>
+<text x="1348" y="305" font-size="12" font-weight="400" fill="#101010" text-anchor="start">segnalazioni · media · media_contenuti</text>
+<text x="1348" y="321" font-size="12" font-weight="400" fill="#101010" text-anchor="start">classificazioni · categorie · stati</text>
+<text x="1348" y="337" font-size="12" font-weight="400" fill="#101010" text-anchor="start">transizioni_ammesse · cambi_stato</text>
+<rect x="1338" y="390" width="404" height="80" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1338" y="390" width="404" height="28" fill="#101010"/><rect x="1338" y="413" width="404" height="5" fill="#ffc400"/>
+<text x="1348" y="409" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Community</text>
+<text x="1348" y="440" font-size="12" font-weight="400" fill="#101010" text-anchor="start">sostegni · commenti · candidati · invii</text>
+<rect x="1338" y="485" width="404" height="85" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1338" y="485" width="404" height="28" fill="#101010"/><rect x="1338" y="508" width="404" height="5" fill="#0a5eb0"/>
+<text x="1348" y="504" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Moderazione, notifiche e log</text>
+<text x="1348" y="535" font-size="12" font-weight="400" fill="#101010" text-anchor="start">richieste_revisione · notifiche</text>
+<text x="1348" y="551" font-size="12" font-weight="400" fill="#101010" text-anchor="start">preferenze_notifica · log_attivita (solo aggiunte)</text>
+<text x="1340" y="603" font-size="12" font-weight="700" fill="#101010" text-anchor="start">22 tabelle · 7 trigger (ciclo di vita, età minima, log) · 3 viste · CHECK</text>
+<path d="M1220,330 L1320,330" fill="none" stroke="#101010" stroke-width="2.2" stroke-linejoin="round" marker-start="url(#fr)" marker-end="url(#fr)"/>
+<rect x="1231.0" y="305" width="78.0" height="19" fill="#ffffff"/>
+<text x="1270" y="319" font-size="12" font-weight="700" fill="#101010" text-anchor="middle">SQL su TLS</text>
+<text x="1270" y="350" font-size="11" font-weight="400" fill="#444" text-anchor="middle">certificato CA</text>
+<rect x="1320" y="660" width="440" height="90" fill="#ffffff" stroke="#101010" stroke-width="2" stroke-dasharray="8 5"/>
+<rect x="1320" y="660" width="440" height="28" fill="#101010"/><rect x="1320" y="683" width="440" height="5" fill="#8e4ea0"/>
+<text x="1330" y="679" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Fornitori di intelligenza artificiale</text>
+<text x="1330" y="710" font-size="12" font-weight="400" fill="#101010" text-anchor="start">oggi simulati (core/services/ia/simulato)</text>
+<text x="1330" y="726" font-size="12" font-weight="400" fill="#101010" text-anchor="start">da scegliere: OCR, volto, moderazione, categorie</text>
+<path d="M1220,705 L1320,705" fill="none" stroke="#101010" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="7 5" marker-end="url(#fr)"/>
+<rect x="1231.0" y="680" width="78.0" height="19" fill="#ffffff"/>
+<text x="1270" y="694" font-size="12" font-weight="700" fill="#101010" text-anchor="middle">IA_BACKEND</text>
+<rect x="1320" y="770" width="440" height="90" fill="#ffffff" stroke="#101010" stroke-width="2"/>
+<rect x="1320" y="770" width="440" height="28" fill="#101010"/><rect x="1320" y="793" width="440" height="5" fill="#ffc400"/>
+<text x="1330" y="789" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Gmail · SMTP</text>
+<text x="1330" y="820" font-size="12" font-weight="400" fill="#101010" text-anchor="start">smtp.gmail.com:587 (STARTTLS) · password per le app</text>
+<text x="1330" y="836" font-size="12" font-weight="400" fill="#101010" text-anchor="start">conferma dell&#x27;email, recupero password, avvisi</text>
+<path d="M1220,815 L1320,815" fill="none" stroke="#101010" stroke-width="2.2" stroke-linejoin="round" marker-end="url(#fr)"/>
+<rect x="1252.0" y="790" width="36.0" height="19" fill="#ffffff"/>
+<text x="1270" y="804" font-size="12" font-weight="700" fill="#101010" text-anchor="middle">SMTP</text>
+<rect x="1320" y="880" width="440" height="110" fill="#ffffff" stroke="#101010" stroke-width="2" stroke-dasharray="8 5"/>
+<rect x="1320" y="880" width="440" height="28" fill="#101010"/><rect x="1320" y="903" width="440" height="5" fill="#101010"/>
+<text x="1330" y="899" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Chiamati dal browser dell&#x27;utente</text>
+<text x="1330" y="930" font-size="12" font-weight="400" fill="#101010" text-anchor="start">Leaflet (unpkg) · tile OpenStreetMap</text>
+<text x="1330" y="946" font-size="12" font-weight="400" fill="#101010" text-anchor="start">Nominatim per cercare un indirizzo</text>
+<text x="1330" y="962" font-size="12" font-weight="400" fill="#101010" text-anchor="start">geolocalizzazione e fotocamera del dispositivo</text>
+<rect x="440" y="940" width="780" height="120" fill="#ffffff" stroke="#101010" stroke-width="2" stroke-dasharray="8 5"/>
+<rect x="440" y="940" width="780" height="28" fill="#101010"/><rect x="440" y="963" width="780" height="5" fill="#8e4ea0"/>
+<text x="450" y="959" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Servizio SPID/CIE · apps/spid (Django separato, database proprio)</text>
+<text x="450" y="990" font-size="12" font-weight="400" fill="#101010" text-anchor="start">Relying Party OpenID Connect con federazione (SDK spid-cie-oidc-django, Django 5.2 con l&#x27;SDK senza dipendenze)</text>
+<text x="450" y="1006" font-size="12" font-weight="400" fill="#101010" text-anchor="start">ponte verso il sito: token firmato con segreto condiviso, 120 s, monouso, legato al browser che ha iniziato l&#x27;accesso</text>
+<text x="450" y="1022" font-size="12" font-weight="400" fill="#101010" text-anchor="start">del codice fiscale arriva al sito solo l&#x27;hash SHA-256 · oggi sull&#x27;ambiente di prova della federazione</text>
+<path d="M700,890 L700,940" fill="none" stroke="#101010" stroke-width="2.2" stroke-linejoin="round" marker-start="url(#fr)" marker-end="url(#fr)"/>
+<rect x="686.0" y="905" width="148.0" height="19" fill="#ffffff"/>
+<text x="760" y="919" font-size="12" font-weight="700" fill="#101010" text-anchor="middle">ponte: token firmato</text>
+<rect x="1320" y="1010" width="440" height="110" fill="#ffffff" stroke="#101010" stroke-width="2" stroke-dasharray="8 5"/>
+<rect x="1320" y="1010" width="440" height="28" fill="#101010"/><rect x="1320" y="1033" width="440" height="5" fill="#8e4ea0"/>
+<text x="1330" y="1029" font-size="14" font-weight="700" fill="#ffffff" text-anchor="start">Federazione SPID/CIE</text>
+<text x="1330" y="1060" font-size="12" font-weight="400" fill="#101010" text-anchor="start">Trust Anchor e identity provider</text>
+<text x="1330" y="1076" font-size="12" font-weight="400" fill="#101010" text-anchor="start">oggi: ambiente di prova (gestore di identità finto)</text>
+<text x="1330" y="1092" font-size="12" font-weight="400" fill="#101010" text-anchor="start">uso reale: serve l&#x27;adesione di un ente</text>
+<path d="M1220,1065 L1320,1065" fill="none" stroke="#101010" stroke-width="2.2" stroke-linejoin="round" marker-start="url(#fr)" marker-end="url(#fr)"/>
+<rect x="1217.0" y="1040" width="106.0" height="19" fill="#ffffff"/>
+<text x="1270" y="1054" font-size="12" font-weight="700" fill="#101010" text-anchor="middle">OpenID Connect</text>
+<text x="40" y="1170" font-size="14" font-weight="800" fill="#101010" text-anchor="start">Flussi principali</text>
+<text x="40" y="1192" font-size="12" font-weight="400" fill="#101010" text-anchor="start">1. Registrazione: modulo &gt; database &gt; email di conferma (Gmail) &gt; account attivo. La verifica del documento è facoltativa, necessaria per pubblicare.</text>
+<text x="40" y="1210" font-size="12" font-weight="400" fill="#101010" text-anchor="start">2. Segnalazione: modulo con foto/video &gt; controlli IA (simulati) &gt; stato «In attesa» &gt; moderatore &gt; pubblica &gt; candidati. Ogni passaggio finisce nel registro.</text>
+</svg>

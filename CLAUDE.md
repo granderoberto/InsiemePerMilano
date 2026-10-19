@@ -27,6 +27,7 @@ docs/
   produzione.md, spid_produzione.md, accessibilita.md, handoff.md   messa online ed email; adesione a SPID/CIE; accessibilità; stato del lavoro
   modello_er.md          entità, PK, associazioni con cardinalità, vincoli extra-diagramma
   modello_er.{pdf,svg,png}  diagramma Chen generato
+  architettura_sistema.{md,svg,png}  disegno dell'architettura del sistema (generato da tools/architettura/disegna.py)
   modello_logico.{md,svg,png}  modello logico (schema relazionale, dizionario, normalizzazione): generato da db/schema.sql con tools/logico/genera.py
 db/
   schema.sql             MySQL 8.0+: tabelle, ENUM, CHECK, trigger, viste, seed (riferimento completo)
@@ -42,6 +43,7 @@ apps/spid/               servizio SPID/CIE (Relying Party OpenID Connect con SDK
 tools/db/migrate.sh      applica le migrazioni a un database (idempotente, tabella schema_migrations)
 tools/geo/import_quartieri.py   importa gli 88 NIL in `quartieri`
 tools/ia/schema_blocchi.py   genera lo schema a blocchi dell'IA (docs/architettura_ia.{svg,png})
+tools/architettura/disegna.py   disegna l'architettura del sistema (docs/architettura_sistema.{svg,png})
 tools/demo/genera_foto.py    genera le immagini e i video di esempio dei dati demo (apps/web/static/demo/)
 tools/seed/              seed.py (dati demo deterministici) + README con password demo e scelte
 tools/requirements.txt   dipendenze Python (venv in tools/.venv, ignorato da git)

@@ -44,6 +44,7 @@ Autore: Roberto Grande (GitHub: [Bertox0](https://github.com/Bertox0)). Lingua d
 │   ├── modello_logico.{md,svg,png}   modello logico: schema relazionale, dizionario, normalizzazione, diagramma
 │   ├── produzione.md, spid_produzione.md   messa online, email, adesione a SPID/CIE
 │   ├── accessibilita.md, architettura_ia.md   accessibilità; schema a blocchi dell'IA
+│   ├── architettura_sistema.{md,svg,png}   disegno dell'architettura del sistema
 │   ├── handoff.md             stato del lavoro e prossimi passi
 │   ├── spike_django_spid.md   esiti della prova tecnica su Django e sull'SDK SPID/CIE
 │   └── prompt/
