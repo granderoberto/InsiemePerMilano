@@ -119,9 +119,6 @@
 <line x1="920" y1="650" x2="920" y2="720" stroke="#0f172a" stroke-width="2" marker-end="url(#p)"/>
 <text x="830.0" y="689.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#ffffff" stroke-width="6">7  scrive esiti e log</text>
 <text x="830.0" y="689.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#0f172a">7  scrive esiti e log</text>
-<line x1="540" y1="650" x2="540" y2="720" stroke="#0f172a" stroke-width="2" marker-end="url(#p)"/>
-<text x="478.0" y="689.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#ffffff" stroke-width="6">legge e scrive</text>
-<text x="478.0" y="689.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#0f172a">legge e scrive</text>
 <text x="40" y="940" font-size="15" font-weight="700" text-anchor="start" fill="#0f172a">Legenda</text>
 <text x="40" y="964" font-size="13.5" font-weight="400" text-anchor="start" fill="#334155">1 il cittadino invia il contenuto · 2 la web app chiede il controllo al gateway · 3 torna l'esito (ok, dubbio, bloccato) · 4 il gateway lancia i moduli necessari</text>
 <text x="40" y="984" font-size="13.5" font-weight="400" text-anchor="start" fill="#334155">5 i moduli rispondono con punteggi · 6 il moderatore vede le code e conferma o ribalta · 7 esiti e decisioni IA finiscono nel database e nel registro delle attività</text>
