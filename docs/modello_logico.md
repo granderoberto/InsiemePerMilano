@@ -62,6 +62,8 @@ Il modello logico traduce il modello ER ([`modello_er.md`](modello_er.md)) in un
 
 **RICHIESTE_REVISIONE** ( <u>id</u>, *id_richiedente*, *id_segnalazione*, *id_commento*, *id_verifica*, motivo, stato, *id_moderatore*, risposta, creata_il, chiusa_il )
 
+**CODA_IA** ( <u>id</u>, *id_segnalazione*, *id_commento*, stato, priorita, impronta, segnali, tentativi, non_prima_di, creata_il, presa_il, finita_il, errore )
+
 **NOTIFICHE** ( <u>id</u>, *id_utente*, tipo, messaggio, link, letta, creata_il )
 
 **PREFERENZE_NOTIFICA** ( <u>*id_utente*</u>, <u>tipo</u>, in_app, email )
@@ -446,6 +448,32 @@ Vincoli CHECK:
 - `chk_un_solo_oggetto`: `(id_segnalazione IS NOT NULL) + (id_commento IS NOT NULL) + (id_verifica IS NOT NULL) = 1`
 - `chk_chiusura`: `(stato = 'aperta') = (chiusa_il IS NULL AND id_moderatore IS NULL)`
 
+#### `coda_ia`
+
+Tabella tecnica (non è un'entità del dominio): coda dei controlli automatici. Un solo lavoratore la consuma rispettando la quota giornaliera del fornitore IA.
+
+| Colonna | Tipo | Null | Note |
+|---|---|---|---|
+| `id` | `INT` | no | PK; auto-incremento |
+| `id_segnalazione` | `INT` | sì | FK → `segnalazioni.id` |
+| `id_commento` | `INT` | sì | FK → `commenti.id` |
+| `stato` | `ENUM('in_coda','in_corso','fatto','saltato','fallito')` | no | default 'in_coda' |
+| `priorita` | `TINYINT UNSIGNED` | no | default 50 |
+| `impronta` | `CHAR(64)` | no |  |
+| `segnali` | `JSON` | sì |  |
+| `tentativi` | `TINYINT UNSIGNED` | no | default 0 |
+| `non_prima_di` | `DATETIME(3)` | no | default CURRENT_TIMESTAMP(3) |
+| `creata_il` | `DATETIME(3)` | no | default CURRENT_TIMESTAMP(3) |
+| `presa_il` | `DATETIME(3)` | sì |  |
+| `finita_il` | `DATETIME(3)` | sì |  |
+| `errore` | `VARCHAR(200)` | sì |  |
+
+Vincoli di unicità e indici: indice `idx_coda_prossima` (stato, priorita, creata_il).
+
+Vincoli CHECK:
+
+- `chk_coda_un_oggetto`: `(id_segnalazione IS NOT NULL) + (id_commento IS NOT NULL) = 1`
+
 #### `notifiche`
 
 Notifiche per utente.
@@ -539,11 +567,13 @@ Vincoli CHECK:
 | `richieste_revisione` | `id_commento` | `commenti` | `id` | RESTRICT (predefinita) |
 | `richieste_revisione` | `id_verifica` | `verifiche_identita` | `id` | RESTRICT (predefinita) |
 | `richieste_revisione` | `id_moderatore` | `utenti` | `id` | RESTRICT (predefinita) |
+| `coda_ia` | `id_segnalazione` | `segnalazioni` | `id` | RESTRICT (predefinita) |
+| `coda_ia` | `id_commento` | `commenti` | `id` | RESTRICT (predefinita) |
 | `notifiche` | `id_utente` | `utenti` | `id` | RESTRICT (predefinita) |
 | `preferenze_notifica` | `id_utente` | `utenti` | `id` | RESTRICT (predefinita) |
 | `log_attivita` | `id_utente` | `utenti` | `id` | RESTRICT (predefinita) |
 
-Totale: 39 chiavi esterne tra 22 tabelle.
+Totale: 41 chiavi esterne tra 23 tabelle.
 
 ## Dal modello ER al modello logico
 

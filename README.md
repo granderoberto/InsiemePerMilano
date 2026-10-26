@@ -77,7 +77,7 @@ Non sono nel repository, per scelta: `.env` (credenziali), `certs/` (certificato
 
 ## Il database in breve
 
-MySQL 8 su Aiven (piano Free), InnoDB, utf8mb4, DATETIME sempre in UTC. **22 tabelle** (più `schema_migrations`, che tiene traccia delle migrazioni), 7 trigger, 3 viste. Una è tecnica (`media_contenuti`, copia dei file caricati) e non è nel modello ER.
+MySQL 8 su Aiven (piano Free), InnoDB, utf8mb4, DATETIME sempre in UTC. **23 tabelle** (più `schema_migrations`, che tiene traccia delle migrazioni), 7 trigger, 3 viste. Due sono tecniche (`media_contenuti`, copia dei file caricati, e `coda_ia`, coda dei controlli IA) e non sono nel modello ER.
 
 - **Utenti e accesso:** `utenti`, `verifiche_identita`, `sospensioni`, `documenti_normativi`, `consensi`, `quartieri`.
 - **Segnalazioni:** `segnalazioni`, `media`, `media_contenuti`, `categorie`, `classificazioni`, `stati`, `transizioni_ammesse`, `cambi_stato`.

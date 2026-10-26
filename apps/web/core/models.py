@@ -210,6 +210,14 @@ class Segnalazione(models.Model):
         return self.titolo
 
     @property
+    def controllo_in_corso(self):
+        """Il controllo automatico non ha ancora dato un esito (e non è passato troppo tempo): il moderatore non può approvare."""
+        from datetime import timedelta
+        from django.conf import settings
+        from django.utils import timezone
+        return self.esito_moderazione is None and timezone.now() - self.creata_il < timedelta(hours=settings.IA_ATTESA_MASSIMA_ORE)
+
+    @property
     def e_pubblica(self):
         return self.stato_id in (APPROVATA, PRESENTATA) and not self.nascosta and self.eliminata_il is None
 
@@ -466,3 +474,24 @@ class PreferenzaNotifica(models.Model):
     class Meta:
         managed = False
         db_table = "preferenze_notifica"
+
+
+class CodaIA(models.Model):
+    """Coda dei controlli automatici (tabella tecnica, migrazione 006). Una riga per segnalazione o commento da inviare al modello."""
+    id = models.AutoField(primary_key=True)
+    segnalazione = models.ForeignKey(Segnalazione, models.DO_NOTHING, db_column="id_segnalazione", blank=True, null=True, related_name="+")
+    commento = models.ForeignKey(Commento, models.DO_NOTHING, db_column="id_commento", blank=True, null=True, related_name="+")
+    stato = models.CharField(max_length=9, db_default="in_coda")        # in_coda | in_corso | fatto | saltato | fallito
+    priorita = models.SmallIntegerField(db_default=50)
+    impronta = models.CharField(max_length=64)
+    segnali = models.JSONField(blank=True, null=True)
+    tentativi = models.SmallIntegerField(db_default=0)
+    non_prima_di = models.DateTimeField(db_default=Now())
+    creata_il = models.DateTimeField(db_default=Now())
+    presa_il = models.DateTimeField(blank=True, null=True)
+    finita_il = models.DateTimeField(blank=True, null=True)
+    errore = models.CharField(max_length=200, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = "coda_ia"

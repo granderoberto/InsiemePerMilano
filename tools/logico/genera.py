@@ -9,7 +9,7 @@ DOMINI = [
     ("Utenti e accesso", ["quartieri", "utenti", "verifiche_identita", "sospensioni", "documenti_normativi", "consensi"]),
     ("Segnalazioni", ["stati", "transizioni_ammesse", "categorie", "segnalazioni", "media", "media_contenuti", "classificazioni", "cambi_stato"]),
     ("Community", ["sostegni", "commenti", "candidati", "invii"]),
-    ("Moderazione, notifiche e log", ["richieste_revisione", "notifiche", "preferenze_notifica", "log_attivita"]),
+    ("Moderazione, notifiche e log", ["richieste_revisione", "coda_ia", "notifiche", "preferenze_notifica", "log_attivita"]),
 ]
 DESCRIZIONI = {
     "quartieri": "I 88 Nuclei di Identità Locale (NIL) di Milano, con il confine in GeoJSON.",
@@ -30,6 +30,7 @@ DESCRIZIONI = {
     "commenti": "Commenti e risposte (stessa segnalazione del commento padre), con esito di moderazione.",
     "candidati": "Candidati Sindaco a cui si presentano le segnalazioni.",
     "invii": "Presentazione di una segnalazione a un candidato da parte di un moderatore (associazione ternaria).",
+    "coda_ia": "Tabella tecnica (non è un'entità del dominio): coda dei controlli automatici. Un solo lavoratore la consuma rispettando la quota giornaliera del fornitore IA.",
     "richieste_revisione": "Richieste di revisione umana su una segnalazione bloccata, un commento nascosto o una verifica rifiutata.",
     "notifiche": "Notifiche per utente.",
     "preferenze_notifica": "Per ogni utente e tipo di evento, se riceverlo nell'app e per email.",
@@ -220,7 +221,7 @@ MARGINE_SU = 90        # canale superiore per i collegamenti lunghi
 COLONNE = [
     ["quartieri", "documenti_normativi", "consensi", "sospensioni", "verifiche_identita"],
     ["utenti", "notifiche", "preferenze_notifica", "log_attivita"],
-    ["sostegni", "commenti", "richieste_revisione", "cambi_stato", "invii", "candidati"],
+    ["sostegni", "commenti", "richieste_revisione", "coda_ia", "cambi_stato", "invii", "candidati"],
     ["segnalazioni", "media", "media_contenuti", "classificazioni"],
     ["stati", "transizioni_ammesse", "categorie"],
 ]

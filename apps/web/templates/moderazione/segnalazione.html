@@ -16,7 +16,7 @@
     <section class="riquadro"><h2>Azioni</h2>
       <p>Sostegni: <strong>{{ n_sostegni }}</strong></p>
       {% if s.stato_id == 2 %}
-        <form method="post" action="{% url 'azione_segnalazione' s.id 'approva' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn btn-primario" type="submit">Approva e pubblica</button></form><hr>
+        <form method="post" action="{% url 'azione_segnalazione' s.id 'approva' %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}"><button class="btn btn-primario" type="submit"{% if s.controllo_in_corso %} disabled{% endif %}>Approva e pubblica</button></form>{% if s.controllo_in_corso %}<p class="piccolo">Controllo automatico in corso: l'approvazione si sblocca con l'esito (al massimo dopo 24 ore).</p>{% endif %}<hr>
         <form method="post" action="{% url 'azione_segnalazione' s.id 'rifiuta' %}">{% csrf_token %}<input type="hidden" name="next" value="{% url 'moderazione' %}">
           <div class="campo"><label for="motivo-r">Motivo del rifiuto (obbligatorio)</label><textarea id="motivo-r" name="motivo" rows="2" required></textarea></div><button class="btn btn-pericolo" type="submit">Rifiuta</button></form>
       {% elif s.stato_id == 3 %}

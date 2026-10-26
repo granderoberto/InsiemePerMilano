@@ -59,6 +59,8 @@ def _esegui(request, pk, azione):
     motivo = request.POST.get("motivo", "").strip()
     try:
         if azione == "approva":
+            if s.controllo_in_corso:
+                raise RegolaViolata("Il controllo automatico è ancora in corso: attendi l'esito (al massimo 24 ore) oppure rifiuta la segnalazione.")
             cambia_stato(s, APPROVATA, u, "Approvata dal moderatore")
             notifica(s.autore, "stato_segnalazione", f"La tua segnalazione «{s.titolo}» è stata approvata ed è ora pubblica.", reverse("dettaglio", args=[s.id]))
             notifica_quartiere(s)

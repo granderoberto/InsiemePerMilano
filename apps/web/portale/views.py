@@ -25,6 +25,7 @@ from core.models import (APPROVATA, PRESENTATA, Candidato, Categoria, Classifica
                          Utente, VerificaIdentita)
 from core.queries import con_conteggi
 from core.services import archivio_media, geo, ia, log, media as servizio_media, normative, simili
+from core.services.ia import controllo
 from core.services.errori import RegolaViolata, traduci
 from core.services.stati import cambia_stato
 
@@ -269,20 +270,23 @@ def commenta(request, pk):
     padre = None
     if request.POST.get("padre", "").isdigit():
         padre = Commento.objects.filter(pk=int(request.POST["padre"]), segnalazione=s).first()
-    esito, punteggio = ia.controlla_testo(testo)
-    if esito == "bloccato":
+    ctrl = controllo.commento(request.user, testo)
+    esito = ctrl.esito
+    if ctrl.bloccato:
         messages.error(request, "Il commento è stato bloccato dai controlli automatici perché contiene una minaccia. "
                                 "Riscrivilo in modo rispettoso.")
         return redirect("dettaglio", pk=pk)
     try:
         with transaction.atomic():
             c = Commento.objects.create(segnalazione=s, autore=request.user, padre=padre, testo=testo,
-                                        esito_moderazione=esito, punteggio_moderazione=Decimal(str(punteggio)))
+                                        esito_moderazione=esito, punteggio_moderazione=ctrl.punteggio_moderazione)
     except DatabaseError as e:
         messages.error(request, str(traduci(e)))
         return redirect("dettaglio", pk=pk)
     log.registra(request.user, "commento", "commenti", c.id, None, {"id_segnalazione": s.id, "id_padre": padre.id if padre else None})
-    log.registra(None, "decisione_ia", "commenti", c.id, None, {"esito_moderazione": esito, "punteggio_moderazione": punteggio})
+    if esito is not None:   # in modalità «coda» i commenti da inviare al modello non hanno ancora un esito
+        log.registra(None, "decisione_ia", "commenti", c.id, None, {"esito_moderazione": esito, "punteggio_moderazione": ctrl.punteggio_moderazione})
+    controllo.accoda_se_serve(ctrl, commento=c)
     if padre and padre.autore_id != request.user.id:
         notifica(padre.autore, "risposta_commento", f"{request.user.nome} ha risposto al tuo commento.", reverse("dettaglio", args=[pk]))
     elif s.autore_id != request.user.id:
@@ -342,16 +346,15 @@ def nuova(request):
 
 
 def crea_segnalazione(utente, d, qid, file_salvati, categorie_scelte):
-    esito, p_mod = ia.controlla_testo(f"{d['titolo']} {d['descrizione']}")
-    p_coer = ia.coerenza_immagine_testo(d["titolo"], d["descrizione"], len(file_salvati))
-    suggerite = dict(ia.suggerisci_categorie(d["titolo"], d["descrizione"]))
+    ctrl = controllo.segnalazione(utente, d["titolo"], d["descrizione"], len(file_salvati))
+    esito, suggerite = ctrl.esito, ctrl.suggerite
     with transaction.atomic():
         s = Segnalazione.objects.create(
             autore=utente, tipo=d["tipo"], titolo=d["titolo"], descrizione=d["descrizione"],
             latitudine=Decimal(str(d["latitudine"])).quantize(Decimal("0.000001")),
             longitudine=Decimal(str(d["longitudine"])).quantize(Decimal("0.000001")),
             indirizzo=d.get("indirizzo") or None, quartiere_id=qid,
-            esito_moderazione=esito, punteggio_moderazione=Decimal(str(p_mod)), punteggio_coerenza=Decimal(str(p_coer)))
+            esito_moderazione=esito, punteggio_moderazione=ctrl.punteggio_moderazione, punteggio_coerenza=ctrl.punteggio_coerenza)
         for i, m in enumerate(file_salvati, 1):  # almeno un media: stessa transazione della segnalazione
             Media.objects.create(segnalazione=s, tipo=m["tipo"], percorso=m["percorso"], mime_type=m["mime"],
                                  dimensione_byte=m["dimensione"], durata_sec=m["durata"], ordine=i, copertina=(i == 1),
@@ -361,9 +364,11 @@ def crea_segnalazione(utente, d, qid, file_salvati, categorie_scelte):
             Classificazione.objects.create(segnalazione=s, categoria=cat, origine="ia" if conf else "utente",
                                            confidenza=Decimal(str(conf)) if conf else None)
     log.registra(utente, "creazione", "segnalazioni", s.id, None, {"titolo": s.titolo, "tipo": s.tipo, "id_quartiere": qid})
-    log.registra(None, "decisione_ia", "segnalazioni", s.id, None,
-                 {"esito_moderazione": esito, "punteggio_moderazione": p_mod, "punteggio_coerenza": p_coer})
-    cambia_stato(s, 2, None, "Controlli automatici completati")
+    if esito is not None:   # in modalità «coda» l'esito arriva dopo, dal lavoratore
+        log.registra(None, "decisione_ia", "segnalazioni", s.id, None, {"esito_moderazione": esito, "punteggio_moderazione": ctrl.punteggio_moderazione,
+                                                                         "punteggio_coerenza": ctrl.punteggio_coerenza, "segnali": ctrl.prefiltro.segnali if ctrl.prefiltro else None})
+    cambia_stato(s, 2, None, "Controlli automatici completati" if esito is not None else "Controlli automatici in corso")
+    controllo.accoda_se_serve(ctrl, segnalazione=s)
     if esito == "bloccato":
         notifica(utente, "contenuto_bloccato",
                  f"La tua segnalazione «{s.titolo}» è stata bloccata dai controlli automatici: un moderatore la riesaminerà.",

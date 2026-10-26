@@ -12,6 +12,7 @@ from django.views.decorators.http import require_POST
 
 from core.models import Categoria, Classificazione, Media, RichiestaRevisione, Segnalazione, VerificaIdentita
 from core.services import geo, ia, log, media as servizio_media
+from core.services.ia import controllo
 from core.services.errori import RegolaViolata, traduci
 
 from .forms import SegnalazioneForm
@@ -50,15 +51,14 @@ def modifica(request, pk):
             prima = {"titolo": s.titolo, "descrizione": s.descrizione, "tipo": s.tipo, "indirizzo": s.indirizzo,
                      "latitudine": str(s.latitudine), "longitudine": str(s.longitudine), "id_quartiere": s.quartiere_id,
                      "categorie": iniziale["categorie"], "n_media": len(esistenti)}
-            esito, p_mod = ia.controlla_testo(f"{d['titolo']} {d['descrizione']}")
-            p_coer = ia.coerenza_immagine_testo(d["titolo"], d["descrizione"], len(tenuti) + len(nuovi))
-            suggerite = dict(ia.suggerisci_categorie(d["titolo"], d["descrizione"]))
+            ctrl = controllo.segnalazione(request.user, d["titolo"], d["descrizione"], len(tenuti) + len(nuovi), escludi_id=s.id)
+            esito, suggerite = ctrl.esito, ctrl.suggerite
             with transaction.atomic():
                 s.tipo, s.titolo, s.descrizione, s.indirizzo = d["tipo"], d["titolo"], d["descrizione"], d.get("indirizzo") or None
                 s.latitudine = Decimal(str(d["latitudine"])).quantize(Decimal("0.000001"))
                 s.longitudine = Decimal(str(d["longitudine"])).quantize(Decimal("0.000001"))
                 s.quartiere_id, s.esito_moderazione = qid, esito
-                s.punteggio_moderazione, s.punteggio_coerenza = Decimal(str(p_mod)), Decimal(str(p_coer))
+                s.punteggio_moderazione, s.punteggio_coerenza = ctrl.punteggio_moderazione, ctrl.punteggio_coerenza
                 s.aggiornata_il = timezone.now()
                 s.save(update_fields=["tipo", "titolo", "descrizione", "indirizzo", "latitudine", "longitudine", "quartiere",
                                       "esito_moderazione", "punteggio_moderazione", "punteggio_coerenza", "aggiornata_il"])
@@ -90,8 +90,10 @@ def modifica(request, pk):
                     "latitudine": str(s.latitudine), "longitudine": str(s.longitudine), "id_quartiere": qid,
                     "categorie": [c.id for c in d["categorie"]], "n_media": len(tenuti) + len(nuovi)}
             log.registra(request.user, "modifica", "segnalazioni", s.id, prima, dopo)  # versione precedente nel registro
-            log.registra(None, "decisione_ia", "segnalazioni", s.id, None,
-                         {"esito_moderazione": esito, "punteggio_moderazione": p_mod, "punteggio_coerenza": p_coer})
+            if esito is not None:
+                log.registra(None, "decisione_ia", "segnalazioni", s.id, None, {"esito_moderazione": esito, "punteggio_moderazione": ctrl.punteggio_moderazione,
+                                                                                 "punteggio_coerenza": ctrl.punteggio_coerenza, "segnali": ctrl.prefiltro.segnali if ctrl.prefiltro else None})
+            controllo.accoda_se_serve(ctrl, segnalazione=s)
             if esito == "bloccato":
                 notifica(request.user, "contenuto_bloccato",
                          f"La tua segnalazione «{s.titolo}» è stata bloccata dai controlli automatici: un moderatore la riesaminerà.",

@@ -17,7 +17,12 @@ if ! [[ "$DB" =~ ^[A-Za-z0-9_]+$ ]]; then
 fi
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-set -a; . "$ROOT/.env"; set +a
+# Si leggono solo le variabili DB_*: .env contiene altri valori (per esempio password con spazi) che la shell non sa interpretare
+while IFS='=' read -r k v; do
+  case "$k" in
+    DB_HOST|DB_PORT|DB_USER|DB_PASSWORD) v="${v%\"}"; v="${v#\"}"; v="${v%\'}"; v="${v#\'}"; export "$k=$v" ;;
+  esac
+done < "$ROOT/.env"
 
 # File credenziali temporaneo (permessi 600), rimosso all'uscita
 TMP="$(mktemp -d)"

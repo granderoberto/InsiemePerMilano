@@ -61,6 +61,7 @@ SELECT COUNT(*) FROM information_schema.triggers WHERE trigger_schema = DATABASE
 | `db/migrations/003_mfa_segreto.sql` | colonna `utenti.mfa_segreto` e vincolo per l'autenticazione a due fattori |
 | `db/migrations/004_statistiche_attivita.sql` | la vista `v_statistiche_utenti` conta come attività solo segnalazioni, commenti e sostegni |
 | `db/migrations/005_media_contenuti.sql` | tabella tecnica `media_contenuti`: copia dei file caricati, per dischi di hosting temporanei |
+| `db/migrations/006_coda_ia.sql` | tabella tecnica `coda_ia`: coda dei controlli IA (segnalazioni e commenti da inviare al modello); non è nel modello ER |
 | `db/schema.dbml` | per dbdiagram.io (solo tabelle e relazioni) |
 | `db/test_vincoli.sql` | casi di test dei vincoli |
 | `db/data/` | GeoJSON dei NIL e dei Municipi, con fonte e licenza |

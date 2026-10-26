@@ -163,7 +163,7 @@ lavoratore (backend)  ──> prende la riga più urgente ──> rispetta limit
 |---|---|---|
 | 0 | Account OpenRouter, chiave in `.env` e su Render, privacy; `tools/ia/sonda_modelli.py` prova i modelli (10 frasi italiane, 5 foto) **con meno di 15 richieste** e controlla l'orario di azzeramento della quota | tabella dei risultati nel repo; scelta dei modelli |
 | 1 | **Fatta.** Client `openrouter.py`, `quota.py`, `trasporto.py` con prove su risposte simulate (429, scadenza, JSON rotto, quota esaurita) | `apps/web/smoke/ia_openrouter.py`, 42 controlli, senza rete |
-| 2 | Prefiltro locale con i tre esiti (bloccato, da inviare, pulito), migrazione `006_coda_ia` e modelli, coda e lavoratore, richiesta unica per le segnalazioni di solo testo; attivabile per ambiente con `IA_BACKEND` | prove su un set di frasi, sulla coda (ordine, blocco, ripresa) e sul limite al minuto |
+| 2 | **Fatta** (vedi sotto le differenze dal piano). Prefiltro locale con i tre esiti (bloccato, da inviare, pulito), migrazione `006_coda_ia` e modelli, coda e lavoratore, richiesta unica per le segnalazioni di solo testo; attivabile per ambiente con `IA_BACKEND` | prove su un set di frasi, sulla coda (ordine, blocco, ripresa) e sul limite al minuto |
 | 3 | Foto, coerenza, video a fotogrammi; lavoratore con foto, `ia_riprendi`; valutazione del classificatore locale per la nudità | prove con foto di esempio |
 | 4 | Commenti a blocchi nella stessa coda; coda del moderatore con «controllo in corso»; pannello amministratore con quota usata e coda | prova con quota bassa |
 | 5 | Taratura: 60-100 contenuti italiani etichettati a mano, `tools/ia/valuta.py` (una richiesta per ogni gruppo di contenuti, non una per contenuto), soglie scelte sui risultati | rapporto in `docs/` |
@@ -171,6 +171,19 @@ lavoratore (backend)  ──> prende la riga più urgente ──> rispetta limit
 | 7 | Messa online e prova reale di una segnalazione e di un commento | prova sul sito |
 
 Le prove automatiche **non chiamano mai la rete** (ogni chiamata consuma quota). Solo `sonda_modelli.py` e `valuta.py` la usano, a mano e con un tetto di richieste.
+
+### Stato della fase 2 (2026-10-26)
+
+Fatto: prefiltro (`core/services/ia/prefiltro.py`), migrazione `006_coda_ia` (applicata su `defaultdb` e `la_nostra_citta_test`), coda e lavoratore (`coda.py`, `lavoratore.py`), controllo iniziale nelle viste (`controllo.py`), blocco dell'approvazione finché manca l'esito, comando `manage.py ia_lavora [--una-volta|--stato]`. Prove: `apps/web/smoke/ia_coda.py` (53 controlli, finto OpenRouter).
+
+Differenze dal piano, da conoscere:
+- **Attivazione**: tutto resta spento. `IA_MODALITA=sincrona` è il valore predefinito e il sito si comporta come prima; con `IA_MODALITA=coda` e `IA_LAVORATORE=1` (più `OPENROUTER_API_KEY`) parte il nuovo flusso.
+- **La richiesta per le segnalazioni è solo di testo** (`approvato` + `motivazione`): categorie, coerenza e foto arrivano nella fase 3. Le categorie suggerite restano quelle locali per parole chiave. Per ora le segnalazioni con foto (cioè tutte) vanno sempre al modello.
+- **Un commento «pulito» non va mai al modello** (scelta confermata): la lettura a blocchi riguarda solo i commenti con un segnale del prefiltro.
+- **Dipendenze**: nessuna nuova. Il confronto approssimato usa `difflib`; codice fiscale e IBAN sono controllati in Python; niente rilevamento della lingua.
+- **Doppioni**: un testo identico (dopo la normalizzazione) inviato dallo stesso autore nelle ultime 24 ore prende `dubbio` locale e non va in coda.
+- **La motivazione del modello** finisce nel registro (`decisione_ia`); la sua visualizzazione nella coda del moderatore è nella fase 4.
+- Il lavoratore resta quando il sito dorme: la coda è nel database e riparte al primo avvio.
 
 ## 8. Rischi
 

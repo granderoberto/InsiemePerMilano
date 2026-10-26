@@ -183,6 +183,12 @@ IA_INTERVALLO_MIN = 4              # secondi tra due richieste: 20 al minuto è 
 IA_QUOTA_GIORNALIERA = 50          # richieste al giorno del piano gratuito (si azzera a mezzanotte UTC)
 IA_QUOTA_SEGNALAZIONI, IA_QUOTA_COMMENTI = 36, 8   # il resto (6) è la riserva
 IA_QUOTA_SOGLIA_COMMENTI = 44      # oltre questo totale l'IA lavora solo sulle segnalazioni
+# Come si eseguono i controlli: «sincrona» = come prima (simulato, subito); «coda» = prefiltro locale e poi coda in background con il modello
+IA_MODALITA = _e("IA_MODALITA", "sincrona")
+IA_LAVORATORE = _e("IA_LAVORATORE", "0") == "1" and not os.environ.get("LNC_PROVE")   # avvia il lavoratore dentro il processo del sito
+IA_COMMENTI_BLOCCO = 25            # commenti in una sola richiesta
+IA_COMMENTI_MINIMO, IA_COMMENTI_ATTESA_ORE = 10, 6   # un blocco parte con almeno 10 commenti o quando il più vecchio ha più di 6 ore
+IA_ATTESA_MASSIMA_ORE = 24         # oltre questo tempo senza esito la segnalazione passa a «dubbio»
 
 # Email: con EMAIL_HOST in .env si usa un server SMTP vero; senza, escono sulla console del server (solo sviluppo)
 EMAIL_HOST = _e("EMAIL_HOST")

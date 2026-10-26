@@ -33,7 +33,7 @@ db/
   schema.sql             MySQL 8.0+: tabelle, ENUM, CHECK, trigger, viste, seed (riferimento completo)
   schema.dbml            stesso schema per dbdiagram.io (solo tabelle e relazioni)
   test_vincoli.sql       casi di test dei vincoli (righe "ERRORE ATTESO" devono fallire)
-  migrations/            001_schema.sql, 002_dati_riferimento.sql, 003_mfa_segreto.sql, 004_statistiche_attivita.sql, 005_media_contenuti.sql (applicate da tools/db/migrate.sh)
+  migrations/            001_schema.sql, 002_dati_riferimento.sql, 003_mfa_segreto.sql, 004_statistiche_attivita.sql, 005_media_contenuti.sql, 006_coda_ia.sql (applicate da tools/db/migrate.sh)
   data/                  GeoJSON sorgente dei NIL e dei Municipi (Comune di Milano, CC BY) + README fonti
   README.md              come ricreare il database da zero
 docs/prompt/
@@ -157,7 +157,7 @@ pip install cairosvg && tools/er/run.sh
 
 ## Stato del database (fase 1 conclusa)
 
-Su Aiven ci sono `defaultdb` (principale, popolato; usato dal sito online) e `la_nostra_citta_test` (prove distruttive). 22 tabelle (inclusa la tecnica `media_contenuti`), 7 trigger, 3 viste, circa 5 MB più i file in `media_contenuti`. Dati demo: 154 utenti, 300 segnalazioni, 1916 sostegni, 397 commenti, 5095 righe di log; password demo `DemoMilano2026!` (vedi `tools/seed/README.md`).
+Su Aiven ci sono `defaultdb` (principale, popolato; usato dal sito online) e `la_nostra_citta_test` (prove distruttive). 23 tabelle (incluse le tecniche `media_contenuti` e `coda_ia`), 7 trigger, 3 viste, circa 5 MB più i file in `media_contenuti`. Dati demo: 154 utenti, 300 segnalazioni, 1916 sostegni, 397 commenti, 5095 righe di log; password demo `DemoMilano2026!` (vedi `tools/seed/README.md`).
 
 Note sui dati:
 - `quartieri` = 88 NIL (Comune di Milano, CC BY). `quartieri.id` = `ID_NIL` della fonte. Il `municipio` è ricavato per maggiore sovrapposizione: per 16 NIL che attraversano più Municipi è un'approssimazione.

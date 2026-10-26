@@ -67,6 +67,14 @@ Enum origine_categoria {
   moderatore
 }
 
+Enum stato_coda_ia {
+  in_coda
+  in_corso
+  fatto
+  saltato
+  fallito
+}
+
 Enum stato_richiesta {
   aperta
   accolta
@@ -359,6 +367,23 @@ Table richieste_revisione {
   creata_il datetime [not null, default: `now()`]
   chiusa_il datetime
   Note: 'Esattamente uno tra id_segnalazione, id_commento, id_verifica è valorizzato'
+}
+
+Table coda_ia {
+  id integer [pk, increment]
+  id_segnalazione integer [ref: > segnalazioni.id]
+  id_commento integer [ref: > commenti.id]
+  stato stato_coda_ia [not null, default: 'in_coda']
+  priorita smallint [not null, default: 50, note: 'rischio del prefiltro locale 0-100']
+  impronta char(64) [not null, note: 'SHA-256 del testo controllato']
+  segnali json
+  tentativi smallint [not null, default: 0]
+  non_prima_di datetime [not null, default: `now()`]
+  creata_il datetime [not null, default: `now()`]
+  presa_il datetime
+  finita_il datetime
+  errore varchar(200)
+  Note: 'Tabella tecnica: coda dei controlli IA. Esattamente uno tra id_segnalazione e id_commento è valorizzato'
 }
 
 Table notifiche {

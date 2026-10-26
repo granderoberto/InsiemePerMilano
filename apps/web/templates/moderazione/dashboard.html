@@ -19,9 +19,9 @@
 <section id="attesa" class="riquadro"><h2>Segnalazioni in attesa</h2>
 {% if in_attesa %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Titolo</th><th scope="col">Autore</th><th scope="col">Controlli IA</th><th scope="col">Data</th><th scope="col"><span class="visually-hidden">Azioni</span></th></tr></thead><tbody>
 {% for s in in_attesa %}<tr><td><a href="{% url 'moderazione_segnalazione' s.id %}">{{ s.titolo }}</a><br><span class="piccolo">{{ s.quartiere.nome_leggibile }}</span></td><td>{{ s.autore.nome_pubblico }}</td>
-<td>{% if s.esito_moderazione == 'ok' %}<span class="badge badge-3">Nessun problema</span>{% elif s.esito_moderazione == 'dubbio' %}<span class="badge badge-2">Dubbio</span>{% elif s.esito_moderazione == 'bloccato' %}<span class="badge badge-4">Bloccata</span>{% else %}—{% endif %}</td>
+<td>{% if s.esito_moderazione == 'ok' %}<span class="badge badge-3">Nessun problema</span>{% elif s.esito_moderazione == 'dubbio' %}<span class="badge badge-2">Dubbio</span>{% elif s.esito_moderazione == 'bloccato' %}<span class="badge badge-4">Bloccata</span>{% elif s.controllo_in_corso %}<span class="badge badge-2">Controllo in corso</span>{% else %}—{% endif %}</td>
 <td>{{ s.creata_il|date:"j M, H:i" }}</td>
-<td><form class="in-linea" method="post" action="{% url 'azione_segnalazione' s.id 'approva' %}">{% csrf_token %}<button class="btn btn-primario btn-piccolo" type="submit">Approva</button></form> <a class="btn btn-lieve btn-piccolo" href="{% url 'moderazione_segnalazione' s.id %}">Esamina</a></td></tr>{% endfor %}</tbody></table></div>
+<td><form class="in-linea" method="post" action="{% url 'azione_segnalazione' s.id 'approva' %}">{% csrf_token %}<button class="btn btn-primario btn-piccolo" type="submit"{% if s.controllo_in_corso %} disabled title="Il controllo automatico è in corso"{% endif %}>Approva</button></form> <a class="btn btn-lieve btn-piccolo" href="{% url 'moderazione_segnalazione' s.id %}">Esamina</a></td></tr>{% endfor %}</tbody></table></div>
 {% else %}<p class="vuoto-msg">Nessuna segnalazione in attesa.</p>{% endif %}</section>
 
 <section id="segnalati" class="riquadro"><h2>Contenuti segnalati dall'IA</h2>
