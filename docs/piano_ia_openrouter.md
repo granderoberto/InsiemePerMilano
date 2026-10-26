@@ -162,7 +162,7 @@ lavoratore (backend)  ──> prende la riga più urgente ──> rispetta limit
 | Fase | Contenuto | Verifica |
 |---|---|---|
 | 0 | Account OpenRouter, chiave in `.env` e su Render, privacy; `tools/ia/sonda_modelli.py` prova i modelli (10 frasi italiane, 5 foto) **con meno di 15 richieste** e controlla l'orario di azzeramento della quota | tabella dei risultati nel repo; scelta dei modelli |
-| 1 | Client `openrouter.py` e `quota.py` con prove su risposte simulate (429, scadenza, JSON rotto, quota esaurita) | prove in `smoke/` senza rete |
+| 1 | **Fatta.** Client `openrouter.py`, `quota.py`, `trasporto.py` con prove su risposte simulate (429, scadenza, JSON rotto, quota esaurita) | `apps/web/smoke/ia_openrouter.py`, 42 controlli, senza rete |
 | 2 | Prefiltro locale con i tre esiti (bloccato, da inviare, pulito), migrazione `006_coda_ia` e modelli, coda e lavoratore, richiesta unica per le segnalazioni di solo testo; attivabile per ambiente con `IA_BACKEND` | prove su un set di frasi, sulla coda (ordine, blocco, ripresa) e sul limite al minuto |
 | 3 | Foto, coerenza, video a fotogrammi; lavoratore con foto, `ia_riprendi`; valutazione del classificatore locale per la nudità | prove con foto di esempio |
 | 4 | Commenti a blocchi nella stessa coda; coda del moderatore con «controllo in corso»; pannello amministratore con quota usata e coda | prova con quota bassa |

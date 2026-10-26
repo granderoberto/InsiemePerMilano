@@ -172,6 +172,18 @@ IA_BACKEND = os.environ.get("IA_BACKEND") or _env.get("IA_BACKEND", "core.servic
 # Verifica del documento: «auto» usa i controlli veri (Tesseract + OpenCV, core/services/ia/documento_reale.py) se disponibili, altrimenti il simulato
 IA_DOCUMENTO = _e("IA_DOCUMENTO", "auto")   # auto | reale | simulato
 
+# IA con OpenRouter (piano gratuito: docs/piano_ia_openrouter.md). I modelli sono in ordine di preferenza (identificativi separati da virgola)
+OPENROUTER_API_KEY = _e("OPENROUTER_API_KEY")
+OPENROUTER_URL = "https://openrouter.ai/api/v1"
+IA_MODELLI_TESTO = [m.strip() for m in _e("IA_MODELLI_TESTO", "recursive/flint-v1.0:free").split(",") if m.strip()]
+IA_MODELLI_VISIONE = [m.strip() for m in _e("IA_MODELLI_VISIONE", "dots-studio/dots-3-note-preview:free").split(",") if m.strip()]
+IA_MAX_TOKEN_TESTO, IA_MAX_TOKEN_VISIONE = 2000, 6000   # i modelli «ragionano»: con pochi token la risposta resta vuota
+IA_TIMEOUT_RICHIESTA = 90          # secondi (12-40 s tipici)
+IA_INTERVALLO_MIN = 4              # secondi tra due richieste: 20 al minuto è il limite, qui ne facciamo al massimo 15
+IA_QUOTA_GIORNALIERA = 50          # richieste al giorno del piano gratuito (si azzera a mezzanotte UTC)
+IA_QUOTA_SEGNALAZIONI, IA_QUOTA_COMMENTI = 36, 8   # il resto (6) è la riserva
+IA_QUOTA_SOGLIA_COMMENTI = 44      # oltre questo totale l'IA lavora solo sulle segnalazioni
+
 # Email: con EMAIL_HOST in .env si usa un server SMTP vero; senza, escono sulla console del server (solo sviluppo)
 EMAIL_HOST = _e("EMAIL_HOST")
 # API di Gmail (HTTPS): per gli hosting che bloccano l'SMTP in uscita (Render gratuito). Ha la precedenza sull'SMTP.
