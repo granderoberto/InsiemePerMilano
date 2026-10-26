@@ -35,6 +35,7 @@ srv = HTTPServer(("127.0.0.1", 0), Finto); threading.Thread(target=srv.serve_for
 BASE = f"http://127.0.0.1:{srv.server_address[1]}"
 
 class Rollback(Exception): pass
+PRIMA = LogAttivita.objects.filter(tabella="openrouter").count()   # righe vere già presenti (richieste reali fatte a mano)
 def prova(coda, modelli=("m1:free", "m2:free"), tipo="segnalazione", utente="Commento di prova"):
     stato["coda"][:] = coda; stato["richieste"].clear()
     try:
@@ -127,4 +128,4 @@ try:
 except Rollback:
     pass
 srv.shutdown()
-esito("nessuna riga lasciata nel registro dalla prova", not LogAttivita.objects.filter(tabella="openrouter").exists())
+esito("nessuna riga lasciata nel registro dalla prova", LogAttivita.objects.filter(tabella="openrouter").count() == PRIMA)
