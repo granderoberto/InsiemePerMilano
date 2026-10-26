@@ -1,0 +1,35 @@
+id,tipo,testo,etichetta,nota
+101,commento,"Per segnalare i rifiuti abbandonati potete chiamare il numero verde del Comune, lo trovate sul sito www.comune.milano.it.",ok,numero e indirizzo web pubblici: segnale «url»/numero ma contenuto utile
+102,commento,"Se vedete un'emergenza chiamate il 112, non aspettate il Comune.",ok,numero di emergenza
+103,commento,"ATTENZIONE: la buca in via Padova è profonda, fate attenzione se passate in bici!!!!",ok,"maiuscole e punteggiatura, ma utile"
+104,commento,"Hanno rubato la bici a mio figlio proprio davanti alla scuola, serve più sorveglianza.",ok,"furto raccontato, nessuna accusa a persone"
+105,commento,"Attenti alla truffa del finto tecnico del gas, è successo a una signora del mio palazzo.",ok,avviso di prudenza che usa la parola «truffa»
+106,commento,I ladri sono entrati in due negozi di via Settala la settimana scorsa: serve un presidio.,ok,«ladri» generico
+107,commento,"Nel parco ci sono parassiti sugli olmi: vanno fatti trattamenti, altrimenti gli alberi muoiono.",ok,«parassiti» in senso letterale
+108,commento,"Sul marciapiede c'è tanta merda di cani e nessuno pulisce, servono più sacchetti.",ok,parolaccia in una critica di pulizia
+109,commento,"Il cartello all'ingresso dice «vietato ai cretini», forse è uno scherzo ma non è bello per un edificio pubblico.",ok,insulto citato
+110,commento,"Non è giusto dare dell'idiota a chi ha fatto la segnalazione, ognuno può dire la sua con rispetto.",ok,insulto citato per condannarlo
+111,commento,Abito in via Padova 12 e confermo che di sera quel tratto è completamente al buio.,ok,indirizzo dell'autore (la regola dice dati di terzi)
+112,commento,"Chi vuole aderire può scrivere alla segreteria del comitato, l'indirizzo è nella pagina «Contatti».",ok,nessun dato personale
+113,commento,Il sindaco Sala aveva promesso questi lavori nel 2021: quando partono?,ok,nome di un personaggio pubblico
+114,commento,"Gli assessori dovrebbero venire a vedere di persona, invece di rimanere in ufficio.",ok,"critica alla categoria, nessuna accusa"
+115,commento,"Bastardo di un tombino, mi ha rotto la ruota della bici!",ok,insulto a un oggetto
+116,commento,"Questo quartiere è un disastro, sono tutti criminali quelli che non rispettano le regole del traffico.",ok,"«criminali» enfatico, discutibile"
+117,commento,"Se serve una mano per la raccolta firme, il mio numero è 02 55501234, ci sono volentieri.",ok,numero di telefono dell'autore (la regola dice di terzi)
+118,commento,"Il responsabile della ditta ha detto al telefono che i lavori finiscono venerdì, speriamo bene.",ok,persona non identificata
+119,commento,"Sei un incapace, non hai la minima idea di quello che dici.",dubbio,insulto senza parola in elenco
+120,commento,"Complimenti genio, ennesima idea geniale da chi non esce mai di casa.",dubbio,sarcasmo ostile
+121,commento,"Gentaglia, ecco cosa c'è in questo quartiere.",dubbio,insulto a un gruppo
+122,commento,"Il solito Rossi del civico 5 che lascia l'auto dove vuole, lo conoscono tutti.",dubbio,persona privata identificabile
+123,commento,"Quello della panetteria ha intascato i soldi del comitato, ne sono sicura.",dubbio,accusa senza parole in elenco
+124,commento,"Tornatevene a casa vostra, siete voi stranieri a rovinare il quartiere.",dubbio,odio verso un gruppo (forse bloccato)
+125,commento,"Con voi del comitato non si può ragionare, siete una banda di sfaccendati.",dubbio,insulto a un gruppo
+126,commento,"Zero cervello, complimenti a chi ha deciso di mettere la fermata qui.",dubbio,insulto a chi ha deciso (scrittura non in elenco)
+127,commento,"Pagatemi e vi dico io chi ha fatto la segnalazione, scrivetemi in privato.",dubbio,ricatto/richiesta di denaro
+128,commento,"Sappiamo tutti dove lavora la signora che ha scritto, andiamo a chiederle spiegazioni.",dubbio,intimidazione velata
+129,segnalazione,"Buca in via Torino | Sulla carreggiata di via Torino, all'altezza del civico 5, c'è una buca profonda: la ditta responsabile ha detto che verrà domani ma intanto è pericolosa per chi va in moto. Numero verde del Comune 02 0202.",ok,numero pubblico nel testo
+130,segnalazione,"Spaccio davanti alla scuola? | Vedo spesso persone che sembrano spacciare vicino al cancello della scuola: chiedo più controlli, non ho prove ma sono preoccupata per i ragazzi.",ok,tema delicato ma formulato con prudenza
+131,segnalazione,"Vicino che fa rumore | Il mio vicino del terzo piano, il signor Mario Bianchi, fa musica fortissima ogni notte e non risponde quando suono: è un maleducato.",dubbio,persona privata con nome e cognome
+132,segnalazione,"Parcheggi abusivi | Ogni sera ci sono auto in doppia fila davanti al bar, i proprietari sono delinquenti che se ne fregano di tutti.",dubbio,"insulto a persone non identificate, contenuto utile"
+133,segnalazione,Ordine pubblico | Il quartiere è invaso da stranieri e non si può più uscire di sera: pulite le strade da questa gente.,dubbio,generalizzazione ostile verso un gruppo (forse bloccato)
+134,segnalazione,"Progetto per la piazza | Propongo di trasformare il parcheggio di piazza Leonardo in un'area pedonale con alberi e panchine, come hanno fatto in altre città europee.",ok,base
