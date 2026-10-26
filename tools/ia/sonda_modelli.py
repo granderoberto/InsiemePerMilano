@@ -110,8 +110,11 @@ def elenco():
             print(f"{F.etichetta}: non configurato ({fornitori.motivo_non_configurato(F, True)}): elenco non disponibile")
             return {}
         cod, d, _, _ = chiama("/models", leggi_chiave())
+        if cod in (401, 403):
+            print(f"{F.etichetta}: la chiave non è stata accettata (HTTP {cod}): ricopiala dalla console senza spazi né virgolette")
+            return {}
         if cod != 200 or not isinstance(d, dict) or "data" not in d:
-            print(f"{F.etichetta}: elenco dei modelli non disponibile ({cod}); si provano i modelli predefiniti")
+            print(f"{F.etichetta}: questo fornitore non offre l'elenco dei modelli ({cod}); si provano i modelli predefiniti")
             return {}
         ids = sorted(m["id"] for m in d["data"] if isinstance(m, dict) and "id" in m)
         print(f"{len(ids)} modelli di {F.etichetta}:\n" + "\n".join(f"  {i}" for i in ids))
