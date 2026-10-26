@@ -1,4 +1,4 @@
-"""Versione «lite» dell'architettura, a icone (docs/architettura_lite.svg e .png).
+"""Versione «lite» dell'architettura, a icone (docs/architettura_lite.svg).
 Uso: DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib tools/.venv/bin/python tools/architettura/disegna_lite.py"""
 import html, pathlib
 
@@ -78,9 +78,4 @@ t(302, 881, "simulato o di prova", 15, 400, INK, "start")
 o.append("</svg>")
 svg = "\n".join(o)
 (RADICE / "docs" / "architettura_lite.svg").write_text(svg, encoding="utf-8")
-try:
-    import cairosvg
-    cairosvg.svg2png(bytestring=svg.encode(), write_to=str(RADICE / "docs" / "architettura_lite.png"), output_width=1600)
-except Exception as e:  # noqa: BLE001
-    print("PNG non generato:", e)
 print("ok")

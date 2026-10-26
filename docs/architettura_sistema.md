@@ -2,9 +2,9 @@
 
 ![Architettura di La Nostra Città, Il Nostro Futuro](architettura_sistema.png)
 
-Versione semplificata, a icone: [`architettura_lite.png`](architettura_lite.png) (sorgente `architettura_lite.svg`, generata da `tools/architettura/disegna_lite.py`).
+Versione semplificata, a icone: [`architettura_lite.svg`](architettura_lite.svg) (generata da `tools/architettura/disegna_lite.py`).
 
-![Architettura in breve](architettura_lite.png)
+![Architettura in breve](architettura_lite.svg)
 
 Sorgente vettoriale: [`architettura_sistema.svg`](architettura_sistema.svg). Il disegno è generato da `tools/architettura/disegna.py`: per aggiornarlo si modifica lo script e si rilancia (`DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib tools/.venv/bin/python tools/architettura/disegna.py`). Per lo schema a blocchi dell'intelligenza artificiale vedi [`architettura_ia.md`](architettura_ia.md).
 
