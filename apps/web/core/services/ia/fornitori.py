@@ -9,7 +9,7 @@ Trattamento dei dati nel piano gratuito (verificato sulla documentazione il 2026
   groq        il contratto vieta di usare input e output per addestrare (Services Agreement, 4.2); log di sicurezza fino a 30 giorni
   cloudflare  la documentazione dice che non usa i contenuti dei clienti per addestrare
   cerebras    nessuna conservazione dei prompt dichiarata; sull'addestramento le fonti non sono concordi: predisposto, spento
-  mistral     il piano gratuito PUÒ addestrare sui dati se non si disattiva l'opzione nel pannello: usabile solo con MISTRAL_NIENTE_ADDESTRAMENTO=1
+  mistral     risulta a pagamento (verificato dall'autore il 2026-10-26): NON usare; in passato il piano gratuito poteva addestrare sui dati
   google      ESCLUSO: nel piano gratuito usa i contenuti per migliorare i prodotti e i termini consentono solo il piano a pagamento per utenti nello SEE"""
 from dataclasses import dataclass
 
@@ -55,7 +55,7 @@ FORNITORI = {f.nome: f for f in (
               nota_dati="nessuna conservazione dei prompt dichiarata; addestramento da confermare; crediti di prova che scadono dopo 30 giorni"),
     Fornitore("mistral", "Mistral", "https://api.mistral.ai/v1", "MISTRAL_API_KEY", rpm=30, rpd=500,
               testo=("mistral-small-latest",), visione=("mistral-small-latest",), richiede="MISTRAL_NIENTE_ADDESTRAMENTO",
-              nota_dati="il piano gratuito può addestrare: serve disattivare l'opzione nel pannello Mistral e impostare MISTRAL_NIENTE_ADDESTRAMENTO=1"),
+              nota_dati="a pagamento secondo l'autore (2026-10-26): non usare; in passato il piano gratuito poteva addestrare sui dati"),
 )}
 
 
