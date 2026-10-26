@@ -1,0 +1,5 @@
+<nav class="schede" aria-label="Controlli IA">
+  <a href="{% url 'amm_ia' %}" {% if request.resolver_match.url_name == 'amm_ia' %}aria-current="true"{% endif %}>Quota e coda</a>
+  <a href="{% url 'amm_ia_controlli' %}" {% if request.resolver_match.url_name == 'amm_ia_controlli' %}aria-current="true"{% endif %}>Controlli eseguiti</a>
+  <a href="{% url 'amm_ia_richieste' %}" {% if request.resolver_match.url_name == 'amm_ia_richieste' %}aria-current="true"{% endif %}>Richieste al fornitore</a>
+</nav>

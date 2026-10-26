@@ -1,0 +1,10 @@
+<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Quando</th><th scope="col">Contenuto</th><th scope="col">Esito</th><th scope="col">Motivazione</th><th scope="col">Segnali</th><th scope="col">Deciso da</th><th scope="col">Coda</th></tr></thead><tbody>
+{% for r in righe %}<tr>
+<td>{{ r.quando|date:"j M, H:i:s" }}</td>
+<td>{% if r.tipo == 'segnalazione' %}<span class="piccolo">segnalazione</span><br><a href="{% url 'moderazione_segnalazione' r.id %}">{{ r.testo|truncatechars:60 }}</a>{% elif r.segnalazione_id %}<span class="piccolo">commento</span><br><a href="{% url 'dettaglio' r.segnalazione_id %}#commento-{{ r.id }}">{{ r.testo|truncatechars:60 }}</a>{% else %}{{ r.testo }}{% endif %}</td>
+<td><span class="badge badge-{% if r.esito == 'ok' %}3{% elif r.esito == 'bloccato' %}4{% else %}2{% endif %}">{{ r.esito|default:"—" }}</span></td>
+<td>{% if r.motivazione %}<strong>{{ r.motivazione }}</strong>{% else %}<span class="piccolo">—</span>{% endif %}{% if r.errore %}<br><span class="piccolo">{{ r.errore|truncatechars:80 }}</span>{% endif %}</td>
+<td class="piccolo">{{ r.segnali|join:", " }}</td>
+<td class="piccolo">{{ r.fonte }}{% if r.modello %}<br>{{ r.modello }}{% if r.secondi %} · {{ r.secondi }} s{% endif %}{% endif %}</td>
+<td class="piccolo">{% if r.coda %}{{ r.coda }}{% if r.tentativi %} · {{ r.tentativi }} tent.{% endif %}{% else %}—{% endif %}</td>
+</tr>{% empty %}<tr><td colspan="7" class="piccolo">Nessun controllo.</td></tr>{% endfor %}</tbody></table></div>

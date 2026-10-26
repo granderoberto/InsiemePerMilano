@@ -16,7 +16,7 @@ from core.models import (Categoria, DocumentoNormativo, LogAttivita, Notifica, Q
 from core.services import log, normative, utenti as servizio
 from core.services.errori import RegolaViolata, traduci
 
-from core.services.ia import coda as coda_ia, lavoratore, quota
+from core.services.ia import coda as coda_ia, esiti, lavoratore, quota
 
 from . import statistiche as stat
 
@@ -272,12 +272,50 @@ def controlli_ia(request):
               .order_by("stato", "-priorita", "creata_il")[:60])
     ultime = LogAttivita.objects.filter(tabella=quota.TABELLA, operazione="decisione_ia").order_by("-id")[:25]
     t = lavoratore._thread[0]
-    return render(request, "amministrazione/ia.html", {
+    recenti = esiti.righe_controlli(LogAttivita.objects.filter(operazione="decisione_ia", tabella__in=["segnalazioni", "commenti"]).order_by("-id")[:15])
+    return render(request, "amministrazione/ia.html", {"recenti": recenti,
         "quota": q, "pct": round(100 * q["usate"] / q["limite"]) if q["limite"] else 0, "limiti": {
             "segnalazioni": settings.IA_QUOTA_SEGNALAZIONI, "commenti": settings.IA_QUOTA_COMMENTI, "soglia": settings.IA_QUOTA_SOGLIA_COMMENTI},
         "conteggi": coda_ia.conteggi(), "attivi": attivi, "ultime": ultime,
         "config": {"modalita": settings.IA_MODALITA, "lavoratore": settings.IA_LAVORATORE, "thread_vivo": bool(t and t.is_alive()),
                    "chiave": bool(settings.OPENROUTER_API_KEY), "modelli_testo": settings.IA_MODELLI_TESTO, "modelli_visione": settings.IA_MODELLI_VISIONE}})
+
+
+@amministratore_richiesto
+def controlli_eseguiti(request):
+    """Tutti i controlli automatici fatti su segnalazioni e commenti, con esito e motivazione."""
+    g = request.GET
+    qs = LogAttivita.objects.filter(operazione="decisione_ia", tabella__in=["segnalazioni", "commenti"]).order_by("-id")
+    if g.get("tipo") in ("segnalazioni", "commenti"):
+        qs = qs.filter(tabella=g["tipo"])
+    if g.get("esito") in ("ok", "dubbio", "bloccato"):
+        qs = qs.filter(dati_nuovi__esito_moderazione=g["esito"])
+    if g.get("fonte") == "modello":
+        qs = qs.filter(dati_nuovi__fornitore="openrouter")
+    elif g.get("fonte") == "locale":
+        qs = qs.filter(dati_nuovi__fornitore="locale")
+    elif g.get("fonte") == "simulato":
+        qs = qs.exclude(dati_nuovi__fornitore__in=["openrouter", "locale"])
+    if g.get("q", "").strip():
+        qs = qs.filter(dati_nuovi__motivazione__icontains=g["q"].strip())
+    pagina = Paginator(qs, 30).get_page(g.get("pagina"))
+    p = g.copy(); p.pop("pagina", None)
+    return render(request, "amministrazione/ia_controlli.html", {"pagina": pagina, "righe": esiti.righe_controlli(pagina.object_list),
+                                                                "filtri": g, "querystring": p.urlencode()})
+
+
+@amministratore_richiesto
+def richieste_openrouter(request):
+    """Tutte le richieste fatte al fornitore: modello, risposta, tempo, se hanno consumato quota."""
+    g = request.GET
+    qs = LogAttivita.objects.filter(tabella=quota.TABELLA, operazione="decisione_ia").order_by("-id")
+    if g.get("consumata") in ("si", "no"):
+        qs = qs.filter(dati_nuovi__contata=(g["consumata"] == "si"))
+    if g.get("tipo") in ("segnalazione", "commento"):
+        qs = qs.filter(dati_nuovi__tipo=g["tipo"])
+    pagina = Paginator(qs, 50).get_page(g.get("pagina"))
+    p = g.copy(); p.pop("pagina", None)
+    return render(request, "amministrazione/ia_richieste.html", {"pagina": pagina, "filtri": g, "querystring": p.urlencode()})
 
 
 @require_POST

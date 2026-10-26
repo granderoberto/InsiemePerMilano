@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block titolo %}Richieste al fornitore{% endblock %}
+{% block contenuto %}<h1>Controlli IA</h1>{% include "amministrazione/_menu.html" %}{% include "amministrazione/_menu_ia.html" %}
+<p class="piccolo">Ogni richiesta fatta a OpenRouter, anche quelle fallite. «Consumata» dice se ha contato nella quota giornaliera: gli errori 404, 403 e 429 del fornitore a monte non contano; una risposta vuota sì.</p>
+<form class="filtri" method="get" aria-label="Filtra le richieste">
+  <div><label for="tipo">Per</label><select id="tipo" name="tipo"><option value="">Tutte</option><option value="segnalazione" {% if filtri.tipo == 'segnalazione' %}selected{% endif %}>Segnalazioni</option><option value="commento" {% if filtri.tipo == 'commento' %}selected{% endif %}>Commenti</option></select></div>
+  <div><label for="consumata">Quota</label><select id="consumata" name="consumata"><option value="">Tutte</option><option value="si" {% if filtri.consumata == 'si' %}selected{% endif %}>Consumata</option><option value="no" {% if filtri.consumata == 'no' %}selected{% endif %}>Non consumata</option></select></div>
+  <div><button class="btn btn-primario" type="submit">Filtra</button> <a class="btn btn-lieve" href="{% url 'amm_ia_richieste' %}">Azzera</a></div>
+</form>
+<p class="piccolo"><strong>{{ pagina.paginator.count }}</strong> richieste</p>
+<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Quando</th><th scope="col">Per</th><th scope="col">Modello</th><th scope="col">Risposta</th><th scope="col">Secondi</th><th scope="col">Consumata</th></tr></thead><tbody>
+{% for l in pagina %}<tr><td>{{ l.avvenuto_il|date:"j M, H:i:s" }}</td><td>{{ l.dati_nuovi.tipo }}</td><td class="piccolo">{{ l.dati_nuovi.modello }}</td><td>{{ l.dati_nuovi.http }}{% if l.dati_nuovi.errore %} <span class="piccolo">{{ l.dati_nuovi.errore|truncatechars:90 }}</span>{% endif %}</td><td>{{ l.dati_nuovi.secondi }}</td><td>{% if l.dati_nuovi.contata %}sì{% else %}no{% endif %}</td></tr>{% empty %}<tr><td colspan="6" class="piccolo">Nessuna richiesta.</td></tr>{% endfor %}</tbody></table></div>
+{% if pagina.paginator.num_pages > 1 %}<nav class="paginazione" aria-label="Pagine">
+  {% if pagina.has_previous %}<a class="btn btn-lieve" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.previous_page_number }}">← Precedente</a>{% endif %}
+  <span>Pagina {{ pagina.number }} di {{ pagina.paginator.num_pages }}</span>
+  {% if pagina.has_next %}<a class="btn btn-lieve" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.next_page_number }}">Successiva →</a>{% endif %}
+</nav>{% endif %}{% endblock %}

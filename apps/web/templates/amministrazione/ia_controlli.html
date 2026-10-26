@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block titolo %}Controlli eseguiti{% endblock %}
+{% block contenuto %}<h1>Controlli IA</h1>{% include "amministrazione/_menu.html" %}{% include "amministrazione/_menu_ia.html" %}
+<p class="piccolo">Ogni controllo automatico fatto su una segnalazione o un commento, dal più recente: esito, motivazione del modello, segnali del controllo locale e stato nella coda. Un contenuto controllato più volte (per esempio dopo una modifica) compare più volte.</p>
+<form class="filtri" method="get" aria-label="Filtra i controlli">
+  <div><label for="tipo">Tipo</label><select id="tipo" name="tipo"><option value="">Tutti</option><option value="segnalazioni" {% if filtri.tipo == 'segnalazioni' %}selected{% endif %}>Segnalazioni</option><option value="commenti" {% if filtri.tipo == 'commenti' %}selected{% endif %}>Commenti</option></select></div>
+  <div><label for="esito">Esito</label><select id="esito" name="esito"><option value="">Tutti</option><option value="ok" {% if filtri.esito == 'ok' %}selected{% endif %}>ok</option><option value="dubbio" {% if filtri.esito == 'dubbio' %}selected{% endif %}>dubbio</option><option value="bloccato" {% if filtri.esito == 'bloccato' %}selected{% endif %}>bloccato</option></select></div>
+  <div><label for="fonte">Deciso da</label><select id="fonte" name="fonte"><option value="">Tutti</option><option value="modello" {% if filtri.fonte == 'modello' %}selected{% endif %}>Modello</option><option value="locale" {% if filtri.fonte == 'locale' %}selected{% endif %}>Controllo locale</option><option value="simulato" {% if filtri.fonte == 'simulato' %}selected{% endif %}>Controllo simulato</option></select></div>
+  <div><label for="q">Nella motivazione</label><input id="q" name="q" value="{{ filtri.q }}"></div>
+  <div><button class="btn btn-primario" type="submit">Filtra</button> <a class="btn btn-lieve" href="{% url 'amm_ia_controlli' %}">Azzera</a></div>
+</form>
+<p class="piccolo"><strong>{{ pagina.paginator.count }}</strong> controlli</p>
+{% include "amministrazione/_tabella_controlli.html" %}
+{% if pagina.paginator.num_pages > 1 %}<nav class="paginazione" aria-label="Pagine">
+  {% if pagina.has_previous %}<a class="btn btn-lieve" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.previous_page_number }}">← Precedente</a>{% endif %}
+  <span>Pagina {{ pagina.number }} di {{ pagina.paginator.num_pages }}</span>
+  {% if pagina.has_next %}<a class="btn btn-lieve" href="?{% if querystring %}{{ querystring }}&{% endif %}pagina={{ pagina.next_page_number }}">Successiva →</a>{% endif %}
+</nav>{% endif %}{% endblock %}

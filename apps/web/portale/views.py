@@ -272,7 +272,9 @@ def commenta(request, pk):
         padre = Commento.objects.filter(pk=int(request.POST["padre"]), segnalazione=s).first()
     ctrl = controllo.commento(request.user, testo)
     esito = ctrl.esito
-    if ctrl.bloccato:
+    if ctrl.bloccato:   # il testo non si conserva: nel registro restano solo l'esito e i segnali, visibili all'amministratore
+        log.registra(None, "decisione_ia", "commenti", 0, None, {"esito_moderazione": "bloccato", "fornitore": "locale", "non_pubblicato": True,
+                                                                "id_autore": request.user.id, "segnali": ctrl.prefiltro.segnali if ctrl.prefiltro else ["minaccia"]})
         messages.error(request, "Il commento è stato bloccato dai controlli automatici perché contiene una minaccia. "
                                 "Riscrivilo in modo rispettoso.")
         return redirect("dettaglio", pk=pk)

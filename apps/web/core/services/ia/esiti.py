@@ -38,3 +38,36 @@ def collega(oggetti, tabella):
     for o in oggetti:
         o.ia = d.get(o.id)
     return oggetti
+
+
+def righe_controlli(righe_log):
+    """Per il pannello amministratore: da righe `decisione_ia` su segnalazioni o commenti a righe leggibili, con il contenuto controllato,
+    l'esito, la motivazione, i segnali, chi ha deciso e lo stato nella coda."""
+    from core.models import CodaIA, Commento, Segnalazione
+    righe_log = list(righe_log)
+    ids_s = [r.id_oggetto for r in righe_log if r.tabella == "segnalazioni"]
+    ids_c = [r.id_oggetto for r in righe_log if r.tabella == "commenti"]
+    segn = Segnalazione.objects.in_bulk(ids_s)
+    comm = Commento.objects.select_related("segnalazione").in_bulk(ids_c)
+    coda_s, coda_c = {}, {}
+    for c in CodaIA.objects.filter(segnalazione_id__in=ids_s).order_by("id"):
+        coda_s[c.segnalazione_id] = c
+    for c in CodaIA.objects.filter(commento_id__in=ids_c).order_by("id"):
+        coda_c[c.commento_id] = c
+    out = []
+    for r in righe_log:
+        d = r.dati_nuovi or {}
+        sing = r.tabella == "segnalazioni"
+        o = (segn if sing else comm).get(r.id_oggetto)
+        coda = (coda_s if sing else coda_c).get(r.id_oggetto)
+        out.append({
+            "quando": r.avvenuto_il, "tipo": "segnalazione" if sing else "commento", "id": r.id_oggetto,
+            "testo": (o.titolo if sing else o.testo) if o else ("(commento non pubblicato)" if r.id_oggetto == 0 else "(eliminato)"),
+            "segnalazione_id": (o.id if sing else o.segnalazione_id) if o else None,
+            "commento_id": None if sing else r.id_oggetto,
+            "esito": d.get("esito_moderazione"), "motivazione": d.get("motivazione") or "",
+            "segnali": [etichetta(x) for x in (d.get("segnali") or [])],
+            "fonte": {"openrouter": "modello", "locale": "controllo locale"}.get(d.get("fornitore"), "controllo simulato"),
+            "modello": d.get("modello"), "secondi": d.get("secondi"), "errore": d.get("errore") or "",
+            "coda": coda.stato if coda else None, "tentativi": coda.tentativi if coda else None})
+    return out

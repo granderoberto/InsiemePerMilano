@@ -1,5 +1,5 @@
 {% extends "base.html" %}{% block titolo %}Controlli IA{% endblock %}
-{% block contenuto %}<h1>Controlli IA</h1>{% include "amministrazione/_menu.html" %}
+{% block contenuto %}<h1>Controlli IA</h1>{% include "amministrazione/_menu.html" %}{% include "amministrazione/_menu_ia.html" %}
 <div class="due-colonne">
   <section class="riquadro"><h2>Quota di oggi</h2>
     <p><span class="contatore">{{ quota.usate }}</span> richieste su {{ quota.limite }} <span class="piccolo">(si azzera a mezzanotte UTC; ne restano {{ quota.rimaste }})</span></p>
@@ -20,7 +20,11 @@
   {% for r in attivi %}<tr><td>{% if r.segnalazione %}<a href="{% url 'moderazione_segnalazione' r.segnalazione_id %}">{{ r.segnalazione.titolo|truncatechars:50 }}</a>{% else %}commento su <a href="{% url 'dettaglio' r.commento.segnalazione_id %}#commento-{{ r.commento_id }}">{{ r.commento.segnalazione.titolo|truncatechars:40 }}</a>{% endif %}</td><td>{{ r.stato }}</td><td>{{ r.priorita }}</td><td class="piccolo">{{ r.segnali|join:", " }}</td><td>{{ r.tentativi }}</td><td>{{ r.creata_il|date:"j M, H:i" }}</td><td class="piccolo">{{ r.errore|default:"" }}</td></tr>{% endfor %}</tbody></table></div>
   {% else %}<p class="piccolo">Nessun controllo in attesa.</p>{% endif %}
 </section>
-<section class="riquadro"><h2>Ultime richieste a OpenRouter</h2>
+<section class="riquadro"><h2>Ultimi controlli eseguiti</h2>
+  {% with righe=recenti %}{% include "amministrazione/_tabella_controlli.html" %}{% endwith %}
+  <p><a class="btn btn-lieve btn-piccolo" href="{% url 'amm_ia_controlli' %}">Tutti i controlli, con filtri</a></p>
+</section>
+<section class="riquadro"><h2>Ultime richieste a OpenRouter</h2><p><a class="btn btn-lieve btn-piccolo" href="{% url 'amm_ia_richieste' %}">Tutte le richieste</a></p>
   {% if ultime %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Quando</th><th scope="col">Per</th><th scope="col">Modello</th><th scope="col">Risposta</th><th scope="col">Secondi</th><th scope="col">Consumata</th></tr></thead><tbody>
   {% for l in ultime %}<tr><td>{{ l.avvenuto_il|date:"j M, H:i:s" }}</td><td>{{ l.dati_nuovi.tipo }}</td><td class="piccolo">{{ l.dati_nuovi.modello }}</td><td>{{ l.dati_nuovi.http }}{% if l.dati_nuovi.errore %} <span class="piccolo">{{ l.dati_nuovi.errore|truncatechars:70 }}</span>{% endif %}</td><td>{{ l.dati_nuovi.secondi }}</td><td>{% if l.dati_nuovi.contata %}sì{% else %}no{% endif %}</td></tr>{% endfor %}</tbody></table></div>
   {% else %}<p class="piccolo">Ancora nessuna richiesta.</p>{% endif %}
