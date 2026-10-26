@@ -179,6 +179,7 @@ IA_MODELLI_TESTO = [m.strip() for m in _e("IA_MODELLI_TESTO", "recursive/flint-v
 IA_MODELLI_VISIONE = [m.strip() for m in _e("IA_MODELLI_VISIONE", "dots-studio/dots-3-note-preview:free").split(",") if m.strip()]
 IA_MAX_TOKEN_TESTO, IA_MAX_TOKEN_VISIONE = 2000, 6000   # i modelli «ragionano»: con pochi token la risposta resta vuota
 IA_TIMEOUT_RICHIESTA = 90          # secondi (12-40 s tipici)
+IA_TIMEOUT_VISIONE = 150           # con le foto il modello ci mette fino a 40-60 s
 IA_INTERVALLO_MIN = 4              # secondi tra due richieste: 20 al minuto è il limite, qui ne facciamo al massimo 15
 IA_QUOTA_GIORNALIERA = 50          # richieste al giorno del piano gratuito (si azzera a mezzanotte UTC)
 IA_QUOTA_SEGNALAZIONI, IA_QUOTA_COMMENTI = 36, 8   # il resto (6) è la riserva

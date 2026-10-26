@@ -16,7 +16,7 @@ from django.utils import timezone
 
 from core.services import log
 
-from . import coda, openrouter, prefiltro, prompt, quota
+from . import coda, immagini, openrouter, prefiltro, prompt, quota
 
 logger = logging.getLogger(__name__)
 MAX_TENTATIVI = 3
@@ -51,18 +51,86 @@ def _obsoleta(riga, oggetto, testo):
     return prefiltro.impronta(testo) != riga.impronta
 
 
+PUNTEGGIO_FOTO = Decimal("0.900")
+PUNTEGGI_COERENZA = {True: Decimal("0.900"), False: Decimal("0.200")}
+
+
+def _blocca_per_testo_nelle_foto(s, motivo):
+    """Un testo minaccioso scritto in una foto: stessa regola del testo, bloccata senza chiedere al modello."""
+    _scrivi_esito("segnalazione", s, ("bloccato", Decimal("0.930")), motivazione=motivo, segnali=["testo_nelle_foto"])
+    from django.urls import reverse
+    from portale.views import notifica
+    notifica(s.autore, "contenuto_bloccato", f"La tua segnalazione «{s.titolo}» è stata bloccata dai controlli automatici: un moderatore la riesaminerà.",
+             reverse("dettaglio", args=[s.id]))
+
+
 def _segnalazione(riga):
     s = riga.segnalazione
     testo = f"{s.titolo}\n{s.descrizione}"
     if _obsoleta(riga, s, testo):
         coda.chiudi([riga], "saltato", "contenuto eliminato o modificato")
         return
-    utente = f"<segnalazione>\n<titolo>{prompt.pulisci(s.titolo)}</titolo>\n<descrizione>{prompt.pulisci(s.descrizione)}</descrizione>\n</segnalazione>"
-    r = openrouter.chiedi("segnalazione", prompt.SISTEMA_SEGNALAZIONE, utente, prompt.SCHEMA_SEGNALAZIONE,
-                          modelli=settings.IA_MODELLI_TESTO, max_token=settings.IA_MAX_TOKEN_TESTO)
-    approvato = r.dati["approvato"]
-    _scrivi_esito("segnalazione", s, ESITO_OK if approvato else ESITO_DUBBIO, motivazione=r.dati["motivazione"], risposta=r, segnali=riga.segnali)
+    media = list(s.media.all())
+    foto = immagini.prepara(media) if media else None
+    # il testo letto nelle foto passa dal prefiltro: una minaccia si blocca senza chiedere al modello
+    ocr_esiti = {}
+    if foto:
+        for mid, t in foto["ocr"].items():
+            ocr_esiti[mid] = prefiltro.analizza(t, tipo="commento")
+        if any(e.esito == "bloccato" for e in ocr_esiti.values()):
+            _salva_media(media, foto, ocr_esiti, None)
+            _blocca_per_testo_nelle_foto(s, "minaccia scritta in una foto")
+            coda.chiudi([riga], "fatto")
+            return
+    utente = (f"<segnalazione>\n<titolo>{prompt.pulisci(s.titolo)}</titolo>\n"
+              f"<descrizione>{prompt.pulisci(s.descrizione)}</descrizione>\n</segnalazione>")
+    segnali = list(riga.segnali or [])
+    if foto and foto["immagini"]:
+        parti = [{"type": "text", "text": utente}]
+        for mid, ordine, url in foto["immagini"]:
+            letto = foto["ocr"].get(mid)
+            parti.append({"type": "text", "text": f'<foto id="{ordine}">' + (f"<testo_letto>{prompt.pulisci(letto)}</testo_letto>" if letto else "") + "</foto>"})
+            parti.append({"type": "image_url", "image_url": {"url": url}})
+        r = openrouter.chiedi("segnalazione", prompt.SISTEMA_SEGNALAZIONE_FOTO, parti, prompt.SCHEMA_SEGNALAZIONE_FOTO,
+                              modelli=settings.IA_MODELLI_VISIONE, max_token=settings.IA_MAX_TOKEN_VISIONE, timeout=settings.IA_TIMEOUT_VISIONE)
+        d = r.dati
+        problemi = {x["id"]: x["problema"] for x in d["foto"]}
+        sbagliate = any(p != "nessuno" for p in problemi.values())
+        ok = d["approvato"] and d["coerente"] and not sbagliate
+        motivazione = d["motivazione"] or ("contenuto non adatto" if sbagliate else "foto non coerenti" if not d["coerente"] else "")
+        s.punteggio_coerenza = PUNTEGGI_COERENZA[bool(d["coerente"])]
+        s.save(update_fields=["punteggio_coerenza"])
+        _salva_media(media, foto, ocr_esiti, problemi)
+        segnali += foto["note"] + ([f"volti_sfocati:{foto['volti']}"] if foto["volti"] else [])
+        _scrivi_esito("segnalazione", s, ESITO_OK if ok else ESITO_DUBBIO, motivazione=motivazione, risposta=r, segnali=segnali)
+    else:
+        # niente foto leggibili (file mancanti): si controlla il testo e le foto restano da vedere al moderatore
+        r = openrouter.chiedi("segnalazione", prompt.SISTEMA_SEGNALAZIONE, utente, prompt.SCHEMA_SEGNALAZIONE,
+                              modelli=settings.IA_MODELLI_TESTO, max_token=settings.IA_MAX_TOKEN_TESTO)
+        segnali.append("foto_non_verificabili")
+        _scrivi_esito("segnalazione", s, ESITO_DUBBIO, motivazione="foto non verificabili" if r.dati["approvato"] else r.dati["motivazione"],
+                      risposta=r, segnali=segnali)
     coda.chiudi([riga], "fatto")
+
+
+def _salva_media(media, foto, ocr_esiti, problemi):
+    """Scrive su ogni media l'esito della visione e il testo letto. `problemi`: {ordine: nessuno|sessuale|violenza} o None."""
+    for m in media:
+        campi = []
+        letto = foto["ocr"].get(m.id)
+        if letto:
+            m.testo_ocr = letto
+            e = ocr_esiti.get(m.id)
+            m.esito_testo_ocr = "bloccato" if e and e.esito == "bloccato" else "dubbio" if e and e.esito == "da_inviare" else "ok"
+            campi += ["testo_ocr", "esito_testo_ocr"]
+        if problemi is not None and any(i[0] == m.id for i in foto["immagini"]):
+            p = problemi.get(m.ordine, "nessuno")
+            m.esito_visione = "ok" if p == "nessuno" else "dubbio"
+            m.punteggio_sessuale = PUNTEGGIO_FOTO if p == "sessuale" else Decimal("0.020")
+            m.punteggio_violenza = PUNTEGGIO_FOTO if p == "violenza" else Decimal("0.020")
+            campi += ["esito_visione", "punteggio_sessuale", "punteggio_violenza"]
+        if campi:
+            m.save(update_fields=campi)
 
 
 def _commenti(righe):

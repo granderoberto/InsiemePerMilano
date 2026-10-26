@@ -164,7 +164,7 @@ lavoratore (backend)  ──> prende la riga più urgente ──> rispetta limit
 | 0 | Account OpenRouter, chiave in `.env` e su Render, privacy; `tools/ia/sonda_modelli.py` prova i modelli (10 frasi italiane, 5 foto) **con meno di 15 richieste** e controlla l'orario di azzeramento della quota | tabella dei risultati nel repo; scelta dei modelli |
 | 1 | **Fatta.** Client `openrouter.py`, `quota.py`, `trasporto.py` con prove su risposte simulate (429, scadenza, JSON rotto, quota esaurita) | `apps/web/smoke/ia_openrouter.py`, 42 controlli, senza rete |
 | 2 | **Fatta** (vedi sotto le differenze dal piano). Prefiltro locale con i tre esiti (bloccato, da inviare, pulito), migrazione `006_coda_ia` e modelli, coda e lavoratore, richiesta unica per le segnalazioni di solo testo; attivabile per ambiente con `IA_BACKEND` | prove su un set di frasi, sulla coda (ordine, blocco, ripresa) e sul limite al minuto |
-| 3 | Foto, coerenza, video a fotogrammi; lavoratore con foto, `ia_riprendi`; valutazione del classificatore locale per la nudità | prove con foto di esempio |
+| 3 | **Fatta** (vedi sotto). Foto, coerenza, video a fotogrammi, volti sfocati, testo nelle foto | `smoke/ia_coda.py` (66 controlli) e una richiesta reale di prova |
 | 4 | Commenti a blocchi nella stessa coda; coda del moderatore con «controllo in corso»; pannello amministratore con quota usata e coda | prova con quota bassa |
 | 5 | Taratura: 60-100 contenuti italiani etichettati a mano, `tools/ia/valuta.py` (una richiesta per ogni gruppo di contenuti, non una per contenuto), soglie scelte sui risultati | rapporto in `docs/` |
 | 6 | Documenti: `architettura_ia.md` (fornitore, quota, flussi), informativa IA (fornitore terzo, cosa si invia), `produzione.md` (variabili), `README` | rilettura |
@@ -184,6 +184,20 @@ Differenze dal piano, da conoscere:
 - **Doppioni**: un testo identico (dopo la normalizzazione) inviato dallo stesso autore nelle ultime 24 ore prende `dubbio` locale e non va in coda.
 - **La motivazione del modello** finisce nel registro (`decisione_ia`); la sua visualizzazione nella coda del moderatore è nella fase 4.
 - Il lavoratore resta quando il sito dorme: la coda è nel database e riparte al primo avvio.
+
+### Stato della fase 3 (2026-10-26)
+
+Fatto (`core/services/ia/immagini.py`, `lavoratore.py`, `prompt.py`): una sola richiesta per segnalazione con testo e fino a **5 immagini** da 768 px (le foto in ordine; dei video 2 fotogrammi, a 25% e 70%). Prima dell'invio i **volti si sfocano in locale** (YuNet) e il **testo scritto nelle foto si legge in locale** (Tesseract, solo parole lette con sicurezza: il rumore di una foto qualsiasi non passa). Il modello risponde con `approvato`, `motivazione`, `coerente` e, per ogni foto, `problema` (`nessuno`, `sessuale`, `violenza`).
+
+Regole di esito: `ok` solo se il testo è approvato, le foto sono coerenti e nessuna ha un problema; altrimenti `dubbio` (mai `bloccato` dal modello). Una minaccia scritta in una foto blocca la segnalazione senza chiedere al modello. Scritti su ogni media: `esito_visione`, `punteggio_sessuale`/`violenza` (0,9 sulla categoria segnalata, 0,02 altrove), `testo_ocr`, `esito_testo_ocr`; sulla segnalazione `punteggio_coerenza` (0,9 o 0,2). Se i file non si leggono (disco temporaneo senza copia nel database) il modello controlla solo il testo e l'esito è `dubbio` con «foto non verificabili».
+
+Prova reale con il modello gratuito (1 richiesta, 2 foto dei dati demo): risposta valida in 25 secondi. Il timeout con le foto è 150 secondi (`IA_TIMEOUT_VISIONE`).
+
+Differenze dal piano:
+- **Categorie**: non si chiedono al modello. Le categorie le sceglie l'autore nel modulo, con il suggerimento locale per parole chiave: una risposta del modello arriverebbe dopo l'invio e non servirebbe a nessuno.
+- **Classificatore locale per la nudità**: non fatto. Il modello con visione basta per ora; si rivaluta dopo la taratura (fase 5).
+- **Targhe e documenti nelle foto**: non si sfocano (nessun rilevatore locale); si leggono solo come testo.
+- Se OpenCV o il modello dei volti mancano, le foto partono senza sfocatura e il registro segna `volti_non_sfocati`.
 
 ## 8. Rischi
 

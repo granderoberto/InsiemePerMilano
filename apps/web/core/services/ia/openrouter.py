@@ -129,7 +129,7 @@ def _messaggio_errore(d):
     return json.dumps(e, ensure_ascii=False) if e else ""
 
 
-def chiedi(tipo, sistema, utente, schema, *, modelli, max_token):
+def chiedi(tipo, sistema, utente, schema, *, modelli, max_token, timeout=None):
     """Manda la richiesta al primo modello utilizzabile della catena.
 
     tipo: «segnalazione» o «commento» (serve al registro e alla quota). utente: testo, oppure l'elenco di parti del messaggio
@@ -145,7 +145,7 @@ def chiedi(tipo, sistema, utente, schema, *, modelli, max_token):
             t0 = time.monotonic()
             try:
                 codice, d = trasporto.http("POST", "/chat/completions", _corpo(modello, sistema, utente, schema, max_token),
-                                           timeout=settings.IA_TIMEOUT_RICHIESTA)
+                                           timeout=timeout or settings.IA_TIMEOUT_RICHIESTA)
             except OSError as e:  # include TimeoutError e gli errori di rete
                 quota.registra_richiesta(tipo, modello, 0, time.monotonic() - t0, False, type(e).__name__)
                 ultimo = f"{modello}: {type(e).__name__}"
