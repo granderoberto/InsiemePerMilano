@@ -38,6 +38,7 @@ Stesse 10 frasi (testo) e 5 foto disegnate (visione) della prova su OpenRouter, 
 | **Cloudflare** | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` (testo) | JSON valido, **10/10**, 4,5 s |
 | **Cloudflare** | `@cf/mistralai/mistral-small-3.1-24b-instruct` (testo e foto) | testo **10/10**, 10 s; foto: JSON valido ma id incompleti e coerenza 2/5 con 5 immagini (accetta bene 1 immagine) |
 | Cloudflare | `@cf/meta/llama-3.2-11b-vision-instruct` | **403**: chiede di accettare la licenza Meta con una richiesta «agree»: è un accordo da accettare a nome dell'account, non fatto |
-| **Groq** | tutti | **401 «Invalid API Key»**: la chiave nel `.env` non è valida; da rifare |
+| **Groq** | `openai/gpt-oss-20b` e `openai/gpt-oss-120b` (testo) | JSON valido, **10/10** per entrambi, **1,5-1,7 s** (prima prova con chiave non valida: 401, poi rifatta) |
+| **Groq** | `qwen/qwen3.8-27b` (foto) | JSON valido, id completi, **1,3 s**; coerenza 1/3 sui disegni (non indicativo); accetta al massimo 3 immagini (con 5: errore 400). `llama-3.3-70b-versatile` non è disponibile sull'account |
 
 Osservazioni: Cerebras è di gran lunga il più veloce (decimi di secondo, contro 10-40 s dei modelli «ragionanti» gratuiti di OpenRouter) e ha un'interfaccia con visione per 2 immagini; i suoi crediti gratuiti però scadono dopo 30 giorni e non è chiaro se il piano gratuito richieda una carta. Cloudflare funziona per il testo con la quota di 10.000 «neuroni» al giorno. L'elenco dei modelli non è disponibile da Cloudflare (405) e per Groq non si è potuto leggere perché la chiave non è valida.

@@ -232,7 +232,7 @@ def immagine_base64(rel):
 
 def provino_visione(modello, chiave):
     contenuto = []
-    for n, (rel, desc, _) in enumerate(FOTO, 1):
+    for n, (rel, desc, _) in enumerate(FOTO[:F.max_immagini], 1):   # ogni fornitore accetta un numero massimo di immagini
         contenuto += [{"type": "text", "text": f'<foto id="{n}"><descrizione>{desc}</descrizione></foto>'},
                       {"type": "image_url", "image_url": {"url": immagine_base64(rel)}}]
     corpo = corpo_base(modello, [{"role": "system", "content": PROMPT_FOTO}, {"role": "user", "content": contenuto}],
@@ -250,8 +250,9 @@ def provino_visione(modello, chiave):
         esito.update(json_valido=False, risposta=grezzo[:300])
         return esito
     visti = {x.get("id"): x for x in j["risultati"] if isinstance(x, dict)}
-    giusti = sum(1 for n, (_, _, ok) in enumerate(FOTO, 1) if visti.get(n, {}).get("coerente") is ok)
-    esito.update(json_valido=True, id_completi=set(visti) == set(range(1, len(FOTO) + 1)), coerenza_corretta=f"{giusti}/{len(FOTO)}",
+    inviate = FOTO[:F.max_immagini]
+    giusti = sum(1 for n, (_, _, ok) in enumerate(inviate, 1) if visti.get(n, {}).get("coerente") is ok)
+    esito.update(json_valido=True, id_completi=set(visti) == set(range(1, len(inviate) + 1)), coerenza_corretta=f"{giusti}/{len(inviate)}",
                  segnalate_inappropriate=[n for n, x in visti.items() if x.get("inappropriata")])
     return esito
 
@@ -262,6 +263,7 @@ def main():
     ap.add_argument("--elenco", action="store_true", help="mostra solo i modelli (nessuna quota)")
     ap.add_argument("--testo", action="append", help="modello da provare sul testo (ripetibile)")
     ap.add_argument("--visione", action="append", help="modello da provare sulle foto (ripetibile)")
+    ap.add_argument("--solo", choices=["testo", "visione"], help="prova solo il testo o solo le foto")
     ap.add_argument("--max", type=int, default=8, help="massimo di richieste ai modelli (predefinito 8)")
     ap.add_argument("--max-token", type=int, default=400, help="limite dei token della risposta (predefinito 400)")
     a = ap.parse_args()
@@ -298,7 +300,7 @@ def main():
             print("  non disponibili:", cod)
     print(f"  ora UTC adesso: {ora:%H:%M} (la quota giornaliera si azzera a mezzanotte UTC: da verificare)")
 
-    prove = [("testo", m) for m in (a.testo or TESTO_DEFAULT)] + [("visione", m) for m in (a.visione or VISIONE_DEFAULT)]
+    prove = ([] if a.solo == "visione" else [("testo", m) for m in (a.testo or TESTO_DEFAULT)]) + ([] if a.solo == "testo" else [("visione", m) for m in (a.visione or VISIONE_DEFAULT)])
     risultati, usate = [], 0
     for tipo, m in prove:
         if liberi and m not in liberi:

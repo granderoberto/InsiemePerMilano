@@ -77,7 +77,7 @@ try:
         esito("pannello: una riga di quota per ogni fornitore, con lo stato", "Fornitori e quota di oggi" in pan and "OpenRouter" in pan and "Groq" in pan and "manca GROQ_API_KEY" in pan and "non configurato" in pan)
         with override_settings(GROQ_API_KEY="chiave-g"):
             pan = client(adm).get("/amministrazione/ia/").content.decode()
-            esito("pannello: con la chiave Groq risulta pronto e mostra la sua quota e la catena", "pronto" in pan and "groq: llama-3.3-70b-versatile" in pan and "chiave-g" not in pan)
+            esito("pannello: con la chiave Groq risulta pronto e mostra la sua quota e la catena", "pronto" in pan and "groq: openai/gpt-oss-20b" in pan and "chiave-g" not in pan)
         from django.core.management import call_command
         import io
         buf = io.StringIO(); call_command("ia_lavora", "--stato", stdout=buf); out = buf.getvalue()

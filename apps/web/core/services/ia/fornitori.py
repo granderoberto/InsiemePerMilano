@@ -44,7 +44,7 @@ FORNITORI = {f.nome: f for f in (
               privacy=(("provider", {"data_collection": "deny"}),), contatore_ufficiale=True,
               nota_dati="data_collection=deny: solo fornitori che non addestrano"),
     Fornitore("groq", "Groq", "https://api.groq.com/openai/v1", "GROQ_API_KEY", rpm=20, rpd=500,
-              testo=("llama-3.3-70b-versatile", "openai/gpt-oss-20b"), visione=("qwen/qwen3.8-27b",),
+              testo=("openai/gpt-oss-20b", "openai/gpt-oss-120b"), visione=("qwen/qwen3.8-27b",),
               campo_token="max_completion_tokens", max_immagini=3,
               nota_dati="il contratto vieta di addestrare su input e output; log di sicurezza fino a 30 giorni"),
     Fornitore("cloudflare", "Cloudflare Workers AI", "https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1", "CLOUDFLARE_API_TOKEN",
