@@ -36,6 +36,10 @@ e1 = P("Bella idea", tipo="commento"); esito("doppione dello stesso testo", P("b
 esito("priorità: l'insulto pesa più dell'email", P("idiota", tipo="commento").rischio > P("mario@x.it", tipo="commento").rischio)
 esito("esito locale e punteggio", P("Ti ammazzo", tipo="commento").esito_locale == "bloccato" and P("ciao", tipo="commento").esito_locale == "ok" and P("idiota", tipo="commento").esito_locale is None)
 
+esito("altre minacce: «brucio la vostra macchina», «ti butto giù»", P("Brucio la vostra macchina", tipo="commento").esito == "bloccato" and P("Ti butto giù dalle scale", tipo="commento").esito == "bloccato")
+esito("accusa a persone, indirizzo di casa, testo ripetitivo: al modello", all(P(t, tipo="commento").esito == "da_inviare" for t in ("Quel consigliere è un ladro", "Giuseppe abita in via Savona 12 interno 4", "ok ok ok ok ok ok ok ok ok ok")))
+esito("«ladro» da solo senza accusa non c'è: frase normale resta pulita", P("Hanno rubato la bici in via Padova, serve più sorveglianza", tipo="commento").esito == "pulito")
+
 # ------------------------------------------------------------------ finto OpenRouter
 stato = {"fn": None, "richieste": [], "usate": 0}
 class Finto(BaseHTTPRequestHandler):

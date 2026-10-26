@@ -7,7 +7,7 @@ ETICHETTE = {
     "codice_fiscale": "codice fiscale", "iban": "IBAN", "spam": "possibile spam", "maiuscole": "tutto maiuscolo",
     "punteggiatura": "punteggiatura eccessiva", "senza_lettere": "senza lettere", "categoria_incerta": "categoria incerta",
     "doppione": "testo già inviato", "minaccia": "minaccia", "testo_nelle_foto": "testo nelle foto",
-    "foto_non_verificabili": "foto non verificabili", "volti_non_sfocati": "volti non sfocati",
+    "foto_non_verificabili": "foto non verificabili", "indirizzo": "indirizzo di casa", "accusa": "accusa a persone", "ripetizione": "testo ripetitivo", "volti_non_sfocati": "volti non sfocati",
 }
 
 

@@ -9,6 +9,7 @@ Produce anche un rischio 0-100 (decide la priorità nella coda) e l'impronta del
 Le liste di parole sono volutamente corte: il prefiltro prende i casi evidenti, il resto lo giudica il modello."""
 import difflib
 import hashlib
+from collections import Counter
 import re
 import unicodedata
 from dataclasses import dataclass, field
@@ -19,13 +20,16 @@ SOGLIA_CATEGORIA = 0.6   # confidenza locale oltre la quale un testo senza foto 
 
 INSULTI = ("idiota", "imbecille", "stronzo", "stronza", "merda", "cretino", "cretina", "schifoso", "bastardo", "bastarda",
            "coglione", "cogliona", "vaffanculo", "fottiti", "puttana", "troia", "deficiente", "ritardato", "rincoglionito",
-           "pirla", "pirlone", "parassita", "testa di cazzo")
+           "pirla", "pirlone", "parassita", "parassiti", "buffone", "buffoni", "testa di cazzo")
+ACCUSE = ("ladro", "ladri", "ladra", "delinquente", "delinquenti", "farabutto", "farabutti", "mafioso", "mafiosi", "corrotto", "corrotti",
+          "truffatore", "truffatori", "truffa", "criminale", "criminali")
 PAROLE_SPAM = ("compra", "guadagna", "guadagni", "offerta", "gratis", "sconto", "casino", "bitcoin", "prestito", "vincita", "clicca")
 
 RE_MINACCIA = re.compile(
     r"\b(?:ti|vi|la|lo|le|li|gli)\s+(?:ammazz\w*|uccid\w*|uccis\w*|spacc\w*|distrugg\w*|brucio|bruc\w+|rompo|picch\w+|sfascio|apro)\b"
-    r"|\b(?:ti|vi)\s+faccio\s+(?:fuori|male|pagare)\b|\bte la faccio pagare\b|\bvi trovo sotto casa\b|\bmorte a\b|\bviolenza su\b")
+    r"|\b(?:ti|vi)\s+(?:butto|sparo|taglio|sfregio|affogo|picchio)\b|\bbruc(?:io|erò|eremo)\s+(?:la|le|il|i|lo|gli)\s+\w+|\b(?:ti|vi)\s+faccio\s+(?:fuori|male|pagare)\b|\bte la faccio pagare\b|\bvi trovo sotto casa\b|\bmorte a\b|\bviolenza su\b")
 RE_TELEFONO = re.compile(r"(?<![\d\w])(?:(?:\+|00)39[\s.\-]?)?(?:3\d{2}[\s.\-]?\d{6,7}|0\d{1,3}[\s.\-]?\d{5,8})(?![\d\w])")
+RE_INDIRIZZO_CASA = re.compile(r"\b(?:abita|vive|dimora|residente|casa)\b.{0,40}\b(?:via|viale|piazza|corso|largo|vicolo)\s+[\w' ]{3,30}\s\d{1,3}\b", re.I)
 RE_EMAIL = re.compile(r"[\w.+\-]+@[\w\-]+\.[\w.\-]+")
 RE_TARGA = re.compile(r"\b[A-Z]{2}\s?\d{3}\s?[A-Z]{2}\b")
 RE_CF = re.compile(r"\b[A-Za-z]{6}\d{2}[A-Za-z]\d{2}[A-Za-z]\d{3}[A-Za-z]\b")
@@ -82,7 +86,7 @@ def _iban_valido(iban):
     return int("".join(str(int(c, 36)) for c in r)) % 97 == 1
 
 
-SOLO_ESATTE = {"ritardato", "parassita"}   # troppo vicine a parole comuni («ritardo», «parassiti»): niente confronto approssimato
+SOLO_ESATTE = {"ritardato", "parassita", "parassiti", "buffone", "buffoni"}   # troppo vicine a parole comuni («ritardo», «parassiti»): niente confronto approssimato
 
 
 def _parola_vicina(token, elenco):
@@ -106,6 +110,12 @@ def analizza(testo, *, ha_media=False, tipo="segnalazione", recenti=()):
     singoli = [p for p in INSULTI if " " not in p]
     if any(i in norm for i in INSULTI if " " in i) or any(p in singoli or _parola_vicina(p, singoli) for p in parole):
         segnali.append("insulto"); rischi.append(70)
+    if RE_INDIRIZZO_CASA.search(testo):
+        segnali.append("indirizzo"); rischi.append(60)
+    if any(a in parole for a in ACCUSE):
+        segnali.append("accusa"); rischi.append(45)
+    if len(parole) >= 8 and Counter(parole).most_common(1)[0][1] / len(parole) >= 0.5:
+        segnali.append("ripetizione"); rischi.append(30)
     if RE_TELEFONO.search(testo) and sum(c.isdigit() for c in RE_TELEFONO.search(testo).group(0)) >= 9:
         segnali.append("telefono"); rischi.append(55)
     if RE_EMAIL.search(testo):

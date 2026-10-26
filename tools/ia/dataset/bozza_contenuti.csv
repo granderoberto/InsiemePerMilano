@@ -1,0 +1,81 @@
+id,tipo,testo,etichetta,nota
+1,commento,"Concordo, il marciapiede di via Padova è in condizioni pessime da mesi.",ok,base
+2,commento,"Io proporrei di mettere più cestini vicino alla fermata del tram, grazie per la segnalazione.",ok,base
+3,commento,"Bella proposta, ma secondo me costa troppo: meglio sistemare prima le strade.",ok,disaccordo educato
+4,commento,"Anche in zona Isola c'è lo stesso problema con i lampioni spenti, speriamo che intervengano.",ok,base
+5,commento,"Non sono d'accordo con te, ma rispetto la tua idea: parliamone al comitato di quartiere.",ok,disaccordo educato
+6,commento,"Ho firmato anch'io, spero che il Comune risponda presto.",ok,base
+7,commento,"Passo di lì ogni mattina con il passeggino e confermo, è pericoloso.",ok,base
+8,commento,"Grazie a chi ha fatto la segnalazione, finalmente se ne parla!",ok,base
+9,commento,Potremmo organizzare una raccolta firme domenica al mercato di viale Papiniano.,ok,proposta
+10,commento,"Il 90 è sempre in ritardo la sera, qualcuno sa a chi scrivere in ATM?",ok,domanda
+11,commento,"Che schifo di strada, ogni volta che piove diventa un lago.",ok,volgarità lieve non rivolta a persone
+12,commento,"Il sindaco e la giunta non fanno nulla da anni, sono molto deluso dalla gestione di questo quartiere.",ok,critica politica dura ma legittima
+13,commento,Una vergogna per l'amministrazione: tre mesi per cambiare una lampadina.,ok,critica a istituzione
+14,commento,"Ma che bel casino in via Torino, non si passa più!",ok,colloquiale
+15,commento,"Ciapa lì, finalmente hanno sistemato la fontanella. Bravi!",ok,milanese
+16,commento,"Ghè un sacco de gent che la pensa istess, sciura. Speremm ben.",ok,milanese
+17,commento,"Ottima idea la pista ciclabile, ma servirebbe anche un'illuminazione migliore.",ok,base
+18,commento,Sono d'accordo al 100%.,ok,breve
+19,commento,Grazie!,ok,breve
+20,commento,"Ho scritto anche all'ufficio del Municipio 3 e mi hanno risposto in due giorni, provate anche voi.",ok,base
+21,commento,"Il parco Lambro ha bisogno di più panchine, soprattutto vicino al campetto.",ok,base
+22,commento,Per me il problema è la velocità: servono dossi o un autovelox in via Padova.,ok,proposta
+23,commento,"Non capisco perché i cassonetti vengano svuotati solo il lunedì, con questo caldo è un disastro.",ok,base
+24,commento,"Peccato che nessuno abbia ancora risposto, ma continuiamo a sostenerla.",ok,base
+25,commento,"Se qualcuno vuole, sabato mattina ci troviamo davanti alla scuola per ripulire l'aiuola.",ok,proposta
+26,commento,"Questa segnalazione è inutile e mal scritta, secondo me.",ok,"critica al contenuto, non alla persona"
+27,commento,Ma chi ha progettato questo incrocio? Un lavoro davvero fatto male.,ok,critica a un lavoro
+28,commento,"Sono stufo di questa situazione, basta con le promesse!",ok,sfogo lecito
+29,commento,Ironia della sorte: il cartello 'lavori in corso' c'è da due anni e di lavori nemmeno l'ombra.,ok,sarcasmo
+30,commento,Il mio vicino mi ha detto che la proposta piace anche in via Settala.,ok,terzi non identificabili
+31,commento,"Sei un idiota se pensi che questo serva a qualcosa, vergognati.",dubbio,insulto a un utente
+32,commento,Chi ha scritto questa cosa è proprio un imbecille.,dubbio,insulto
+33,commento,"Ma sta' zitto, pirla, non capisci niente di questo quartiere.",dubbio,insulto milanese
+34,commento,Che stronzo chi parcheggia sempre sul passo carraio!,dubbio,insulto a persone non identificate
+35,commento,Chiamate il mio vicino al 333 1234567 e ditegli di togliere l'auto.,dubbio,telefono di terzi
+36,commento,Scrivetemi a mario.rossi@example.org per organizzare la raccolta firme.,dubbio,"email, anche se è dell'autore (dato personale)"
+37,commento,"La targa dell'auto che blocca sempre il passo carraio è AB123CD, segnalatela.",dubbio,targa di terzi
+38,commento,"Il responsabile è Giuseppe Bianchi, abita in via Savona 12 interno 4, andate a dirgli due parole.",dubbio,"dati di una persona privata, istigazione"
+39,commento,COMPRA ORA su www.offerte-incredibili.example GUADAGNA 1000 EURO AL GIORNO!!!,dubbio,spam
+40,commento,Visita il mio sito www.pizzeria-bella.example per sconti gratis e offerte speciali.,dubbio,pubblicità
+41,commento,"Vota per il candidato X, è l'unico serio, tutti gli altri sono ladri e delinquenti.",dubbio,propaganda e accuse generiche
+42,commento,"Quel consigliere è un ladro, lo so per certo, ha preso soldi dal costruttore.",dubbio,accusa grave non verificata a una persona identificabile
+43,commento,"Sono tutti dei parassiti, i politici di questa città.",dubbio,insulto a una categoria
+44,commento,"Bella foto, ma scusa, sei bellissima, ti va un caffè? Il mio numero è 347 5550123.",dubbio,"fuori tema, avance, telefono"
+45,commento,"Fate schifo, voi del comitato, siete dei buffoni.",dubbio,insulto a un gruppo
+46,commento,Cretino chi ha messo questo semaforo.,dubbio,insulto
+47,commento,"Il codice fiscale del titolare è RSSMRA85T10A562S, controllate pure.",dubbio,dato personale di terzi
+48,commento,"Per i pagamenti il mio IBAN è IT60X0542811101000000123456, fate il bonifico.",dubbio,truffa/IBAN
+49,commento,SEI UNA PERSONA ORRIBILE E NON CAPISCI NIENTE!!!!!,dubbio,"maiuscole, aggressività"
+50,commento,ok ok ok ok ok ok ok ok ok ok ok ok ok ok ok ok,dubbio,rumore
+51,commento,Ti ammazzo se ti vedo ancora in giro per il quartiere.,bloccato,minaccia diretta
+52,commento,Vi spacco la faccia a tutti quando vi trovo sotto casa.,bloccato,minaccia
+53,commento,Brucio la vostra macchina se parcheggiate ancora qui.,bloccato,minaccia a cose e persone
+54,commento,"Ti faccio fuori, ricordatelo.",bloccato,minaccia
+55,commento,"Te la faccio pagare, stai attento a quando esci di casa.",bloccato,minaccia velata ma esplicita
+56,commento,Morte a chi ha votato questa schifezza.,bloccato,augurio di morte
+57,commento,"Vi trovo sotto casa e vi sistemo io, uno per uno.",bloccato,minaccia
+58,commento,Ti spacco le gambe se rifai quella segnalazione.,bloccato,minaccia/intimidazione
+59,commento,"Ti butto giù dalle scale, ficcatelo in testa.",bloccato,minaccia
+60,commento,"Vi ammazzo tutti, giuro.",bloccato,minaccia
+61,segnalazione,"Marciapiede rotto in via Padova | Il marciapiede davanti al civico 10 è rotto da mesi e pericoloso per gli anziani, servono lavori urgenti.",ok,base
+62,segnalazione,Lampione spento in via Settala | Il lampione all'angolo con via Settala è spento da giorni e la strada è buia di sera. Servirebbe un intervento rapido.,ok,base
+63,segnalazione,"Proposta: più panchine al parco Lambro | Vorrei proporre di installare almeno cinque panchine lungo il percorso principale, soprattutto vicino al campetto.",ok,proposta
+64,segnalazione,Cumulo di rifiuti ai cassonetti | Da giorni nessuno ritira i rifiuti accanto ai cassonetti di via Padova; con il caldo l'odore è insopportabile.,ok,base
+65,segnalazione,Semaforo pedonale troppo breve | Il semaforo all'incrocio di viale Monza dura pochi secondi e gli anziani non fanno in tempo ad attraversare.,ok,base
+66,segnalazione,Pista ciclabile interrotta | La pista ciclabile di via Settala si interrompe all'incrocio senza segnaletica: è molto pericoloso per chi va in bici.,ok,base
+67,segnalazione,Fontanella rotta nel parco | La fontanella del parco di via Padova perde acqua da giorni e sta allagando il sentiero.,ok,base
+68,segnalazione,Aiuola secca davanti alla scuola | L'aiuola davanti alla scuola è secca da settimane: servirebbe un intervento di giardinaggio e un po' d'acqua.,ok,base
+69,segnalazione,Auto in doppia fila alla fermata | Ogni mattina le auto in doppia fila bloccano il tram 9 davanti all'ospedale e il servizio ritarda parecchio.,ok,base
+70,segnalazione,Scritte sul muro della scuola | Sul muro esterno della scuola ci sono scritte volgari che i bambini leggono ogni mattina: chiedo la pulizia.,ok,volgarità citata ma segnalazione legittima
+71,segnalazione,"Ho il sospetto che il Comune non faccia i controlli | A me sembra che il Comune controlli poco i cantieri di via Torino, la polvere è continua e nessuno interviene.",ok,critica a istituzione
+72,segnalazione,Aula studio aperta anche la sera | Come studente chiedo che la biblioteca di quartiere resti aperta fino alle 22 almeno nel periodo degli esami.,ok,proposta
+73,segnalazione,"Il vicino è un idiota | Il mio vicino è un idiota e parcheggia sul marciapiede davanti al passo carraio ogni giorno, fatelo multare.",dubbio,insulto
+74,segnalazione,"Auto sul marciapiede | L'auto targata AB123CD parcheggia sempre sul marciapiede in via Vitruvio, controllate il proprietario.",dubbio,targa di terzi
+75,segnalazione,"Cantiere rumoroso | Il cantiere della ditta Bianchi Srl lavora di notte, chiamate il titolare al 333 1234567 e ditegli di smettere.",dubbio,telefono di terzi
+76,segnalazione,Offerte e sconti per il quartiere | Visitate www.offerte-incredibili.example per sconti gratis e guadagna subito 1000 euro al giorno.,dubbio,spam
+77,segnalazione,"Il negoziante truffa i clienti | Il signor Mario Rossi del negozio all'angolo è un truffatore e un ladro, lo so per certo.",dubbio,accusa grave a una persona identificabile
+78,segnalazione,Un cartello | Ho visto un cartello. Boh.,dubbio,"contenuto vuoto, poco utile (da rivedere)"
+79,segnalazione,"Basta con questo cantiere | Vi ammazzo tutti se non sistemate la strada, ve lo giuro davvero.",bloccato,minaccia
+80,segnalazione,"Ultimo avviso | Se non tolgono quel dehors ti spacco la faccia, a te e al gestore, sotto casa vostra.",bloccato,minaccia
