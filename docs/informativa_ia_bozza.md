@@ -13,13 +13,13 @@ Per aiutare i moderatori il sito controlla automaticamente le segnalazioni e i c
 
 ## Quali dati escono dal sito
 
-Per i controlli sono inviati a un fornitore esterno di modelli di linguaggio (attraverso la piattaforma OpenRouter):
+Per i controlli sono inviati a fornitori esterni di modelli di linguaggio, in questo ordine di preferenza e solo se il precedente non è disponibile: **OpenRouter** (che inoltra la richiesta a un modello che non addestra sui dati), **Groq** (Stati Uniti; il contratto vieta di usare i contenuti per addestrare e prevede log di sicurezza fino a 30 giorni). Altri fornitori (Cloudflare, Cerebras, Mistral) sono predisposti ma spenti: se verranno attivati l'elenco in questa pagina va aggiornato. Google non è usato. I contenuti sono:
 - il titolo e la descrizione di una segnalazione, o il testo di un commento;
 - le foto della segnalazione (per i video, due fotogrammi), **senza metadati** (posizione, dispositivo, data) e **con i volti sfocati**.
 
 Non sono inviati: il tuo nome, la tua email, il tuo profilo, la tua posizione esatta, il documento e il selfie della verifica d'identità. Il documento e il selfie sono letti solo dal nostro sito e cancellati a verifica conclusa.
 
-Chiediamo al fornitore di non usare i contenuti per addestrare i modelli. I modelli usati sono gratuiti e il fornitore può cambiare: l'elenco aggiornato è nelle impostazioni del sito.
+Chiediamo ai fornitori di non usare i contenuti per addestrare i modelli. I modelli usati sono gratuiti e i fornitori possono cambiare: l'elenco aggiornato è nel pannello dell'amministratore.
 
 ## I tuoi diritti
 
@@ -30,6 +30,6 @@ Chiediamo al fornitore di non usare i contenuti per addestrare i modelli. I mode
 ## Cose da decidere prima di pubblicare (comitato)
 
 1. Il nome e l'indirizzo del titolare del trattamento e come contattarlo.
-2. Se il trasferimento dei dati fuori dall'Unione Europea è accettabile con un fornitore gratuito, o se serve un fornitore con sede e dati in UE e un accordo di trattamento (DPA).
+2. Se il trasferimento dei dati fuori dall'Unione Europea (Groq e molti modelli di OpenRouter hanno sede o server negli Stati Uniti) è accettabile con fornitori gratuiti, o se serve un fornitore con sede e dati in UE e un accordo di trattamento (DPA).
 3. Una valutazione d'impatto (DPIA) se si passa a un uso su larga scala.
 4. Per quanto tempo si conservano gli esiti e le motivazioni.

@@ -212,6 +212,19 @@ Fatti: `tools/ia/dataset/bozza_contenuti.csv` (80 contenuti etichettati), `tools
 
 Da fare: etichette corrette dall'autore, contenuti nuovi (soprattutto commenti buoni con un segnale del prefiltro e casi ambigui), rilancio del rapporto e scelta definitiva delle soglie.
 
+### Multi-fornitore (2026-10-26)
+
+Il vincolo «costo zero» resta, ma un solo fornitore non basta: OpenRouter ha 50 richieste al giorno per account, modelli gratuiti spesso saturi a monte e pochi utilizzabili con la privacy `deny`. Il router (`core/services/ia/router.py`, ex `openrouter.py`) ora lavora su una **catena di coppie (fornitore, modello)**, separata per testo e per visione:
+
+- **Configurazione** (`fornitori.py`): un fornitore ha indirizzo, chiave, parametro di privacy, limiti (richieste al minuto e al giorno), modelli di testo e di visione, numero massimo di immagini. `IA_FORNITORI` dice quali sono attivi e in che ordine; `IA_CATENA_TESTO`/`IA_CATENA_VISIONE` (`fornitore:modello,…`) la scelgono a mano. **Senza chiave un fornitore è «non configurato»** e si salta, non è un errore. Le richieste con foto vanno solo ai fornitori con un modello con visione e si riducono al numero di immagini che accettano.
+- **Quando si passa al successivo**: solo per errori che non consumano quota (404 privacy, 403, 429 «a monte» di OpenRouter, rete). Un **429 del fornitore** lo mette da parte per 30 minuti e il lavoro passa al successivo senza nuovi tentativi; se tutti sono senza quota → `QuotaEsaurita` (il lavoro aspetta); se nessuno risponde → `NessunModello` (`dubbio` dopo 3 tentativi). Restano invariati: un nuovo tentativo sugli errori 5xx, nessun altro modello dopo una risposta vuota o non valida, il modello può solo peggiorare l'esito.
+- **Quota separata per fornitore** (`quota.py`): ogni fornitore ha il suo tetto giornaliero e i suoi contatori (segnalazioni 72%, commenti 16%, riserva 12%), calcolati dal registro; per OpenRouter vale anche il contatore ufficiale (`GET /key`). `quota.ammesso(tipo)` dice se **almeno un fornitore** della catena può fare quel lavoro. Il ritmo è per fornitore: 60 / richieste al minuto.
+- **Registro**: `log_attivita` ha una riga per richiesta con `tabella` = nome del fornitore (le righe già presenti con «openrouter» restano valide) e `fornitore` nel contenuto; le decisioni sui contenuti riportano il fornitore che ha deciso. Nessuna modifica allo schema.
+- **Pannello e comando**: `/amministrazione/ia/` mostra stato e quota di ogni fornitore, le catene, i controlli e le richieste con filtro per fornitore; `ia_lavora --stato` fa lo stesso da terminale.
+- **Strumenti**: `tools/ia/sonda_modelli.py --fornitore NOME` (poche richieste, o `--elenco` per i modelli) e `tools/ia/valuta.py --fornitore NOME [--modello ID]` o `--confronta a,b,c` (tetto `--max` per fornitore, tabella di confronto sugli stessi contenuti).
+- **Fornitori**: Groq è il primo oltre OpenRouter (il contratto vieta di addestrare sui dati); Cloudflare Workers AI, Cerebras e Mistral sono predisposti e spenti; **Google AI Studio/Gemini è escluso** (nel piano gratuito usa i contenuti per migliorare i prodotti e i suoi termini consentono solo il piano a pagamento per utenti nello SEE). Dettagli, limiti e come attivarli: `docs/produzione.md`, §5.
+- **Cosa non è stato verificato**: i limiti ufficiali del piano gratuito di Groq (le fonti ufficiali non li riportano per modello: i nostri 500 al giorno sono un tetto prudente da confermare nella console dell'account), i modelli predefiniti di Cloudflare, e il funzionamento reale di ogni fornitore finché l'autore non ha le chiavi. Le prove automatiche usano un finto server per tutti.
+
 ## 8. Rischi
 
 | Rischio | Risposta |

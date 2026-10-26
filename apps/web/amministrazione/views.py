@@ -16,7 +16,7 @@ from core.models import (Categoria, DocumentoNormativo, LogAttivita, Notifica, Q
 from core.services import log, normative, utenti as servizio
 from core.services.errori import RegolaViolata, traduci
 
-from core.services.ia import coda as coda_ia, esiti, lavoratore, quota
+from core.services.ia import coda as coda_ia, esiti, fornitori, lavoratore, quota
 
 from . import statistiche as stat
 
@@ -267,18 +267,18 @@ def documenti(request):
 def controlli_ia(request):
     from django.conf import settings
     from core.models import CodaIA
-    q = quota.stato()
+    stati = quota.stato_tutti()
     attivi = (CodaIA.objects.filter(stato__in=["in_coda", "in_corso", "fallito"]).select_related("segnalazione", "commento__segnalazione")
               .order_by("stato", "-priorita", "creata_il")[:60])
-    ultime = LogAttivita.objects.filter(tabella=quota.TABELLA, operazione="decisione_ia").order_by("-id")[:25]
+    ultime = LogAttivita.objects.filter(tabella__in=list(fornitori.FORNITORI), operazione="decisione_ia").order_by("-id")[:25]
     t = lavoratore._thread[0]
     recenti = esiti.righe_controlli(LogAttivita.objects.filter(operazione="decisione_ia", tabella__in=["segnalazioni", "commenti"]).order_by("-id")[:15])
     return render(request, "amministrazione/ia.html", {"recenti": recenti,
-        "quota": q, "pct": round(100 * q["usate"] / q["limite"]) if q["limite"] else 0, "limiti": {
-            "segnalazioni": settings.IA_QUOTA_SEGNALAZIONI, "commenti": settings.IA_QUOTA_COMMENTI, "soglia": settings.IA_QUOTA_SOGLIA_COMMENTI},
+        "fornitori": [{**s, "pct": round(100 * s["usate"] / s["limite"]) if s["limite"] else 0} for s in stati],
         "conteggi": coda_ia.conteggi(), "attivi": attivi, "ultime": ultime,
         "config": {"modalita": settings.IA_MODALITA, "lavoratore": settings.IA_LAVORATORE, "thread_vivo": bool(t and t.is_alive()),
-                   "chiave": bool(settings.OPENROUTER_API_KEY), "modelli_testo": settings.IA_MODELLI_TESTO, "modelli_visione": settings.IA_MODELLI_VISIONE}})
+                   "catena_testo": [f"{f.nome}: {m}" for f, m in fornitori.catena(False)],
+                   "catena_visione": [f"{f.nome}: {m}" for f, m in fornitori.catena(True)]}})
 
 
 @amministratore_richiesto
@@ -291,31 +291,35 @@ def controlli_eseguiti(request):
     if g.get("esito") in ("ok", "dubbio", "bloccato"):
         qs = qs.filter(dati_nuovi__esito_moderazione=g["esito"])
     if g.get("fonte") == "modello":
-        qs = qs.filter(dati_nuovi__fornitore="openrouter")
+        qs = qs.filter(dati_nuovi__has_key="fornitore").exclude(dati_nuovi__fornitore="locale")
     elif g.get("fonte") == "locale":
         qs = qs.filter(dati_nuovi__fornitore="locale")
     elif g.get("fonte") == "simulato":
-        qs = qs.exclude(dati_nuovi__fornitore__in=["openrouter", "locale"])
+        qs = qs.exclude(dati_nuovi__has_key="fornitore")
+    if g.get("fornitore") in fornitori.FORNITORI:
+        qs = qs.filter(dati_nuovi__fornitore=g["fornitore"])
     if g.get("q", "").strip():
         qs = qs.filter(dati_nuovi__motivazione__icontains=g["q"].strip())
     pagina = Paginator(qs, 30).get_page(g.get("pagina"))
     p = g.copy(); p.pop("pagina", None)
     return render(request, "amministrazione/ia_controlli.html", {"pagina": pagina, "righe": esiti.righe_controlli(pagina.object_list),
-                                                                "filtri": g, "querystring": p.urlencode()})
+                                                                "filtri": g, "querystring": p.urlencode(), "nomi": list(fornitori.FORNITORI)})
 
 
 @amministratore_richiesto
-def richieste_openrouter(request):
-    """Tutte le richieste fatte al fornitore: modello, risposta, tempo, se hanno consumato quota."""
+def richieste_fornitori(request):
+    """Tutte le richieste fatte ai fornitori: modello, risposta, tempo, se hanno consumato quota."""
     g = request.GET
-    qs = LogAttivita.objects.filter(tabella=quota.TABELLA, operazione="decisione_ia").order_by("-id")
+    qs = LogAttivita.objects.filter(tabella__in=list(fornitori.FORNITORI), operazione="decisione_ia").order_by("-id")
+    if g.get("fornitore") in fornitori.FORNITORI:
+        qs = qs.filter(tabella=g["fornitore"])
     if g.get("consumata") in ("si", "no"):
         qs = qs.filter(dati_nuovi__contata=(g["consumata"] == "si"))
     if g.get("tipo") in ("segnalazione", "commento"):
         qs = qs.filter(dati_nuovi__tipo=g["tipo"])
     pagina = Paginator(qs, 50).get_page(g.get("pagina"))
     p = g.copy(); p.pop("pagina", None)
-    return render(request, "amministrazione/ia_richieste.html", {"pagina": pagina, "filtri": g, "querystring": p.urlencode()})
+    return render(request, "amministrazione/ia_richieste.html", {"pagina": pagina, "filtri": g, "querystring": p.urlencode(), "nomi": list(fornitori.FORNITORI)})
 
 
 @require_POST

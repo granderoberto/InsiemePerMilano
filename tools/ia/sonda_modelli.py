@@ -32,8 +32,18 @@ from pathlib import Path
 import certifi
 from PIL import Image
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "apps/web"))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+os.environ.setdefault("LNC_PROVE", "1")
+import django  # noqa: E402
+
+django.setup()
+from core.services.ia import fornitori  # noqa: E402
+
+F = fornitori.FORNITORI["openrouter"]   # il fornitore in prova (cambia con --fornitore)
+
 RADICE = Path(__file__).resolve().parents[2]
-API = "https://openrouter.ai/api/v1"
+API = fornitori.url_base(F)
 CTX = ssl.create_default_context(cafile=certifi.where())
 
 # modelli di partenza (gli identificativi :free cambiano spesso: --elenco mostra quelli di oggi)
@@ -65,14 +75,8 @@ FOTO = [
 
 
 def leggi_chiave():
-    k = os.environ.get("OPENROUTER_API_KEY", "").strip()
-    env = RADICE / ".env"
-    if not k and env.exists():
-        for r in env.read_text(encoding="utf-8").splitlines():
-            m = re.match(r"\s*OPENROUTER_API_KEY\s*=\s*(.*)", r)
-            if m:
-                k = m.group(1).split("#")[0].strip().strip("'\"")
-    return k
+    """La chiave del fornitore in prova, da .env o dall'ambiente (la legge la configurazione del sito). Mai stampata."""
+    return fornitori.chiave(F)
 
 
 def chiama(percorso, chiave=None, corpo=None, timeout=60):
@@ -81,6 +85,7 @@ def chiama(percorso, chiave=None, corpo=None, timeout=60):
     req = urllib.request.Request(API + percorso, data=dati, method="POST" if dati else "GET")
     req.add_header("Content-Type", "application/json")
     req.add_header("HTTP-Referer", "https://la-nostra-citta.onrender.com")
+    req.add_header("User-Agent", "LaNostraCitta/1.0")
     req.add_header("X-Title", "La Nostra Citta (prova modelli)")
     if chiave:
         req.add_header("Authorization", "Bearer " + chiave)
@@ -99,6 +104,18 @@ def chiama(percorso, chiave=None, corpo=None, timeout=60):
 
 
 def elenco():
+    """Modelli disponibili: per OpenRouter solo i gratuiti (elenco pubblico); per gli altri l'elenco del fornitore, se lo dà. -> {id: parametri}."""
+    if F.nome != "openrouter":
+        if not leggi_chiave():
+            print(f"{F.etichetta}: non configurato ({fornitori.motivo_non_configurato(F, True)}): elenco non disponibile")
+            return {}
+        cod, d, _, _ = chiama("/models", leggi_chiave())
+        if cod != 200 or not isinstance(d, dict) or "data" not in d:
+            print(f"{F.etichetta}: elenco dei modelli non disponibile ({cod}); si provano i modelli predefiniti")
+            return {}
+        ids = sorted(m["id"] for m in d["data"] if isinstance(m, dict) and "id" in m)
+        print(f"{len(ids)} modelli di {F.etichetta}:\n" + "\n".join(f"  {i}" for i in ids))
+        return {i: [] for i in ids}
     cod, d, _, _ = chiama("/models")
     if cod != 200:
         sys.exit(f"Elenco non disponibile ({cod})")
@@ -140,14 +157,15 @@ PARAMETRI = {}  # identificativo -> parametri supportati (riempito in main)
 
 
 def corpo_base(modello, messaggi, schema, nome, max_token):
-    """JSON a schema se il modello lo supporta, altrimenti `json_object` con lo schema scritto nel prompt."""
+    """OpenRouter: JSON a schema se il modello lo supporta; altri fornitori: `json_object` (se lo accettano) con lo schema scritto nel prompt."""
     par = PARAMETRI.get(modello, [])
-    corpo = {"model": modello, "messages": [dict(m) for m in messaggi], "temperature": 0, "max_tokens": max_token,
-             "provider": {"data_collection": "deny"}}
-    if "structured_outputs" in par:
+    corpo = {"model": modello, "messages": [dict(m) for m in messaggi], "temperature": 0, F.campo_token: max_token}
+    corpo.update(dict(F.privacy))
+    if F.nome == "openrouter" and "structured_outputs" in par:
         corpo["response_format"] = {"type": "json_schema", "json_schema": {"name": nome, "strict": True, "schema": schema}}
     else:
-        corpo["response_format"] = {"type": "json_object"}
+        if F.json_object:
+            corpo["response_format"] = {"type": "json_object"}
         corpo["messages"][0]["content"] += " Schema JSON da rispettare: " + json.dumps(schema, ensure_ascii=False)
     return corpo
 
@@ -237,14 +255,24 @@ def provino_visione(modello, chiave):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--elenco", action="store_true", help="mostra solo i modelli gratuiti (nessuna quota)")
+    ap.add_argument("--fornitore", default="openrouter", help="fornitore da provare: " + ", ".join(fornitori.FORNITORI) + " (predefinito openrouter)")
+    ap.add_argument("--elenco", action="store_true", help="mostra solo i modelli (nessuna quota)")
     ap.add_argument("--testo", action="append", help="modello da provare sul testo (ripetibile)")
     ap.add_argument("--visione", action="append", help="modello da provare sulle foto (ripetibile)")
     ap.add_argument("--max", type=int, default=8, help="massimo di richieste ai modelli (predefinito 8)")
     ap.add_argument("--max-token", type=int, default=400, help="limite dei token della risposta (predefinito 400)")
     a = ap.parse_args()
-    global MAX_TOKEN
+    global MAX_TOKEN, F, API
     MAX_TOKEN = a.max_token
+    if a.fornitore not in fornitori.FORNITORI:
+        sys.exit(f"Fornitore sconosciuto: {a.fornitore}. Quelli previsti: {', '.join(fornitori.FORNITORI)}")
+    F = fornitori.FORNITORI[a.fornitore]
+    API = fornitori.url_base(F)
+    if not fornitori.configurato(F, True) and not a.elenco:
+        sys.exit(f"\n{F.etichetta}: fornitore non configurato ({fornitori.motivo_non_configurato(F, True)}). Non è un errore: mancano chiave o conferme, vedi docs/produzione.md, sezione 5.")
+    if F.nome != "openrouter":
+        global TESTO_DEFAULT, VISIONE_DEFAULT
+        TESTO_DEFAULT, VISIONE_DEFAULT = fornitori.modelli(F), fornitori.modelli(F, visione=True)
 
     liberi = elenco()
     PARAMETRI.update(liberi)
@@ -252,25 +280,26 @@ def main():
         return
     chiave = leggi_chiave()
     if not chiave:
-        sys.exit("\nManca OPENROUTER_API_KEY (in .env o nell'ambiente): vedi docs/piano_ia_openrouter.md, fase 0.")
+        sys.exit(f"\n{F.etichetta}: manca {F.env_chiave} (in .env o nell'ambiente): vedi docs/produzione.md, sezione 5.")
 
-    print("\nInformazioni sulla chiave (non consumano quota):")
-    cod, k, intest, _ = chiama("/key", chiave)
-    info = k.get("data", k) if isinstance(k, dict) else {}
-    if cod == 200:
-        for c in ("label", "is_free_tier", "limit", "limit_remaining", "usage", "usage_daily", "rate_limit"):
-            if c in info:
-                print(f"  {c}: {info[c] if c != 'label' else info[c][:4] + '…'}")
-    else:
-        print("  non disponibili:", cod)
     ora = datetime.now(timezone.utc)
+    if F.nome == "openrouter":
+        print("\nInformazioni sulla chiave (non consumano quota):")
+        cod, k, intest, _ = chiama("/key", chiave)
+        info = k.get("data", k) if isinstance(k, dict) else {}
+        if cod == 200:
+            for c in ("label", "is_free_tier", "limit", "limit_remaining", "usage", "usage_daily", "rate_limit"):
+                if c in info:
+                    print(f"  {c}: {info[c] if c != 'label' else info[c][:4] + '…'}")
+        else:
+            print("  non disponibili:", cod)
     print(f"  ora UTC adesso: {ora:%H:%M} (la quota giornaliera si azzera a mezzanotte UTC: da verificare)")
 
     prove = [("testo", m) for m in (a.testo or TESTO_DEFAULT)] + [("visione", m) for m in (a.visione or VISIONE_DEFAULT)]
     risultati, usate = [], 0
     for tipo, m in prove:
-        if m not in liberi:
-            print(f"\n- {m}: non è più nell'elenco dei modelli gratuiti, salto")
+        if liberi and m not in liberi:
+            print(f"\n- {m}: non è più nell'elenco dei modelli di {F.etichetta}, salto")
             continue
         if usate >= a.max:
             print(f"\nRaggiunto il tetto di {a.max} richieste: mi fermo.")
@@ -278,9 +307,10 @@ def main():
         print(f"\n- {tipo}: {m} …", flush=True)
         usate += 1
         e = (provino_testo if tipo == "testo" else provino_visione)(m, chiave)
+        e["fornitore"] = F.nome
         risultati.append(e)
         print("  " + json.dumps(e, ensure_ascii=False))
-        if e["http"] == 429 and "upstream" not in e.get("errore", ""):
+        if e["http"] == 429 and (F.nome != "openrouter" or "upstream" not in e.get("errore", "")):
             print("\nQuota dell'account raggiunta (429): mi fermo.")
             break
         # un 429 «upstream» è il fornitore a monte occupato, non la nostra quota: si passa al modello successivo

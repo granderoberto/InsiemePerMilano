@@ -1,19 +1,22 @@
 {% extends "base.html" %}{% block titolo %}Controlli IA{% endblock %}
 {% block contenuto %}<h1>Controlli IA</h1>{% include "amministrazione/_menu.html" %}{% include "amministrazione/_menu_ia.html" %}
-<div class="due-colonne">
-  <section class="riquadro"><h2>Quota di oggi</h2>
-    <p><span class="contatore">{{ quota.usate }}</span> richieste su {{ quota.limite }} <span class="piccolo">(si azzera a mezzanotte UTC; ne restano {{ quota.rimaste }})</span></p>
-    <progress max="{{ quota.limite }}" value="{{ quota.usate }}" aria-label="Richieste usate oggi" style="width:100%">{{ pct }}%</progress>
-    <p class="piccolo">Segnalazioni {{ quota.segnalazioni }} di {{ limiti.segnalazioni }} · commenti {{ quota.commenti }} di {{ limiti.commenti }} · da {{ limiti.soglia }} richieste in su i commenti aspettano. {% if quota.ufficiale is None %}Il contatore di OpenRouter non è raggiungibile: conto dal registro.{% else %}Contatore di OpenRouter: {{ quota.ufficiale }}.{% endif %}</p>
-  </section>
-  <section class="riquadro"><h2>Stato</h2>
-    <p>Modalità: <strong>{% if config.modalita == "coda" %}coda in background{% else %}sincrona (controlli simulati){% endif %}</strong><br>
-    Lavoratore: <strong>{% if config.lavoratore and config.thread_vivo %}attivo{% elif config.lavoratore %}attivato ma fermo{% else %}spento{% endif %}</strong> · chiave OpenRouter: <strong>{% if config.chiave %}presente{% else %}mancante{% endif %}</strong></p>
-    <p class="piccolo">Modelli per il testo: {{ config.modelli_testo|join:", " }}<br>Modelli per le foto: {{ config.modelli_visione|join:", " }}</p>
-    {% if config.modalita == "coda" %}<form class="in-linea" method="post" action="{% url 'amm_ia_azione' 'esegui' %}">{% csrf_token %}<button class="btn btn-primario btn-piccolo" type="submit">Esegui un controllo ora</button></form>{% endif %}
-    <form class="in-linea" method="post" action="{% url 'amm_ia_azione' 'riprova_falliti' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Rimetti in coda i falliti</button></form>
-  </section>
-</div>
+<section class="riquadro"><h2>Fornitori e quota di oggi</h2>
+  <p class="piccolo">Ogni fornitore ha il suo limite al giorno (si azzera a mezzanotte UTC). Il lavoro passa al primo fornitore della catena che ha ancora quota; senza chiave un fornitore è «non configurato» e viene saltato.</p>
+  <div class="scorri"><table class="tabella"><thead><tr><th scope="col">Fornitore</th><th scope="col">Stato</th><th scope="col">Oggi</th><th scope="col">Segnalazioni</th><th scope="col">Commenti</th><th scope="col">Dati</th></tr></thead><tbody>
+  {% for f in fornitori %}<tr>
+   <td><strong>{{ f.etichetta }}</strong></td>
+   <td>{% if f.configurato %}{% if f.messo_da_parte %}<span class="badge badge-2">messo da parte</span>{% else %}<span class="badge badge-3">pronto</span>{% endif %}{% else %}<span class="badge badge-2">non configurato</span><br><span class="piccolo">{{ f.motivo }}</span>{% endif %}</td>
+   <td>{% if f.configurato %}<progress max="{{ f.limite }}" value="{{ f.usate }}" aria-label="Richieste usate oggi con {{ f.etichetta }}"></progress><br>{{ f.usate }} su {{ f.limite }}{% if f.ufficiale is not None %} <span class="piccolo">(contatore del fornitore: {{ f.ufficiale }})</span>{% endif %}{% else %}—{% endif %}</td>
+   <td>{% if f.configurato %}{{ f.segnalazioni }} su {{ f.limiti.segnalazioni }}{% else %}—{% endif %}</td>
+   <td>{% if f.configurato %}{{ f.commenti }} su {{ f.limiti.commenti }}{% else %}—{% endif %}</td>
+   <td class="piccolo">{{ f.nota_dati }}</td></tr>{% endfor %}</tbody></table></div>
+</section>
+<section class="riquadro"><h2>Stato</h2>
+  <p>Modalità: <strong>{% if config.modalita == "coda" %}coda in background{% else %}sincrona (controlli simulati){% endif %}</strong> · Lavoratore: <strong>{% if config.lavoratore and config.thread_vivo %}attivo{% elif config.lavoratore %}attivato ma fermo{% else %}spento{% endif %}</strong></p>
+  <p class="piccolo">Catena per il testo: {% for x in config.catena_testo %}{{ x }}{% if not forloop.last %} → {% endif %}{% empty %}nessun fornitore configurato{% endfor %}<br>Catena per le foto: {% for x in config.catena_visione %}{{ x }}{% if not forloop.last %} → {% endif %}{% empty %}nessun fornitore configurato{% endfor %}</p>
+  {% if config.modalita == "coda" %}<form class="in-linea" method="post" action="{% url 'amm_ia_azione' 'esegui' %}">{% csrf_token %}<button class="btn btn-primario btn-piccolo" type="submit">Esegui un controllo ora</button></form>{% endif %}
+  <form class="in-linea" method="post" action="{% url 'amm_ia_azione' 'riprova_falliti' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Rimetti in coda i falliti</button></form>
+</section>
 <section class="riquadro"><h2>Coda</h2>
   <p>{% for k, v in conteggi.items %}<span class="badge badge-{% if k == 'fallito' %}4{% elif k == 'fatto' %}3{% else %}2{% endif %}">{{ k }} {{ v }}</span> {% empty %}<span class="piccolo">Vuota.</span>{% endfor %}</p>
   {% if attivi %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Contenuto</th><th scope="col">Stato</th><th scope="col">Priorità</th><th scope="col">Segnali</th><th scope="col">Tentativi</th><th scope="col">In coda dal</th><th scope="col">Errore</th></tr></thead><tbody>
@@ -24,8 +27,8 @@
   {% with righe=recenti %}{% include "amministrazione/_tabella_controlli.html" %}{% endwith %}
   <p><a class="btn btn-lieve btn-piccolo" href="{% url 'amm_ia_controlli' %}">Tutti i controlli, con filtri</a></p>
 </section>
-<section class="riquadro"><h2>Ultime richieste a OpenRouter</h2><p><a class="btn btn-lieve btn-piccolo" href="{% url 'amm_ia_richieste' %}">Tutte le richieste</a></p>
-  {% if ultime %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Quando</th><th scope="col">Per</th><th scope="col">Modello</th><th scope="col">Risposta</th><th scope="col">Secondi</th><th scope="col">Consumata</th></tr></thead><tbody>
-  {% for l in ultime %}<tr><td>{{ l.avvenuto_il|date:"j M, H:i:s" }}</td><td>{{ l.dati_nuovi.tipo }}</td><td class="piccolo">{{ l.dati_nuovi.modello }}</td><td>{{ l.dati_nuovi.http }}{% if l.dati_nuovi.errore %} <span class="piccolo">{{ l.dati_nuovi.errore|truncatechars:70 }}</span>{% endif %}</td><td>{{ l.dati_nuovi.secondi }}</td><td>{% if l.dati_nuovi.contata %}sì{% else %}no{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+<section class="riquadro"><h2>Ultime richieste ai fornitori</h2><p><a class="btn btn-lieve btn-piccolo" href="{% url 'amm_ia_richieste' %}">Tutte le richieste</a></p>
+  {% if ultime %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Quando</th><th scope="col">Per</th><th scope="col">Fornitore e modello</th><th scope="col">Risposta</th><th scope="col">Secondi</th><th scope="col">Consumata</th></tr></thead><tbody>
+  {% for l in ultime %}<tr><td>{{ l.avvenuto_il|date:"j M, H:i:s" }}</td><td>{{ l.dati_nuovi.tipo }}</td><td class="piccolo">{{ l.tabella }} · {{ l.dati_nuovi.modello }}</td><td>{{ l.dati_nuovi.http }}{% if l.dati_nuovi.errore %} <span class="piccolo">{{ l.dati_nuovi.errore|truncatechars:70 }}</span>{% endif %}</td><td>{{ l.dati_nuovi.secondi }}</td><td>{% if l.dati_nuovi.contata %}sì{% else %}no{% endif %}</td></tr>{% endfor %}</tbody></table></div>
   {% else %}<p class="piccolo">Ancora nessuna richiesta.</p>{% endif %}
 </section>{% endblock %}

@@ -1,10 +1,8 @@
-"""Chiamate HTTP verso OpenRouter (solo libreria standard + certificati aggiornati). Separato per poterlo sostituire nelle prove."""
+"""Chiamate HTTP verso i fornitori (solo libreria standard + certificati aggiornati). Separato per poterlo sostituire nelle prove."""
 import json
 import ssl
 import urllib.error
 import urllib.request
-
-from django.conf import settings
 
 try:
     import certifi
@@ -13,13 +11,17 @@ except ImportError:  # pragma: no cover
     _CONTESTO = ssl.create_default_context()
 
 
-def http(metodo, percorso, corpo=None, timeout=30):
-    """-> (codice, dati). Non solleva per gli errori HTTP; per rete e scadenze solleva OSError/TimeoutError."""
+def http(metodo, url, chiave, corpo=None, timeout=30, intestazioni=None):
+    """-> (codice, dati). Non solleva per gli errori HTTP; per rete e scadenze solleva OSError/TimeoutError.
+    La chiave va solo nell'intestazione di autorizzazione: mai nei log, mai nell'indirizzo."""
     dati = json.dumps(corpo).encode() if corpo is not None else None
-    req = urllib.request.Request(settings.OPENROUTER_URL + percorso, data=dati, method=metodo)
+    req = urllib.request.Request(url, data=dati, method=metodo)
     req.add_header("Content-Type", "application/json")
-    req.add_header("Authorization", "Bearer " + settings.OPENROUTER_API_KEY)  # mai nei log
+    req.add_header("Authorization", "Bearer " + chiave)
+    req.add_header("User-Agent", "LaNostraCitta/1.0")   # alcuni fornitori (Cloudflare) rifiutano l'agente predefinito di Python
     req.add_header("X-Title", "La Nostra Citta")
+    for k, v in (intestazioni or {}).items():
+        req.add_header(k, v)
     try:
         with urllib.request.urlopen(req, timeout=timeout, context=_CONTESTO) as r:
             codice, testo = r.status, r.read().decode("utf-8", "replace")

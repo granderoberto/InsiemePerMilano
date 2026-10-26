@@ -14,11 +14,11 @@ mod = Utente.objects.filter(ruolo="moderatore", stato_account="attivo").first()
 norm = Utente.objects.filter(ruolo="utente", stato_account="attivo").first()
 def client(u): c = Client(); c.force_login(u, backend="core.backends.UtenteBackend"); return c
 try:
-    with override_settings(OPENROUTER_URL="http://127.0.0.1:1", OPENROUTER_API_KEY="x", IA_MODALITA="coda"), transaction.atomic():
+    with override_settings(IA_URL={"openrouter": "http://127.0.0.1:1", "groq": "http://127.0.0.1:1"}, OPENROUTER_API_KEY="x", GROQ_API_KEY="", IA_FORNITORI=["openrouter", "groq"], IA_MODALITA="coda"), transaction.atomic():
         quota.azzera_cache()
         r = client(adm).get("/amministrazione/ia/")
-        esito("pannello: pagina aperta dall'amministratore", r.status_code == 200 and b"Quota di oggi" in r.content and b"Ultime richieste a OpenRouter" in r.content)
-        esito("pannello: stato, modalità e chiave mostrati (mai il valore)", b"coda in background" in r.content and b"presente" in r.content and b"x</" not in r.content)
+        esito("pannello: pagina aperta dall'amministratore", r.status_code == 200 and b"Fornitori e quota di oggi" in r.content and b"Ultime richieste ai fornitori" in r.content)
+        esito("pannello: stato, modalità e chiave mostrati (mai il valore)", b"coda in background" in r.content and b"pronto" in r.content and b"x</" not in r.content)
         esito("pannello: il moderatore e l'utente non lo aprono", client(mod).get("/amministrazione/ia/").status_code == 404 and client(norm).get("/amministrazione/ia/").status_code == 404)
         esito("menu: voce «Controlli IA»", b"Controlli IA" in client(adm).get("/amministrazione/").content)
         # ---- coda nel pannello
@@ -68,9 +68,21 @@ try:
         esito("panoramica: ultimi controlli con motivazione", "foto non coerenti" in client(adm).get("/amministrazione/ia/").content.decode())
         esito("controlli e richieste: vietati ai non amministratori", client(mod).get("/amministrazione/ia/controlli/").status_code == 404 and client(norm).get("/amministrazione/ia/richieste/").status_code == 404)
         from core.services.ia import quota as q_
-        q_.registra_richiesta("segnalazione", "m1:free", 200, 12.0, True); q_.registra_richiesta("segnalazione", "m1:free", 404, 0.1, False, "privacy")
+        q_.registra_richiesta("segnalazione", "openrouter", "m1:free", 200, 12.0, True); q_.registra_richiesta("segnalazione", "openrouter", "m1:free", 404, 0.1, False, "privacy")
+        q_.registra_richiesta("commento", "groq", "llama-x", 200, 1.5, True)
         ric = client(adm).get("/amministrazione/ia/richieste/").content.decode()
         esito("richieste al fornitore: tutte, anche le fallite, con 404 e consumo", "m1:free" in ric and "404" in ric and "privacy" in ric)
+        esito("richieste: colonna fornitore e filtro per fornitore", "groq · llama-x" in ric and "llama-x" not in client(adm).get("/amministrazione/ia/richieste/?fornitore=openrouter").content.decode() and "llama-x" in client(adm).get("/amministrazione/ia/richieste/?fornitore=groq").content.decode())
+        pan = client(adm).get("/amministrazione/ia/").content.decode()
+        esito("pannello: una riga di quota per ogni fornitore, con lo stato", "Fornitori e quota di oggi" in pan and "OpenRouter" in pan and "Groq" in pan and "manca GROQ_API_KEY" in pan and "non configurato" in pan)
+        with override_settings(GROQ_API_KEY="chiave-g"):
+            pan = client(adm).get("/amministrazione/ia/").content.decode()
+            esito("pannello: con la chiave Groq risulta pronto e mostra la sua quota e la catena", "pronto" in pan and "groq: llama-3.3-70b-versatile" in pan and "chiave-g" not in pan)
+        from django.core.management import call_command
+        import io
+        buf = io.StringIO(); call_command("ia_lavora", "--stato", stdout=buf); out = buf.getvalue()
+        esito("ia_lavora --stato: quota di ogni fornitore e catene", "OpenRouter:" in out and "Groq: non configurato" in out and "Catena testo:" in out and "Coda:" in out, out[:200])
+        esito("controlli eseguiti: filtro per fornitore", "foto non coerenti" in client(adm).get("/amministrazione/ia/controlli/?fornitore=openrouter").content.decode() and "foto non coerenti" not in client(adm).get("/amministrazione/ia/controlli/?fornitore=groq").content.decode())
         esito("richieste: filtro «non consumata»", "privacy" in client(adm).get("/amministrazione/ia/richieste/?consumata=no").content.decode())
         # ---- presa atomica della coda
         a = coda.accoda(prefiltro.analizza("Buca", ha_media=True), segnalazione=Segnalazione.objects.filter(eliminata_il__isnull=True)[1])

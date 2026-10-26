@@ -106,7 +106,22 @@ I controlli su testi, commenti e foto con modelli veri sono **spenti** finché n
 
 Prima di attivare: nelle impostazioni di privacy dell'account OpenRouter vieta l'uso dei dati per l'addestramento; controlla con `python manage.py ia_lavora --stato` o dal pannello `/amministrazione/ia/` che la chiave sia riconosciuta e la quota visibile. Il piano gratuito ha 50 richieste al giorno (si azzerano a mezzanotte UTC); quando finiscono i contenuti aspettano in coda e, dopo 24 ore, passano al moderatore. Il sito dorme dopo circa 15 minuti senza visite: la coda resta nel database e riparte al primo avvio.
 
-L'informativa sull'intelligenza artificiale deve dire che testi e foto delle segnalazioni (senza metadati e con i volti sfocati) vanno a un fornitore esterno: bozza in [`informativa_ia_bozza.md`](informativa_ia_bozza.md). Documento e selfie non escono mai dal sito.
+### Più fornitori (a costo zero)
+
+OpenRouter ha un solo account e 50 richieste al giorno, e i suoi modelli gratuiti a volte sono saturi. Per questo i controlli usano una **catena di fornitori**: si passa al successivo se uno non risponde o ha finito la quota. Ogni fornitore ha chiave, quota e contatore propri (pannello `/amministrazione/ia/`, comando `python manage.py ia_lavora --stato`). **Un fornitore senza chiave è «non configurato»: viene saltato, non è un errore.** Non si creano più account sullo stesso fornitore (violerebbe i termini).
+
+| Fornitore | Variabili | Stato | Limiti usati da noi | Trattamento dei dati (piano gratuito, verificato il 2026-10-26) |
+|---|---|---|---|---|
+| OpenRouter | `OPENROUTER_API_KEY` | attivo | 50 al giorno (limite del fornitore) | richiesta `data_collection=deny`: restano pochi modelli che non addestrano |
+| **Groq** | `GROQ_API_KEY` | **attivo se c'è la chiave** | 500 al giorno, 20 al minuto (scelta nostra, prudente: i limiti ufficiali stanno nella console dell'account) | il contratto (Services Agreement, 4.2) vieta di usare input e output per addestrare; nessuna conservazione di default, log di sicurezza fino a 30 giorni; server negli USA. Modelli: `llama-3.3-70b-versatile`, `openai/gpt-oss-20b`; foto con `qwen/qwen3.8-27b` (3 immagini) |
+| Cloudflare Workers AI | `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` | predisposto, spento | 100 al giorno (10.000 «neuroni» al giorno, azzeramento 00:00 UTC: la corrispondenza richieste/neuroni è approssimata) | la documentazione dice che non usa i contenuti dei clienti per addestrare. Modelli predefiniti da verificare con la chiave: `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, `@cf/meta/llama-3.2-11b-vision-instruct` (1 immagine) |
+| Cerebras | `CEREBRAS_API_KEY` | predisposto, spento | 200 al giorno, 5 al minuto | prompt non conservati; sull'addestramento le fonti non sono concordi; crediti di prova che scadono dopo 30 giorni |
+| Mistral | `MISTRAL_API_KEY` + `MISTRAL_NIENTE_ADDESTRAMENTO=1` | predisposto, spento | 500 al giorno | **il piano gratuito può addestrare** sui dati: si usa solo dopo aver disattivato l'opzione nel pannello Mistral e impostato la conferma |
+| ~~Google AI Studio / Gemini~~ | | **escluso** | | nel piano gratuito Google usa i contenuti per migliorare i prodotti (con revisori umani) e i termini consentono solo il piano a pagamento per servire utenti nello Spazio economico europeo, Svizzera e Regno Unito |
+
+Per attivare un fornitore: crea l'account (uno solo), genera la chiave, mettila nelle variabili d'ambiente di Render, aggiungi il nome a `IA_FORNITORI` (l'ordine è l'ordine di preferenza) e controlla il pannello. Per provarlo prima senza toccare il sito: `apps/web/.venv/bin/python tools/ia/sonda_modelli.py --fornitore groq --elenco` (elenco dei modelli, nessuna quota), poi senza `--elenco` (poche richieste), e per confrontarlo con gli altri sugli stessi 159 contenuti `apps/web/.venv/bin/python tools/ia/valuta.py --esegui --confronta openrouter,groq --max 6`.
+
+L'informativa sull'intelligenza artificiale deve dire che testi e foto delle segnalazioni (senza metadati e con i volti sfocati) vanno ai fornitori esterni della catena (elenco aggiornato nel pannello): bozza in [`informativa_ia_bozza.md`](informativa_ia_bozza.md). Documento e selfie non escono mai dal sito.
 
 ## Variabili riassunte
 

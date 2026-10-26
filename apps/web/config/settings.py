@@ -177,6 +177,16 @@ OPENROUTER_API_KEY = _e("OPENROUTER_API_KEY")
 OPENROUTER_URL = "https://openrouter.ai/api/v1"
 IA_MODELLI_TESTO = [m.strip() for m in _e("IA_MODELLI_TESTO", "recursive/flint-v1.0:free").split(",") if m.strip()]
 IA_MODELLI_VISIONE = [m.strip() for m in _e("IA_MODELLI_VISIONE", "dots-studio/dots-3-note-preview:free").split(",") if m.strip()]
+# Altri fornitori (docs/piano_ia_openrouter.md, «Multi-fornitore»): ognuno ha la sua chiave; senza chiave il fornitore non è configurato e viene saltato
+GROQ_API_KEY = _e("GROQ_API_KEY")
+MISTRAL_API_KEY = _e("MISTRAL_API_KEY")
+CEREBRAS_API_KEY = _e("CEREBRAS_API_KEY")
+CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID = _e("CLOUDFLARE_API_TOKEN"), _e("CLOUDFLARE_ACCOUNT_ID")
+IA_FORNITORI = [x.strip() for x in _e("IA_FORNITORI", "openrouter,groq").split(",") if x.strip()]   # attivi, in ordine di preferenza
+IA_CATENA_TESTO, IA_CATENA_VISIONE = _e("IA_CATENA_TESTO"), _e("IA_CATENA_VISIONE")   # «fornitore:modello,fornitore:modello» (vuoto = modelli predefiniti di ogni fornitore)
+IA_URL = {}   # solo per le prove: {nome fornitore: indirizzo di base}
+IA_ENV = {k: _e(k) for n in ("OPENROUTER", "GROQ", "MISTRAL", "CEREBRAS", "CLOUDFLARE") for k in
+          (f"{n}_RPD", f"{n}_RPM", f"{n}_MODELLI_TESTO", f"{n}_MODELLI_VISIONE")} | {"MISTRAL_NIENTE_ADDESTRAMENTO": _e("MISTRAL_NIENTE_ADDESTRAMENTO")}
 IA_MAX_TOKEN_TESTO, IA_MAX_TOKEN_VISIONE = 2000, 6000   # i modelli «ragionano»: con pochi token la risposta resta vuota
 IA_TOKEN_PER_COMMENTO = 150        # in più per ogni commento di un blocco (20 commenti con 2000 token in tutto davano risposta vuota)
 IA_TIMEOUT_RICHIESTA = 90          # secondi (12-40 s tipici)

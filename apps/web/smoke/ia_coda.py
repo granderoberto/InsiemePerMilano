@@ -13,7 +13,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from django.conf import settings
 from core.models import *
-from core.services.ia import coda, controllo, lavoratore, openrouter as orr, prefiltro as pf, prompt, quota
+from core.services.ia import coda, controllo, lavoratore, router as orr, prefiltro as pf, prompt, quota
 from portale.views import crea_segnalazione
 def esito(n, c, e=""): print(("OK  " if c else "!!  ")+n+(f"  [{e}]" if e else ""))
 
@@ -68,7 +68,7 @@ def giudica(corpo):
     cattivo = bool(re.search(r"idiota|spam", u))
     return contenuto({"approvato": not cattivo, "motivazione": "insulto" if cattivo else ""})
 orr._dormi = lambda s: None
-IMP = dict(OPENROUTER_URL=f"http://127.0.0.1:{srv.server_address[1]}", OPENROUTER_API_KEY="chiave-di-prova", IA_INTERVALLO_MIN=0, IA_TIMEOUT_RICHIESTA=5, IA_MODALITA="coda", IA_RILEGGI_PULITI=False,
+IMP = dict(IA_URL={"openrouter": f"http://127.0.0.1:{srv.server_address[1]}"}, OPENROUTER_API_KEY="chiave-di-prova", GROQ_API_KEY="", IA_FORNITORI=["openrouter"], IA_CATENA_TESTO="", IA_CATENA_VISIONE="", IA_INTERVALLO_MIN=0, IA_TIMEOUT_RICHIESTA=5, IA_MODALITA="coda", IA_RILEGGI_PULITI=False,
            IA_QUOTA_GIORNALIERA=100000, IA_QUOTA_SEGNALAZIONI=100000, IA_QUOTA_COMMENTI=100000, IA_QUOTA_SOGLIA_COMMENTI=100000)   # la quota si prova a parte: il registro di oggi contiene richieste vere
 
 class Rollback(Exception): pass

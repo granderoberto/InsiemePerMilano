@@ -16,7 +16,7 @@ from django.utils import timezone
 
 from core.services import log
 
-from . import coda, immagini, openrouter, prefiltro, prompt, quota
+from . import coda, immagini, prefiltro, prompt, quota, router
 
 logger = logging.getLogger(__name__)
 MAX_TENTATIVI = 3
@@ -29,7 +29,7 @@ def _nome_blocco():
 
 
 def _registra(tipo, oggetto, esito, *, motivazione="", risposta=None, segnali=None, errore=""):
-    dopo = {"esito_moderazione": esito, "fornitore": "openrouter" if risposta else "locale", "versione_prompt": prompt.VERSIONE}
+    dopo = {"esito_moderazione": esito, "fornitore": risposta.fornitore if risposta else "locale", "versione_prompt": prompt.VERSIONE}
     if motivazione:
         dopo["motivazione"] = motivazione
     if risposta:
@@ -95,8 +95,8 @@ def _segnalazione(riga):
             letto = foto["ocr"].get(mid)
             parti.append({"type": "text", "text": f'<foto id="{ordine}">' + (f"<testo_letto>{prompt.pulisci(letto)}</testo_letto>" if letto else "") + "</foto>"})
             parti.append({"type": "image_url", "image_url": {"url": url}})
-        r = openrouter.chiedi("segnalazione", prompt.SISTEMA_SEGNALAZIONE_FOTO, parti, prompt.SCHEMA_SEGNALAZIONE_FOTO,
-                              modelli=settings.IA_MODELLI_VISIONE, max_token=settings.IA_MAX_TOKEN_VISIONE, timeout=settings.IA_TIMEOUT_VISIONE)
+        r = router.chiedi("segnalazione", prompt.SISTEMA_SEGNALAZIONE_FOTO, parti, prompt.SCHEMA_SEGNALAZIONE_FOTO,
+                              visione=True, max_token=settings.IA_MAX_TOKEN_VISIONE, timeout=settings.IA_TIMEOUT_VISIONE)
         d = r.dati
         problemi = {x["id"]: x["problema"] for x in d["foto"]}
         sbagliate = any(p != "nessuno" for p in problemi.values())
@@ -109,8 +109,8 @@ def _segnalazione(riga):
         _scrivi_esito("segnalazione", s, ESITO_OK if ok else ESITO_DUBBIO, motivazione=motivazione, risposta=r, segnali=segnali)
     else:
         # niente foto leggibili (file mancanti): si controlla il testo e le foto restano da vedere al moderatore
-        r = openrouter.chiedi("segnalazione", prompt.SISTEMA_SEGNALAZIONE, utente, prompt.SCHEMA_SEGNALAZIONE,
-                              modelli=settings.IA_MODELLI_TESTO, max_token=settings.IA_MAX_TOKEN_TESTO)
+        r = router.chiedi("segnalazione", prompt.SISTEMA_SEGNALAZIONE, utente, prompt.SCHEMA_SEGNALAZIONE,
+                              max_token=settings.IA_MAX_TOKEN_TESTO)
         segnali.append("foto_non_verificabili")
         _scrivi_esito("segnalazione", s, ESITO_DUBBIO, motivazione="foto non verificabili" if r.dati["approvato"] else r.dati["motivazione"],
                       risposta=r, segnali=segnali)
@@ -154,8 +154,8 @@ def _commenti(righe):
     if not valide:
         return
     utente = "\n".join(f'<commento id="{r.commento_id}">{prompt.pulisci(r.commento.testo)}</commento>' for r in valide)
-    r = openrouter.chiedi("commento", prompt.SISTEMA_COMMENTI, utente, prompt.SCHEMA_COMMENTI,
-                          modelli=settings.IA_MODELLI_TESTO, max_token=max_token_commenti(len(valide), max(r.tentativi for r in valide)))
+    r = router.chiedi("commento", prompt.SISTEMA_COMMENTI, utente, prompt.SCHEMA_COMMENTI,
+                          max_token=max_token_commenti(len(valide), max(r.tentativi for r in valide)))
     per_id = {}
     for x in r.dati["risultati"]:
         per_id.setdefault(x["id"], x)  # se un id compare due volte vale il primo
@@ -203,7 +203,7 @@ def passo(adesso=None):
         return "vuoto"
     tipo, righe = lavoro
     ammesso, motivo = quota.ammesso(tipo)
-    if not ammesso:
+    if not ammesso and motivo != "nessun fornitore configurato":   # senza fornitori si prova lo stesso: fallisce e porta al «dubbio» come ogni guasto
         return "quota"
     if not coda.prendi(righe):
         return "vuoto"   # un altro lavoratore (o l'amministratore) ha preso il lavoro
@@ -211,13 +211,13 @@ def passo(adesso=None):
         r.refresh_from_db()
     try:
         _segnalazione(righe[0]) if tipo == "segnalazione" else _commenti(righe)
-    except openrouter.QuotaEsaurita:
+    except router.QuotaEsaurita:
         coda.rilascia(righe, minuti=30, errore="quota esaurita")
         return "quota"
-    except openrouter.RispostaNonValida as e:
+    except router.RispostaNonValida as e:
         _fallimento(righe, str(e), minuti=30)   # la richiesta ha consumato quota: si aspetta prima di riprovare
         return "errore"
-    except openrouter.NessunModello as e:
+    except router.NessunModello as e:
         _fallimento(righe, str(e), minuti=15)
         return "errore"
     return "fatto"

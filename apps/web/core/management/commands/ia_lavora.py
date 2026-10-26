@@ -2,7 +2,7 @@ import time
 
 from django.core.management.base import BaseCommand
 
-from core.services.ia import coda, lavoratore, quota
+from core.services.ia import coda, fornitori, lavoratore, quota
 
 
 class Command(BaseCommand):
@@ -14,8 +14,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **o):
         if o["stato"]:
-            s = quota.stato(forza=True)
-            self.stdout.write(f"Quota oggi: {s['usate']}/{s['limite']} (segnalazioni {s['segnalazioni']}, commenti {s['commenti']}, ufficiale {s['ufficiale']})")
+            for q in quota.stato_tutti(forza=True):
+                if not q["configurato"]:
+                    self.stdout.write(f"{q['etichetta']}: non configurato ({q['motivo']})")
+                    continue
+                uff = f", contatore del fornitore {q['ufficiale']}" if q["ufficiale"] is not None else ""
+                self.stdout.write(f"{q['etichetta']}: {q['usate']}/{q['limite']} oggi (segnalazioni {q['segnalazioni']}/{q['limiti']['segnalazioni']}, "
+                                  f"commenti {q['commenti']}/{q['limiti']['commenti']}{uff}){' — messo da parte' if q['messo_da_parte'] else ''}")
+            self.stdout.write("Catena testo: " + (" → ".join(f"{f.nome}:{m}" for f, m in fornitori.catena(False)) or "nessun fornitore configurato"))
+            self.stdout.write("Catena foto:  " + (" → ".join(f"{f.nome}:{m}" for f, m in fornitori.catena(True)) or "nessun fornitore configurato"))
             self.stdout.write("Coda: " + (", ".join(f"{k} {v}" for k, v in sorted(coda.conteggi().items())) or "vuota"))
             return
         while True:

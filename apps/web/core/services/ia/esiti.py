@@ -67,7 +67,7 @@ def righe_controlli(righe_log):
             "commento_id": None if sing else r.id_oggetto,
             "esito": d.get("esito_moderazione"), "motivazione": d.get("motivazione") or "",
             "segnali": [etichetta(x) for x in (d.get("segnali") or [])],
-            "fonte": {"openrouter": "modello", "locale": "controllo locale"}.get(d.get("fornitore"), "controllo simulato"),
+            "fonte": ("controllo simulato" if not d.get("fornitore") else "controllo locale" if d["fornitore"] == "locale" else "modello (" + d["fornitore"] + ")"),
             "modello": d.get("modello"), "secondi": d.get("secondi"), "errore": d.get("errore") or "",
             "coda": coda.stato if coda else None, "tentativi": coda.tentativi if coda else None})
     return out
