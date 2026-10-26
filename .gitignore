@@ -40,3 +40,4 @@ apps/web/modelli/*
 
 # fac-simile di documento per provare la verifica (generato da tools/demo/documento_prova.py)
 apps/web/prova_documento/
+tools/ia/risultati/
