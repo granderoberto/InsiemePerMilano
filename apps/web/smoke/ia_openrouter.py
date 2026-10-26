@@ -106,22 +106,29 @@ try:
         # ---- quota
         quota.azzera_cache(); stato["key"] = (200, {"data": {"free_model_daily_requests": {"used": 3, "limit": 50, "remaining": 47}}})
         esito("contatore ufficiale letto da /key", quota.usate_ufficiali(forza=True) == 3)
-        s = quota.stato(); esito("stato: usate = il maggiore tra ufficiale e registro, rimaste", s["usate"] >= 3 and s["rimaste"] == 50 - s["usate"], s)
+        ALTA = dict(IA_QUOTA_GIORNALIERA=10**6, IA_QUOTA_SEGNALAZIONI=10**6, IA_QUOTA_COMMENTI=10**6, IA_QUOTA_SOGLIA_COMMENTI=10**6)   # il registro di oggi contiene richieste vere
+        with override_settings(**ALTA):
+            s = quota.stato(); esito("stato: usate = il maggiore tra ufficiale e registro, rimaste", s["usate"] >= 3 and s["usate"] == max(3, quota.usate_locali()) and s["rimaste"] == 10**6 - s["usate"], s)
         esito("la lettura di /key porta la chiave", any(r[0] == "GET" and r[1] == "/key" and r[2] == "Bearer chiave-di-prova-segreta" for r in stato["richieste"]))
         n = len([r for r in stato["richieste"] if r[0] == "GET"]); quota.usate_ufficiali(); esito("il valore è tenuto in memoria 60 secondi", len([r for r in stato["richieste"] if r[0] == "GET"]) == n)
         def con_ufficiali(n): quota.azzera_cache(); stato["key"] = (200, {"data": {"free_model_daily_requests": {"used": n, "limit": 50, "remaining": 50 - n}}})
-        con_ufficiali(0); esito("ammesso: segnalazione e commento a quota libera", quota.ammesso("segnalazione")[0] and quota.ammesso("commento")[0])
-        con_ufficiali(44); esito("da 44 in su: commenti no, segnalazioni sì", not quota.ammesso("commento")[0] and quota.ammesso("segnalazione")[0])
-        con_ufficiali(50); a = quota.ammesso("segnalazione"); esito("a 50: nessuno, con il motivo", not a[0] and a[1] == quota.MOTIVO_ESAURITA and not quota.ammesso("commento")[0], a)
+        with override_settings(**ALTA):
+            con_ufficiali(0); esito("ammesso: segnalazione e commento a quota libera", quota.ammesso("segnalazione")[0] and quota.ammesso("commento")[0])
+        with override_settings(**{**ALTA, "IA_QUOTA_SOGLIA_COMMENTI": 44}):
+            con_ufficiali(44); esito("da 44 in su: commenti no, segnalazioni sì", not quota.ammesso("commento")[0] and quota.ammesso("segnalazione")[0])
+        with override_settings(IA_QUOTA_GIORNALIERA=50):
+            con_ufficiali(50); a = quota.ammesso("segnalazione"); esito("a 50: nessuno, con il motivo", not a[0] and a[1] == quota.MOTIVO_ESAURITA and not quota.ammesso("commento")[0], a)
         stato["key"] = (500, {}); quota.azzera_cache(); locali = quota.usate_locali()
         esito("/key non disponibile: si usa il registro locale", quota.usate_ufficiali(forza=True) is None and quota.stato()["usate"] == locali)
         with override_settings(OPENROUTER_URL="http://127.0.0.1:1"):
             quota.azzera_cache(); esito("rete assente: nessun errore, si usa il registro", quota.usate_ufficiali(forza=True) is None)
         stato["key"] = (200, {"data": {"free_model_daily_requests": {"used": 0, "limit": 50, "remaining": 50}}}); quota.azzera_cache()
-        with override_settings(IA_QUOTA_SEGNALAZIONI=1):
+        with override_settings(**{**ALTA, "IA_QUOTA_SEGNALAZIONI": quota.usate_locali("segnalazione") + 1}):
+            quota.azzera_cache(); esito("sotto il tetto delle segnalazioni: ammessa", quota.ammesso("segnalazione")[0])
             quota.registra_richiesta("segnalazione", "m1:free", 200, 1.0, True); esito("tetto delle segnalazioni (impostazione) raggiunto", not quota.ammesso("segnalazione")[0])
-        with override_settings(IA_QUOTA_COMMENTI=1):
-            quota.azzera_cache(); quota.registra_richiesta("commento", "m1:free", 200, 1.0, True); esito("tetto dei commenti raggiunto", not quota.ammesso("commento")[0])
+        with override_settings(**{**ALTA, "IA_QUOTA_COMMENTI": quota.usate_locali("commento") + 1}):
+            quota.azzera_cache(); esito("sotto il tetto dei commenti: ammesso", quota.ammesso("commento")[0])
+            quota.registra_richiesta("commento", "m1:free", 200, 1.0, True); esito("tetto dei commenti raggiunto", not quota.ammesso("commento")[0])
         quota.registra_richiesta("segnalazione", "m1:free", 404, 0.1, False)
         c = quota.usate_locali(); quota.registra_richiesta("segnalazione", "m1:free", 429, 0.1, False); esito("le richieste non contate non aumentano il totale", quota.usate_locali() == c)
         raise Rollback()

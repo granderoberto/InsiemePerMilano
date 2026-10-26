@@ -8,6 +8,9 @@ e mette alla prova la stessa catena del sito:
 Esito finale di un contenuto: bloccato dal prefiltro → bloccato; pulito → ok; altrimenti il modello: approvato → ok, no → dubbio;
 senza risposta del modello → dubbio (come fa il sito).
 
+Come sul sito, con IA_RILEGGI_PULITI (predefinito attivo) anche i commenti «puliti» per il prefiltro si mandano al modello: restano `ok`
+finché il modello non li giudica non approvati (allora `dubbio`); senza risposta del modello restano `ok`. `--senza-rilettura` la esclude.
+
 Uso (dalla radice del progetto, con il Python del sito):
   apps/web/.venv/bin/python tools/ia/valuta.py                       # solo prefiltro e piano delle richieste (nessuna richiesta)
   apps/web/.venv/bin/python tools/ia/valuta.py --esegui --max 8      # usa il modello, al massimo 8 richieste
@@ -113,21 +116,30 @@ def interroga(da_inviare, cache, massimo, ricalcola):
 
 def principale():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--file", default=str(Path(__file__).parent / "dataset" / "bozza_contenuti.csv"))
+    ap.add_argument("--file", nargs="+", default=[str(Path(__file__).parent / "dataset" / "bozza_contenuti.csv"),
+                                                   str(Path(__file__).parent / "dataset" / "bozza_contenuti_2.csv")], help="uno o più CSV")
+    ap.add_argument("--senza-rilettura", action="store_true", help="i commenti puliti non vanno al modello")
     ap.add_argument("--esegui", action="store_true", help="manda al modello i contenuti che il prefiltro non decide (consuma quota)")
     ap.add_argument("--max", type=int, default=8, help="massimo di richieste al modello (predefinito 8)")
     ap.add_argument("--ricalcola", action="store_true", help="rifà le richieste anche se la risposta è già in memoria")
     ap.add_argument("--rapporto", help="scrive il rapporto in un file Markdown")
     a = ap.parse_args()
 
-    righe, scartate = leggi(a.file)
-    print(f"{len(righe)} contenuti letti da {Path(a.file).name}" + (f", {len(scartate)} righe scartate (tipo o etichetta non validi, testo vuoto)" if scartate else ""))
+    righe, scartate = [], []
+    for f in a.file:
+        r_, s_ = leggi(f)
+        righe += r_; scartate += s_
+    nome_file = a.nome_file = ", ".join(Path(f).name for f in a.file)
+    print(f"{len(righe)} contenuti letti da {nome_file}" + (f", {len(scartate)} righe scartate (tipo o etichetta non validi, testo vuoto)" if scartate else ""))
     print("etichette:", dict(Counter(r["etichetta"] for r in righe)))
 
     cache = json.loads(CACHE.read_text(encoding="utf-8")) if CACHE.exists() else {}
     for r in righe:
         r["locale"], r["pf"] = locale(r)
-    da_inviare = [r for r in righe if r["locale"] == "modello"]
+    rilettura = settings.IA_RILEGGI_PULITI and not a.senza_rilettura
+    for r in righe:
+        r["rilettura"] = rilettura and r["locale"] == "ok" and r["tipo"] == "commento"
+    da_inviare = [r for r in righe if r["locale"] == "modello" or r["rilettura"]]
     nuovi = [r for r in da_inviare if a.ricalcola or impronta(r) not in cache]
     n_comm = len([r for r in nuovi if r["tipo"] == "commento"])
     richieste = -(-n_comm // settings.IA_COMMENTI_BLOCCO) + len([r for r in nuovi if r["tipo"] == "segnalazione"])
@@ -144,10 +156,15 @@ def principale():
         print("(nessuna richiesta fatta: aggiungi --esegui per usare il modello)")
 
     for r in righe:
-        if r["locale"] in ("bloccato", "ok", "dubbio"):
+        m = cache.get(impronta(r))
+        if r["rilettura"]:   # già ok per il prefiltro: il modello può solo peggiorarlo
+            if m is not None and not m["approvato"]:
+                r["finale"], r["fonte"], r["motivazione"] = "dubbio", "rilettura del modello", m["motivazione"]
+            else:
+                r["finale"], r["fonte"] = "ok", "prefiltro" + (" (riletto)" if m is not None else "")
+        elif r["locale"] in ("bloccato", "ok", "dubbio"):
             r["finale"], r["fonte"] = r["locale"], "prefiltro"
         else:
-            m = cache.get(impronta(r))
             if m is None:
                 r["finale"], r["fonte"], r["motivazione"] = "dubbio", "senza risposta del modello", ""
             else:
@@ -160,7 +177,7 @@ def rapporto(righe, a, fatte, cache):
     matrice = Counter((r["etichetta"], r["finale"]) for r in righe)
     giusti = sum(v for (e, f), v in matrice.items() if e == f)
     out = [f"# Taratura dei controlli IA", "",
-           f"Contenuti: {len(righe)} da `{Path(a.file).name}` · richieste al modello in questa esecuzione: {fatte} · risposte del modello in memoria: {len(cache)}", ""]
+           f"Contenuti: {len(righe)} da `{a.nome_file}` · richieste al modello in questa esecuzione: {fatte} · risposte del modello in memoria: {len(cache)}", ""]
     if senza:
         out += [f"> **Attenzione**: {len(senza)} contenuti non hanno la risposta del modello e sono contati come `dubbio`: il risultato non è completo.", ""]
     out += ["## Esito finale rispetto alle tue etichette", "", "| etichetta \\ esito | ok | dubbio | bloccato | totale |", "|---|---|---|---|---|"]

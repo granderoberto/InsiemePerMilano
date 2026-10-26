@@ -188,7 +188,9 @@ IA_QUOTA_SOGLIA_COMMENTI = 44      # oltre questo totale l'IA lavora solo sulle 
 # Come si eseguono i controlli: «sincrona» = come prima (simulato, subito); «coda» = prefiltro locale e poi coda in background con il modello
 IA_MODALITA = _e("IA_MODALITA", "sincrona")
 IA_LAVORATORE = _e("IA_LAVORATORE", "0") == "1" and not os.environ.get("LNC_PROVE")   # avvia il lavoratore dentro il processo del sito
-IA_COMMENTI_BLOCCO = 25            # commenti in una sola richiesta
+# I commenti «puliti» per il controllo locale restano pubblicati con esito ok e vengono riletti dal modello con la quota avanzata (priorità più bassa)
+IA_RILEGGI_PULITI = _e("IA_RILEGGI_PULITI", "1") == "1"
+IA_COMMENTI_BLOCCO = 20            # commenti in una sola richiesta (con 25 il modello a volte non finisce di ragionare)
 IA_COMMENTI_MINIMO, IA_COMMENTI_ATTESA_ORE = 10, 6   # un blocco parte con almeno 10 commenti o quando il più vecchio ha più di 6 ore
 IA_ATTESA_MASSIMA_ORE = 24         # oltre questo tempo senza esito la segnalazione passa a «dubbio»
 

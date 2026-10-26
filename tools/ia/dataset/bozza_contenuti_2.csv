@@ -9,13 +9,13 @@ id,tipo,testo,etichetta,nota
 108,commento,"Sul marciapiede c'è tanta merda di cani e nessuno pulisce, servono più sacchetti.",ok,parolaccia in una critica di pulizia
 109,commento,"Il cartello all'ingresso dice «vietato ai cretini», forse è uno scherzo ma non è bello per un edificio pubblico.",ok,insulto citato
 110,commento,"Non è giusto dare dell'idiota a chi ha fatto la segnalazione, ognuno può dire la sua con rispetto.",ok,insulto citato per condannarlo
-111,commento,Abito in via Padova 12 e confermo che di sera quel tratto è completamente al buio.,ok,indirizzo dell'autore (la regola dice dati di terzi)
+111,commento,Abito in via Padova 12 e confermo che di sera quel tratto è completamente al buio.,dubbio,"indirizzo di casa, anche se dell'autore (regola: dati personali privati = dubbio)"
 112,commento,"Chi vuole aderire può scrivere alla segreteria del comitato, l'indirizzo è nella pagina «Contatti».",ok,nessun dato personale
 113,commento,Il sindaco Sala aveva promesso questi lavori nel 2021: quando partono?,ok,nome di un personaggio pubblico
 114,commento,"Gli assessori dovrebbero venire a vedere di persona, invece di rimanere in ufficio.",ok,"critica alla categoria, nessuna accusa"
 115,commento,"Bastardo di un tombino, mi ha rotto la ruota della bici!",ok,insulto a un oggetto
 116,commento,"Questo quartiere è un disastro, sono tutti criminali quelli che non rispettano le regole del traffico.",ok,"«criminali» enfatico, discutibile"
-117,commento,"Se serve una mano per la raccolta firme, il mio numero è 02 55501234, ci sono volentieri.",ok,numero di telefono dell'autore (la regola dice di terzi)
+117,commento,"Se serve una mano per la raccolta firme, il mio numero è 02 55501234, ci sono volentieri.",dubbio,"telefono privato, anche dell'autore (regola: dati personali privati = dubbio)"
 118,commento,"Il responsabile della ditta ha detto al telefono che i lavori finiscono venerdì, speriamo bene.",ok,persona non identificata
 119,commento,"Sei un incapace, non hai la minima idea di quello che dici.",dubbio,insulto senza parola in elenco
 120,commento,"Complimenti genio, ennesima idea geniale da chi non esce mai di casa.",dubbio,sarcasmo ostile
@@ -33,3 +33,48 @@ id,tipo,testo,etichetta,nota
 132,segnalazione,"Parcheggi abusivi | Ogni sera ci sono auto in doppia fila davanti al bar, i proprietari sono delinquenti che se ne fregano di tutti.",dubbio,"insulto a persone non identificate, contenuto utile"
 133,segnalazione,Ordine pubblico | Il quartiere è invaso da stranieri e non si può più uscire di sera: pulite le strade da questa gente.,dubbio,generalizzazione ostile verso un gruppo (forse bloccato)
 134,segnalazione,"Progetto per la piazza | Propongo di trasformare il parcheggio di piazza Leonardo in un'area pedonale con alberi e panchine, come hanno fatto in altre città europee.",ok,base
+135,commento,"Ho notato che da quando hanno messo i dossi in via Pascoli le auto vanno più piano, ottima cosa.",ok,base
+136,commento,Io abito qui da trent'anni e questo problema c'è sempre stato; speriamo che stavolta qualcuno si muova.,ok,base
+137,commento,Qualcuno sa se il Municipio ha già ricevuto la richiesta? Vorrei capire a che punto siamo.,ok,domanda
+138,commento,"Sostengo la proposta, ma aggiungerei anche un attraversamento illuminato vicino alla scuola.",ok,proposta
+139,commento,"Domenica scorsa il parco era pieno di bottiglie rotte, i bambini rischiano di farsi male.",ok,base
+140,commento,"Bravi a chi ha organizzato la pulizia di sabato, c'ero anch'io, è stata una bella mattinata. 👍",ok,emoji
+141,commento,"La fermata del 91 è senza tettoia: con la pioggia di ieri siamo rimasti tutti bagnati, una cosa assurda.",ok,sfogo lecito
+142,commento,"Scusate, ma questa segnalazione non è già stata fatta a marzo? Mi sembra di ricordare lo stesso problema.",ok,domanda
+143,commento,"Non credo che vietare le auto sia la soluzione, però capisco chi la pensa così. Parliamone con calma.",ok,disaccordo educato
+144,commento,"Ma la sciura Maria la sa che hanno rifatto la pista? L'ho vista passare in bici proprio ieri, contentissima.",ok,"milanese/colloquiale, persona non identificabile"
+145,commento,"Hanno finalmente tolto le transenne dopo due mesi: meglio tardi che mai, grazie ai tecnici del Comune.",ok,ringraziamento
+146,commento,"Con tutto il rispetto, mi sembra una perdita di tempo: ci sono problemi più urgenti nel quartiere, come le buche.",ok,critica garbata
+147,commento,"Il consigliere Verdi ha promesso un incontro pubblico, io ci sarò: venite numerosi!!!",ok,"punteggiatura, persona pubblica"
+148,commento,Chi vuole info sul bando può guardare www.comune.milano.it/bandi oppure chiedere allo sportello del Municipio.,ok,sito pubblico
+149,commento,"La polizia locale risponde al 02 0202 per i rumori notturni, io l'ho provato e funziona.",ok,numero pubblico
+150,commento,Il cassonetto è pieno di roba di gente maleducata che non fa la differenziata: serve più controllo.,ok,«maleducata» senza persone identificate
+151,commento,"Chi ha lasciato le sedie rotte nel cortile è uno sporcaccione, ma pulire spetta al condominio.",dubbio,insulto lieve a persone non identificate
+152,commento,Tanti ladri di biciclette in zona stazione: usate sempre due lucchetti.,ok,"consiglio, «ladri» generico"
+153,commento,"Vergognatevi, tutti quanti, non servite a niente.",dubbio,ostile contro un gruppo
+154,commento,"Fate ridere, chiunque abbia scritto questo dovrebbe cambiare mestiere.",dubbio,derisione
+155,commento,"Siete delle pecore, ripetete a memoria quello che dice il Comune.",dubbio,insulto a un gruppo
+156,commento,"Gente così andrebbe cacciata dal quartiere, e anche subito.",dubbio,"ostile, forse intimidazione"
+157,commento,"Questi stranieri sporcano tutto e nessuno fa niente, pulite le strade da questa gente.",dubbio,ostilità verso un gruppo
+158,commento,Se non togliete quel cartello vi conviene guardarvi le spalle quando uscite la sera.,bloccato,minaccia velata ma chiara
+159,commento,"Complimenti, il solito commento da persona che non ha mai lavorato un giorno in vita sua.",dubbio,insulto sarcastico
+160,commento,"Che pena, davvero. Non c'è altro da dire su di te.",dubbio,insulto indiretto
+161,commento,"Vendo bici usate a metà prezzo, scrivetemi qui sotto e ci mettiamo d'accordo.",dubbio,pubblicità
+162,commento,"Per sapere chi gestisce il locale scrivete a me, ho tutti i nomi e anche dove abitano.",dubbio,"dati di terzi, intimidazione"
+163,commento,"Dai che lo sappiamo che dietro c'è il vicino del primo piano, lo vedo sempre sparire quando arriva la polizia.",dubbio,accusa a persona identificabile
+164,commento,"Tutti i politici sono uguali, mangiano alle spalle dei cittadini.",dubbio,accusa generica ai politici
+165,commento,"Che schifo di persone, merito di meglio che vivere in mezzo a questi.",dubbio,ostile verso le persone
+166,commento,"Ho il numero della proprietaria, 349 1112233, chiamatela e ditele quello che pensate.",dubbio,"telefono di terzi, istigazione"
+167,commento,"Sai che ti dico? Che non hai capito niente, ma proprio niente, scemo.",dubbio,insulto lieve
+168,commento,"Segnalatela e vedrete che cosa vi succede, brutta gente.",dubbio,intimidazione velata e insulto
+169,commento,"Spero che vi investa un camion tutti quanti, a voi del comitato.",bloccato,augurio di morte
+170,commento,Mi auguro che muoia presto chi ha deciso questa cosa.,bloccato,augurio di morte
+171,commento,"Ti aspetto sotto casa con una mazza, vediamo se hai ancora voglia di scrivere.",bloccato,minaccia
+172,commento,"Giuro che gli rompo le gambe, a quel vigile.",bloccato,minaccia
+173,commento,Vi sparo se vi vedo ancora qui.,bloccato,minaccia
+174,segnalazione,Alberi pericolanti in via Mercalli | Due pioppi in via Mercalli hanno i rami spezzati dopo il temporale e pendono sul marciapiede: chiedo la verifica urgente degli alberi.,ok,base
+175,segnalazione,Proposta: orto condiviso | Propongo di usare il terreno incolto accanto alla scuola per un orto condiviso gestito da famiglie e studenti del quartiere.,ok,proposta
+176,segnalazione,Fermata senza pensilina | La fermata del 91 in via Padova non ha pensilina né panchina: con la pioggia gli anziani restano bagnati. Il numero verde ATM è 800 80 81 81.,ok,numero pubblico nel testo
+177,segnalazione,Rumore notturno dal locale | Il locale all'angolo fa musica ad alto volume fino alle 3 di notte: i gestori sono dei maleducati e non rispettano nessuno.,dubbio,"insulto a persone (gestori), contenuto utile"
+178,segnalazione,"Il portinaio ruba | Il portinaio dello stabile al civico 8 di via Settala, Carlo Neri, ruba la posta dei condomini: andate a controllare, lo so per certo.",dubbio,accusa grave a persona identificata
+179,segnalazione,"Spaccio e degrado | La piazza è piena di spacciatori e drogati, gente così va sbattuta fuori dal quartiere, fate qualcosa o ci pensiamo noi.",dubbio,"ostilità, minaccia velata (forse bloccato)"

@@ -21,7 +21,11 @@ from . import coda, immagini, openrouter, prefiltro, prompt, quota
 logger = logging.getLogger(__name__)
 MAX_TENTATIVI = 3
 ESITO_OK, ESITO_DUBBIO = ("ok", Decimal("0.050")), ("dubbio", Decimal("0.650"))
-BLOCCO = "lnc_coda_ia"
+BLOCCO = "lnc_coda_ia"   # i blocchi di MySQL valgono per tutto il server: si aggiunge il nome del database (prova e produzione condividono il server)
+
+
+def _nome_blocco():
+    return f"{BLOCCO}:{connection.settings_dict['NAME']}"
 
 
 def _registra(tipo, oggetto, esito, *, motivazione="", risposta=None, segnali=None, errore=""):
@@ -133,9 +137,11 @@ def _salva_media(media, foto, ocr_esiti, problemi):
             m.save(update_fields=campi)
 
 
-def max_token_commenti(n):
-    """Token di risposta per un blocco di `n` commenti: il modello ragiona prima di rispondere e il ragionamento cresce con i commenti."""
-    return min(settings.IA_MAX_TOKEN_TESTO + settings.IA_TOKEN_PER_COMMENTO * n, 8000)
+def max_token_commenti(n, tentativo=1):
+    """Token di risposta per un blocco di `n` commenti: il modello ragiona prima di rispondere e il ragionamento cresce con i commenti.
+    A ogni nuovo tentativo si concede metà in più (una risposta vuota di solito è ragionamento arrivato al limite)."""
+    base = settings.IA_MAX_TOKEN_TESTO + settings.IA_TOKEN_PER_COMMENTO * n
+    return min(int(base * (1 + 0.5 * (max(tentativo, 1) - 1))), 10000)
 
 
 def _commenti(righe):
@@ -149,7 +155,7 @@ def _commenti(righe):
         return
     utente = "\n".join(f'<commento id="{r.commento_id}">{prompt.pulisci(r.commento.testo)}</commento>' for r in valide)
     r = openrouter.chiedi("commento", prompt.SISTEMA_COMMENTI, utente, prompt.SCHEMA_COMMENTI,
-                          modelli=settings.IA_MODELLI_TESTO, max_token=max_token_commenti(len(valide)))
+                          modelli=settings.IA_MODELLI_TESTO, max_token=max_token_commenti(len(valide), max(r.tentativi for r in valide)))
     per_id = {}
     for x in r.dati["risultati"]:
         per_id.setdefault(x["id"], x)  # se un id compare due volte vale il primo
@@ -170,7 +176,9 @@ def _dubbio_senza_modello(riga, errore):
     tipo = "segnalazione" if riga.segnalazione_id else "commento"
     if oggetto.esito_moderazione is None:
         _scrivi_esito(tipo, oggetto, (ESITO_DUBBIO[0], Decimal("0.500")), motivazione="controllo automatico non disponibile", segnali=riga.segnali, errore=errore)
-    coda.chiudi([riga], "fallito", errore)
+        coda.chiudi([riga], "fallito", errore)
+    else:   # rilettura di un commento già pubblicato con esito ok: se non si riesce non si cambia nulla
+        coda.chiudi([riga], "saltato", errore)
 
 
 def _fallimento(righe, errore, minuti):
@@ -222,7 +230,7 @@ _thread = [None]
 
 def _blocco_acquisito():
     with connection.cursor() as c:
-        c.execute("SELECT GET_LOCK(%s, 0)", [BLOCCO])
+        c.execute("SELECT GET_LOCK(%s, 0)", [_nome_blocco()])
         return c.fetchone()[0] == 1
 
 

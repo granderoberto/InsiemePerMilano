@@ -30,7 +30,12 @@ class Controllo:
 
     @property
     def da_accodare(self):
-        return self.prefiltro is not None and self.prefiltro.esito == "da_inviare"
+        if self.prefiltro is None:
+            return False
+        # un commento pulito si rilegge col modello se la quota lo permette (priorità minima)
+        return self.prefiltro.esito == "da_inviare" or (self.prefiltro.esito == "pulito" and self.rilettura)
+
+    rilettura: bool = False
 
     @property
     def bloccato(self):
@@ -59,7 +64,8 @@ def commento(utente, testo):
     recenti = [prefiltro.impronta(c.testo) for c in
                Commento.objects.filter(autore=utente, creato_il__gte=timezone.now() - timedelta(days=1))[:30]]
     pf = prefiltro.analizza(testo, tipo="commento", recenti=recenti)
-    return Controllo(pf.esito_locale, Decimal(str(pf.punteggio)) if pf.esito_locale else None, None, {}, pf)
+    return Controllo(pf.esito_locale, Decimal(str(pf.punteggio)) if pf.esito_locale else None, None, {}, pf,
+                     rilettura=settings.IA_RILEGGI_PULITI)
 
 
 def accoda_se_serve(controllo, *, segnalazione=None, commento=None):

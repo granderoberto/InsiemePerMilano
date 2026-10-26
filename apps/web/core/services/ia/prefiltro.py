@@ -21,15 +21,20 @@ SOGLIA_CATEGORIA = 0.6   # confidenza locale oltre la quale un testo senza foto 
 INSULTI = ("idiota", "imbecille", "stronzo", "stronza", "merda", "cretino", "cretina", "schifoso", "bastardo", "bastarda",
            "coglione", "cogliona", "vaffanculo", "fottiti", "puttana", "troia", "deficiente", "ritardato", "rincoglionito",
            "pirla", "pirlone", "parassita", "parassiti", "buffone", "buffoni", "testa di cazzo")
+OSTILI = ("incapace", "incapaci", "inetto", "inetti", "gentaglia", "feccia", "sfaccendati", "ignorante", "ignoranti", "vergognatevi",
+          "vergognati", "pecore", "inutile", "zero cervello", "senza cervello", "buoni a nulla", "fate ridere", "fai ridere",
+          "tornatevene", "a casa vostra", "pulite le strade", "invaso da", "voi stranieri", "questa gente", "gente così")
 ACCUSE = ("ladro", "ladri", "ladra", "delinquente", "delinquenti", "farabutto", "farabutti", "mafioso", "mafiosi", "corrotto", "corrotti",
           "truffatore", "truffatori", "truffa", "criminale", "criminali")
 PAROLE_SPAM = ("compra", "guadagna", "guadagni", "offerta", "gratis", "sconto", "casino", "bitcoin", "prestito", "vincita", "clicca")
 
+RE_AUGURIO_MORTE = re.compile(r"\b(?:spero|speriamo|auguro|mi auguro)\b.{0,30}\b(?:muoi\w*|morir\w*|mort\w*|crep\w*|investa\w*|ammazz\w*)\b")
 RE_MINACCIA = re.compile(
     r"\b(?:ti|vi|la|lo|le|li|gli)\s+(?:ammazz\w*|uccid\w*|uccis\w*|spacc\w*|distrugg\w*|brucio|bruc\w+|rompo|picch\w+|sfascio|apro)\b"
-    r"|\b(?:ti|vi)\s+(?:butto|sparo|taglio|sfregio|affogo|picchio)\b|\bbruc(?:io|erò|eremo)\s+(?:la|le|il|i|lo|gli)\s+\w+|\b(?:ti|vi)\s+faccio\s+(?:fuori|male|pagare)\b|\bte la faccio pagare\b|\bvi trovo sotto casa\b|\bmorte a\b|\bviolenza su\b")
+    r"|\b(?:ti|vi)\s+(?:butto|sparo|taglio|sfregio|affogo|picchio)\b|\bbruc(?:io|erò|eremo)\s+(?:la|le|il|i|lo|gli)\s+\w+|\b(?:ti|vi)\s+faccio\s+(?:fuori|male|pagare)\b|\bte la faccio pagare\b|\bvi trovo sotto casa\b|\bmorte a\b|\bviolenza su\b"
+    r"|\bguardar\w+\s+le\s+spalle\b|\baspett\w+\s+sotto\s+casa\b")
 RE_TELEFONO = re.compile(r"(?<![\d\w])(?:(?:\+|00)39[\s.\-]?)?(?:3\d{2}[\s.\-]?\d{6,7}|0\d{1,3}[\s.\-]?\d{5,8})(?![\d\w])")
-RE_INDIRIZZO_CASA = re.compile(r"\b(?:abita|vive|dimora|residente|casa)\b.{0,40}\b(?:via|viale|piazza|corso|largo|vicolo)\s+[\w' ]{3,30}\s\d{1,3}\b", re.I)
+RE_INDIRIZZO_CASA = re.compile(r"\b(?:abit\w+|vive|vivo|dimora|residente|casa)\b.{0,40}\b(?:via|viale|piazza|corso|largo|vicolo)\s+[\w' ]{3,30}\s\d{1,3}\b", re.I)
 RE_EMAIL = re.compile(r"[\w.+\-]+@[\w\-]+\.[\w.\-]+")
 RE_TARGA = re.compile(r"\b[A-Z]{2}\s?\d{3}\s?[A-Z]{2}\b")
 RE_CF = re.compile(r"\b[A-Za-z]{6}\d{2}[A-Za-z]\d{2}[A-Za-z]\d{3}[A-Za-z]\b")
@@ -101,7 +106,7 @@ def analizza(testo, *, ha_media=False, tipo="segnalazione", recenti=()):
     norm = normalizza(testo)
     segnali, rischi = [], []
 
-    if RE_MINACCIA.search(norm):
+    if RE_MINACCIA.search(norm) or RE_AUGURIO_MORTE.search(norm):
         return Esito("bloccato", 95, ["minaccia"], imp)
     if imp in set(recenti):
         return Esito("doppione", 30, ["doppione"], imp)
@@ -112,6 +117,8 @@ def analizza(testo, *, ha_media=False, tipo="segnalazione", recenti=()):
         segnali.append("insulto"); rischi.append(70)
     if RE_INDIRIZZO_CASA.search(testo):
         segnali.append("indirizzo"); rischi.append(60)
+    if any(o in norm for o in OSTILI if " " in o) or any(o in parole for o in OSTILI if " " not in o):
+        segnali.append("ostilita"); rischi.append(45)
     if any(a in parole for a in ACCUSE):
         segnali.append("accusa"); rischi.append(45)
     if len(parole) >= 8 and Counter(parole).most_common(1)[0][1] / len(parole) >= 0.5:

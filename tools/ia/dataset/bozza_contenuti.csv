@@ -76,6 +76,6 @@ id,tipo,testo,etichetta,nota
 75,segnalazione,"Cantiere rumoroso | Il cantiere della ditta Bianchi Srl lavora di notte, chiamate il titolare al 333 1234567 e ditegli di smettere.",dubbio,telefono di terzi
 76,segnalazione,Offerte e sconti per il quartiere | Visitate www.offerte-incredibili.example per sconti gratis e guadagna subito 1000 euro al giorno.,dubbio,spam
 77,segnalazione,"Il negoziante truffa i clienti | Il signor Mario Rossi del negozio all'angolo è un truffatore e un ladro, lo so per certo.",dubbio,accusa grave a una persona identificabile
-78,segnalazione,Un cartello | Ho visto un cartello. Boh.,dubbio,"contenuto vuoto, poco utile (da rivedere)"
+78,segnalazione,Un cartello | Ho visto un cartello. Boh.,ok,"vaga ma non abusiva: la qualità la giudica il moderatore, non il filtro"
 79,segnalazione,"Basta con questo cantiere | Vi ammazzo tutti se non sistemate la strada, ve lo giuro davvero.",bloccato,minaccia
 80,segnalazione,"Ultimo avviso | Se non tolgono quel dehors ti spacco la faccia, a te e al gestore, sotto casa vostra.",bloccato,minaccia

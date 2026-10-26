@@ -13,7 +13,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 from django.conf import settings
 from core.models import *
-from core.services.ia import coda, controllo, lavoratore, openrouter as orr, prefiltro as pf, quota
+from core.services.ia import coda, controllo, lavoratore, openrouter as orr, prefiltro as pf, prompt, quota
 from portale.views import crea_segnalazione
 def esito(n, c, e=""): print(("OK  " if c else "!!  ")+n+(f"  [{e}]" if e else ""))
 
@@ -68,7 +68,8 @@ def giudica(corpo):
     cattivo = bool(re.search(r"idiota|spam", u))
     return contenuto({"approvato": not cattivo, "motivazione": "insulto" if cattivo else ""})
 orr._dormi = lambda s: None
-IMP = dict(OPENROUTER_URL=f"http://127.0.0.1:{srv.server_address[1]}", OPENROUTER_API_KEY="chiave-di-prova", IA_INTERVALLO_MIN=0, IA_TIMEOUT_RICHIESTA=5, IA_MODALITA="coda")
+IMP = dict(OPENROUTER_URL=f"http://127.0.0.1:{srv.server_address[1]}", OPENROUTER_API_KEY="chiave-di-prova", IA_INTERVALLO_MIN=0, IA_TIMEOUT_RICHIESTA=5, IA_MODALITA="coda", IA_RILEGGI_PULITI=False,
+           IA_QUOTA_GIORNALIERA=100000, IA_QUOTA_SEGNALAZIONI=100000, IA_QUOTA_COMMENTI=100000, IA_QUOTA_SOGLIA_COMMENTI=100000)   # la quota si prova a parte: il registro di oggi contiene richieste vere
 
 class Rollback(Exception): pass
 cat = list(Categoria.objects.filter(attiva=True)[:2]); qid = Quartiere.objects.first().id
@@ -105,7 +106,7 @@ try:
         s.refresh_from_db(); r.refresh_from_db()
         esito("esito ok scritto, punteggio e riga «fatto»", s.esito_moderazione == "ok" and s.punteggio_moderazione == Decimal("0.050") and r.stato == "fatto" and not s.controllo_in_corso)
         l = LogAttivita.objects.filter(tabella="segnalazioni", id_oggetto=s.id, operazione="decisione_ia").order_by("-id").first()
-        esito("registro: modello, fornitore, versione del prompt", l and l.dati_nuovi["fornitore"] == "openrouter" and l.dati_nuovi["modello"] and l.dati_nuovi["versione_prompt"] == "2026-10-26.2", l and l.dati_nuovi)
+        esito("registro: modello, fornitore, versione del prompt", l and l.dati_nuovi["fornitore"] == "openrouter" and l.dati_nuovi["modello"] and l.dati_nuovi["versione_prompt"] == prompt.VERSIONE, l and l.dati_nuovi)
         corpo = stato["richieste"][-1]
         esito("il testo dell'autore sta nel messaggio user, non nelle istruzioni", "marciapiede" in json.dumps(corpo["messages"][1]["content"]) and "marciapiede" not in corpo["messages"][0]["content"])
         cm.post(f"/moderazione/segnalazioni/{s.id}/approva/"); s.refresh_from_db()
@@ -155,7 +156,8 @@ try:
         esito("nessun modello disponibile: «errore» e riprova più tardi", lavoratore.passo() == "errore" and riga(segnalazione=s6).stato == "in_coda" and riga(segnalazione=s6).non_prima_di > timezone.now())
         stato["fn"] = giudica; CodaIA.objects.filter(segnalazione=s6).update(non_prima_di=timezone.now() - timedelta(minutes=1))
         stato["usate"] = 50; quota.azzera_cache()
-        esito("quota esaurita: il lavoro aspetta, nessuna richiesta", lavoratore.passo() == "quota" and riga(segnalazione=s6).stato == "in_coda")
+        with override_settings(IA_QUOTA_GIORNALIERA=50):
+            esito("quota esaurita: il lavoro aspetta, nessuna richiesta", lavoratore.passo() == "quota" and riga(segnalazione=s6).stato == "in_coda")
         stato["usate"] = 0; quota.azzera_cache()
         esito("quota di nuovo libera: il lavoro riparte", lavoratore.passo() == "fatto" and riga(segnalazione=s6).stato == "fatto")
         # ---- oltre 24 ore
@@ -174,6 +176,18 @@ try:
         b = nuova("Strada pericolosa", "Il vicino è un idiota che sfreccia in via Padova a velocità folle davanti alla scuola."); rb = riga(segnalazione=b)
         CodaIA.objects.filter(pk__in=[ra.pk, rb.pk]).update(stato="in_coda")
         tipo, righe = coda.scegli(); esito("priorità: prima il rischio più alto", righe[0].pk == rb.pk, (ra.priorita, rb.priorita))
+        # ---- rilettura dei commenti puliti con la quota avanzata
+        CodaIA.objects.filter(stato="in_coda").update(stato="saltato"); stato["fn"] = giudica
+        with override_settings(IA_RILEGGI_PULITI=True, IA_COMMENTI_MINIMO=2):
+            n0 = len(stato["richieste"])
+            p1 = commenta(s, "Concordo in pieno con quanto scritto, grazie."); p2 = commenta(s, "Questo commento è puro spam senza senso.")
+            esito("rilettura: i commenti puliti escono con esito ok e vanno in coda a priorità minima", p1.esito_moderazione == "ok" and p2.esito_moderazione == "ok" and riga(commento=p1).priorita == 0 and riga(commento=p1).segnali == ["rilettura"])
+            esito("rilettura: la lettura parte con la soglia del blocco", lavoratore.passo() == "fatto" and len(stato["richieste"]) == n0 + 1)
+            p1.refresh_from_db(); p2.refresh_from_db()
+            esito("rilettura: il modello approva uno e boccia l'altro (diventa dubbio)", p1.esito_moderazione == "ok" and p2.esito_moderazione == "dubbio")
+            p3 = commenta(s, "Un altro commento tranquillo sul quartiere."); CodaIA.objects.filter(commento=p3).update(creata_il=timezone.now() - timedelta(hours=25))
+            lavoratore.passo(); p3.refresh_from_db()
+            esito("rilettura scaduta (24 ore): nessun cambio d'esito, riga «saltato»", p3.esito_moderazione == "ok" and riga(commento=p3).stato == "saltato")
         # ---- FASE 3: foto, volti, testo nelle foto, video
         CodaIA.objects.filter(stato="in_coda").update(stato="saltato"); stato["fn"] = giudica; stato["problema"] = {}; stato["coerente"] = True
         n0 = len(stato["richieste"])

@@ -18,7 +18,7 @@ def accoda(esito_prefiltro, *, segnalazione=None, commento=None):
     assert (segnalazione is None) != (commento is None)
     filtro = {"segnalazione": segnalazione} if segnalazione else {"commento": commento}
     CodaIA.objects.filter(stato="in_coda", **filtro).update(stato="saltato", finita_il=timezone.now(), errore="sostituita da una modifica")
-    return CodaIA.objects.create(priorita=esito_prefiltro.rischio, impronta=esito_prefiltro.impronta, segnali=esito_prefiltro.segnali, **filtro)
+    return CodaIA.objects.create(priorita=esito_prefiltro.rischio, impronta=esito_prefiltro.impronta, segnali=esito_prefiltro.segnali or ["rilettura"], **filtro)
 
 
 def _pronte(adesso):

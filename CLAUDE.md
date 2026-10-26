@@ -13,7 +13,7 @@ Autore: Roberto Grande (GitHub: Bertox0). Lingua del progetto: **italiano** (doc
 | 2b. Schema logico normalizzato | fatto (MySQL 8) | `db/schema.sql`, `db/schema.dbml`, `docs/modello_logico.{md,png,svg}` |
 | Database su Aiven (MySQL) | **fatto** (fase 1 completata: migrazioni, 88 NIL, dati demo, verifica) | `db/migrations/`, `db/README.md` |
 | 3. Architettura di integrazione IA (schema a blocchi) | **fatto** | `docs/architettura_ia.md`, `docs/architettura_ia.png` (generato da `tools/ia/schema_blocchi.py`) |
-| Implementazione della web app | **funzionante e online** (https://la-nostra-citta.onrender.com, Render + Aiven); SPID/CIE con protocollo vero su ambiente di prova; IA simulata | `apps/web/`, `apps/spid/`, `docs/spike_django_spid.md` |
+| Implementazione della web app | **funzionante e online** (https://la-nostra-citta.onrender.com, Render + Aiven); SPID/CIE con protocollo vero su ambiente di prova; controlli IA su testi e foto con OpenRouter gratuito **pronti ma spenti** (`IA_MODALITA`), verifica del documento vera e locale | `apps/web/`, `apps/spid/`, `docs/spike_django_spid.md` |
 | Modello logico | **fatto** (generato da `db/schema.sql`) | `docs/modello_logico.{md,png,svg}` |
 | Messa online | **fatta** (Render, email Gmail) | `docs/produzione.md`, `render.yaml` |
 
@@ -116,6 +116,8 @@ pip install cairosvg && tools/er/run.sh
 
 **Statistiche:** classifiche nominative pubbliche solo per utenti con `profilo_pubblico = true`; statistiche complete (più post, più interazioni, più commenti, più attivi negli ultimi 30 giorni) nella dashboard admin. Viste: `v_classifica_segnalazioni`, `v_statistiche_utenti`, `v_classifica_utenti_pubblica`.
 
+**IA con OpenRouter (costo zero, spenta di default):** piano e decisioni in `docs/piano_ia_openrouter.md`, prove dei modelli in `docs/ia_sonda_modelli.md`, taratura in `docs/ia_taratura.md`. `IA_MODALITA=coda` attiva il flusso: **prefiltro locale** in Python (`core/services/ia/prefiltro.py`: minacce → `bloccato`, segnali → modello, nulla → `ok`), salvataggio immediato «In attesa», coda `coda_ia` (migrazione 006, tabella tecnica), **lavoratore** in background (`lavoratore.py`, `IA_LAVORATORE=1`), client con catena di modelli (`openrouter.py`) e quota (`quota.py`: 50 richieste/giorno, 36 segnalazioni, 8 commenti, azzeramento a mezzanotte UTC; contatore ufficiale `GET /key`). Il modello risponde con JSON a schema fisso, può solo peggiorare l'esito (`ok`/`dubbio`, mai `bloccato`) e se non risponde l'esito è `dubbio`. Privacy: `provider.data_collection = "deny"`, volti sfocati e testo delle foto letto in locale; **documento e selfie non vanno mai all'esterno**. Il moderatore non può approvare finché manca l'esito (max 24 ore). Pannello `/amministrazione/ia/`. Le prove `apps/web/smoke/ia_*.py` non chiamano mai la rete; `tools/ia/sonda_modelli.py` e `tools/ia/valuta.py` sì (consumano quota). Il database delle prove è `la_nostra_citta_test` (`DJANGO_DB_NAME`).
+
 **Log:** `log_attivita` append-only (trigger blocca UPDATE/DELETE), consultabile solo dall'amministratore. Il pubblico vede solo la cronologia stati. Il reset dei dati demo usa `SET FOREIGN_KEY_CHECKS=0; TRUNCATE ...`, perché TRUNCATE non attiva i trigger.
 
 ## Vincoli NON imposti dal database (vanno nell'applicazione)
@@ -182,7 +184,7 @@ Guide: `docs/produzione.md` (hosting a contenitori, scelto Render/Railway al pos
 1. **Sicurezza**: gli account demo (anche amministratore e moderatori) hanno una password pubblica e sono online; cambiarla o usare un database pulito. Cambiare la password di `avnadmin` su Aiven (condivisa in chiaro in chat).
 2. Provare online registrazione, email (Gmail) e caricamento di foto e video; il `Dockerfile` non è stato provato in locale.
 3. Adesione di un ente a SPID/CIE (`docs/spid_produzione.md`).
-4. Sostituire i controlli IA simulati con servizi veri (`docs/architettura_ia.md`, «Passi per l'IA vera»).
+4. Attivare i controlli IA veri su Render (`docs/produzione.md`, §5) dopo la taratura (`docs/ia_taratura.md`) e dopo aver approvato l'informativa (`docs/informativa_ia_bozza.md`).
 5. Accessibilità: prove con screen reader e dispositivi reali (`docs/accessibilita.md`).
 6. Colonna spaziale per `confine`; normative con i testi veri del comitato.
 7. Aiven Free si spegne se inattivo: se il sito non carica i dati, riaccenderlo.

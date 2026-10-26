@@ -159,8 +159,9 @@ def chiedi(tipo, sistema, utente, schema, *, modelli, max_token, timeout=None):
                 quota.registra_richiesta(tipo, modello, 200, sec, True)
                 dati = _estrai(d)
                 if dati is None or (err := valida(dati, schema)):
-                    log.warning("IA: risposta di %s non valida (%s)", modello, "JSON assente" if dati is None else err)
-                    raise RispostaNonValida(f"{modello}: " + ("JSON assente o vuoto" if dati is None else err))
+                    fine = ((d.get("choices") or [{}])[0].get("finish_reason") if isinstance(d, dict) else None) or "?"
+                    log.warning("IA: risposta di %s non valida (%s, finish=%s)", modello, "JSON assente" if dati is None else err, fine)
+                    raise RispostaNonValida(f"{modello}: " + (f"JSON assente o vuoto (finish={fine})" if dati is None else err))
                 return Risposta(dati, modello, sec, (d.get("usage") or {}).get("total_tokens"), d.get("provider"))
             quota.registra_richiesta(tipo, modello, codice, sec, False, errore)
             ultimo = f"{modello}: HTTP {codice}"
