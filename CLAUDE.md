@@ -43,7 +43,7 @@ apps/spid/               servizio SPID/CIE (Relying Party OpenID Connect con SDK
 tools/db/migrate.sh      applica le migrazioni a un database (idempotente, tabella schema_migrations)
 tools/geo/import_quartieri.py   importa gli 88 NIL in `quartieri`
 tools/ia/schema_blocchi.py   genera lo schema a blocchi dell'IA (docs/architettura_ia.{svg,png})
-tools/architettura/disegna.py, disegna_lite.py   disegnano l'architettura del sistema, completa e «lite» a icone (docs/architettura_sistema.*, architettura_lite.*)
+tools/architettura/disegna.py   disegna l'architettura del sistema (docs/architettura_sistema.*; icone in icone.py)
 tools/demo/genera_foto.py    genera le immagini e i video di esempio dei dati demo (apps/web/static/demo/)
 tools/seed/              seed.py (dati demo deterministici) + README con password demo e scelte
 tools/requirements.txt   dipendenze Python (venv in tools/.venv, ignorato da git)

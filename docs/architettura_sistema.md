@@ -2,10 +2,6 @@
 
 ![Architettura di La Nostra Città, Il Nostro Futuro](architettura_sistema.png)
 
-Versione semplificata, a icone: [`architettura_lite.svg`](architettura_lite.svg) (generata da `tools/architettura/disegna_lite.py`).
-
-![Architettura in breve](architettura_lite.svg)
-
 Sorgente vettoriale: [`architettura_sistema.svg`](architettura_sistema.svg). Il disegno è generato da `tools/architettura/disegna.py`: per aggiornarlo si modifica lo script e si rilancia (`DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib tools/.venv/bin/python tools/architettura/disegna.py`). Per lo schema a blocchi dell'intelligenza artificiale vedi [`architettura_ia.md`](architettura_ia.md).
 
 Il disegno è a **livelli** (presentazione, applicazione, servizi, esecuzione) dentro il servizio su Render, con i dati a destra, i servizi esterni sotto e il client a sinistra. I numeri rossi sulle frecce rimandano alla legenda in fondo al disegno, che indica il protocollo di ogni collegamento. Tratto pieno = in uso; tratteggiato = simulato o di prova. Le forme richiamano la funzione: il database è un cilindro, il browser una finestra, il servizio su Render un server; nelle intestazioni compaiono le icone di email, mappa, intelligenza artificiale, SPID/CIE, disco, contenitore Docker e GitHub.
