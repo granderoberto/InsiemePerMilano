@@ -95,12 +95,15 @@
 <text x="790" y="776" font-size="15" font-weight="700" text-anchor="start" fill="#0f172a">File multimediali</text>
 <text x="790" y="798" font-size="13" font-weight="400" text-anchor="start" fill="#334155">foto e video pubblicati senza metadati (EXIF)</text>
 <text x="790" y="816" font-size="13" font-weight="400" text-anchor="start" fill="#334155">documento e selfie: cancellati dopo la verifica</text>
-<line x1="290" y1="195" x2="370" y2="195" stroke="#0f172a" stroke-width="2" marker-end="url(#p)"/>
+<line x1="290" y1="195" x2="370" y2="195" stroke="#0f172a" stroke-width="2" marker-end="url(#p)" marker-start="url(#p)"/>
 <text x="330.0" y="187.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#ffffff" stroke-width="6">1</text>
 <text x="330.0" y="187.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#0f172a">1</text>
-<line x1="370" y1="405" x2="290" y2="405" stroke="#0f172a" stroke-width="2" marker-end="url(#p)"/>
+<line x1="290" y1="405" x2="370" y2="405" stroke="#0f172a" stroke-width="2" marker-end="url(#p)" marker-start="url(#p)"/>
 <text x="330.0" y="397.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#ffffff" stroke-width="6">6</text>
 <text x="330.0" y="397.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#0f172a">6</text>
+<line x1="290" y1="595" x2="370" y2="595" stroke="#0f172a" stroke-width="2" marker-end="url(#p)" marker-start="url(#p)"/>
+<text x="330.0" y="587.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#ffffff" stroke-width="6">8</text>
+<text x="330.0" y="587.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#0f172a">8</text>
 <line x1="700" y1="250" x2="790" y2="250" stroke="#0f172a" stroke-width="2" marker-end="url(#p)"/>
 <text x="745.0" y="242.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#ffffff" stroke-width="6">2  richiesta</text>
 <text x="745.0" y="242.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#0f172a">2  richiesta</text>
@@ -113,14 +116,14 @@
 <line x1="1210" y1="330" x2="1130" y2="330" stroke="#0f172a" stroke-width="2" marker-end="url(#p)"/>
 <text x="1170.0" y="348.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#ffffff" stroke-width="6">5  punteggi</text>
 <text x="1170.0" y="348.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#0f172a">5  punteggi</text>
-<line x1="1385" y1="650" x2="1385" y2="720" stroke="#0f172a" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#p)"/>
+<line x1="1385" y1="650" x2="1385" y2="720" stroke="#0f172a" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#p)" marker-start="url(#p)"/>
 <text x="1307.0" y="689.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#ffffff" stroke-width="6">chiamate protette</text>
 <text x="1307.0" y="689.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#0f172a">chiamate protette</text>
 <line x1="920" y1="650" x2="920" y2="720" stroke="#0f172a" stroke-width="2" marker-end="url(#p)"/>
 <text x="830.0" y="689.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#ffffff" stroke-width="6">7  scrive esiti e log</text>
 <text x="830.0" y="689.0" font-size="12.5" font-weight="700" text-anchor="middle" fill="#0f172a">7  scrive esiti e log</text>
 <text x="40" y="940" font-size="15" font-weight="700" text-anchor="start" fill="#0f172a">Legenda</text>
-<text x="40" y="964" font-size="13.5" font-weight="400" text-anchor="start" fill="#334155">1 il cittadino invia il contenuto · 2 la web app chiede il controllo al gateway · 3 torna l'esito (ok, dubbio, bloccato) · 4 il gateway lancia i moduli necessari</text>
-<text x="40" y="984" font-size="13.5" font-weight="400" text-anchor="start" fill="#334155">5 i moduli rispondono con punteggi · 6 il moderatore vede le code e conferma o ribalta · 7 esiti e decisioni IA finiscono nel database e nel registro delle attività</text>
+<text x="40" y="964" font-size="13.5" font-weight="400" text-anchor="start" fill="#334155">1 il cittadino invia contenuti e riceve esiti e notifiche · 2 la web app chiede il controllo al gateway · 3 torna l'esito (ok, dubbio, bloccato) · 4 il gateway lancia i moduli necessari</text>
+<text x="40" y="984" font-size="13.5" font-weight="400" text-anchor="start" fill="#334155">5 i moduli rispondono con punteggi · 6 il moderatore riceve le code e conferma o ribalta · 7 esiti e decisioni IA finiscono nel database e nel registro delle attività · 8 l'amministratore consulta registro e statistiche e gestisce utenti e soglie</text>
 <text x="40" y="1010" font-size="13.5" font-weight="400" text-anchor="start" fill="#334155">Esito = il peggiore tra i controlli. ok: procede. dubbio: resta In attesa e va in coda al moderatore. bloccato: non si pubblica, l'autore è avvisato e può chiedere la revisione.</text>
 </svg>

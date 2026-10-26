@@ -34,9 +34,9 @@ def box(x, y, w, h, titolo, righe=(), tipo="web", num=None):
         testo(x + 16, ty + 24 + 20 * i, r, 13.5, "400", colore="#1e293b")
 
 
-def freccia(x1, y1, x2, y2, etichetta="", colore="#0f172a", tratteggio=False, dx=0, dy=-8):
+def freccia(x1, y1, x2, y2, etichetta="", colore="#0f172a", tratteggio=False, dx=0, dy=-8, doppia=False):
     d = ' stroke-dasharray="7 5"' if tratteggio else ""
-    out.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{colore}" stroke-width="2"{d} marker-end="url(#p)"/>')
+    out.append(f'<line x1="{x1}" y1="{y1}" x2="{x2}" y2="{y2}" stroke="{colore}" stroke-width="2"{d} marker-end="url(#p)"' + (' marker-start="url(#p)"' if doppia else "") + '/>')
     if etichetta:
         cx, cy = (x1 + x2) / 2 + dx, (y1 + y2) / 2 + dy
         e = escape(etichetta)
@@ -109,17 +109,18 @@ testo(790, 798, "foto e video pubblicati senza metadati (EXIF)", 13, colore="#33
 testo(790, 816, "documento e selfie: cancellati dopo la verifica", 13, colore="#334155")
 
 # frecce
-freccia(290, 195, 370, 195, "1", dy=-8)
-freccia(370, 405, 290, 405, "6", dy=-8)
+freccia(290, 195, 370, 195, "1", dy=-8, doppia=True)
+freccia(290, 405, 370, 405, "6", dy=-8, doppia=True)
+freccia(290, 595, 370, 595, "8", dy=-8, doppia=True)
 freccia(700, 250, 790, 250, "2  richiesta", dx=0)
 freccia(790, 300, 700, 300, "3  esito", dx=0, dy=18)
 freccia(1130, 220, 1210, 220, "4  compiti")
 freccia(1210, 330, 1130, 330, "5  punteggi", dy=18)
-freccia(1385, 650, 1385, 720, "chiamate protette", tratteggio=True, dx=-78, dy=4)
+freccia(1385, 650, 1385, 720, "chiamate protette", tratteggio=True, dx=-78, dy=4, doppia=True)
 freccia(920, 650, 920, 720, "7  scrive esiti e log", dx=-90, dy=4)
 testo(40, 940, "Legenda", 15, "700")
-testo(40, 964, "1 il cittadino invia il contenuto · 2 la web app chiede il controllo al gateway · 3 torna l'esito (ok, dubbio, bloccato) · 4 il gateway lancia i moduli necessari", 13.5, colore="#334155")
-testo(40, 984, "5 i moduli rispondono con punteggi · 6 il moderatore vede le code e conferma o ribalta · 7 esiti e decisioni IA finiscono nel database e nel registro delle attività", 13.5, colore="#334155")
+testo(40, 964, "1 il cittadino invia contenuti e riceve esiti e notifiche · 2 la web app chiede il controllo al gateway · 3 torna l'esito (ok, dubbio, bloccato) · 4 il gateway lancia i moduli necessari", 13.5, colore="#334155")
+testo(40, 984, "5 i moduli rispondono con punteggi · 6 il moderatore riceve le code e conferma o ribalta · 7 esiti e decisioni IA finiscono nel database e nel registro delle attività · 8 l'amministratore consulta registro e statistiche e gestisce utenti e soglie", 13.5, colore="#334155")
 testo(40, 1010, "Esito = il peggiore tra i controlli. ok: procede. dubbio: resta In attesa e va in coda al moderatore. bloccato: non si pubblica, l'autore è avvisato e può chiedere la revisione.", 13.5, colore="#334155")
 out.append("</svg>")
 
