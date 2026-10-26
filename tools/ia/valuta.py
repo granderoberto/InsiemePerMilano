@@ -32,7 +32,7 @@ import django  # noqa: E402
 django.setup()
 from django.conf import settings  # noqa: E402
 
-from core.services.ia import openrouter, prefiltro, prompt, quota  # noqa: E402
+from core.services.ia import lavoratore, openrouter, prefiltro, prompt, quota  # noqa: E402
 
 ETICHETTE = ["ok", "dubbio", "bloccato"]
 CACHE = Path(__file__).parent / "risultati" / "valuta_modello.json"
@@ -83,7 +83,7 @@ def interroga(da_inviare, cache, massimo, ricalcola):
             if tipo == "commento":
                 utente = "\n".join(f'<commento id="{i}">{prompt.pulisci(r["testo"])}</commento>' for i, r in enumerate(gruppo, 1))
                 risp = openrouter.chiedi("commento", prompt.SISTEMA_COMMENTI, utente, prompt.SCHEMA_COMMENTI,
-                                         modelli=settings.IA_MODELLI_TESTO, max_token=settings.IA_MAX_TOKEN_TESTO)
+                                         modelli=settings.IA_MODELLI_TESTO, max_token=lavoratore.max_token_commenti(len(gruppo)))
                 per_id = {}
                 for x in risp.dati["risultati"]:
                     per_id.setdefault(x["id"], x)

@@ -178,6 +178,7 @@ OPENROUTER_URL = "https://openrouter.ai/api/v1"
 IA_MODELLI_TESTO = [m.strip() for m in _e("IA_MODELLI_TESTO", "recursive/flint-v1.0:free").split(",") if m.strip()]
 IA_MODELLI_VISIONE = [m.strip() for m in _e("IA_MODELLI_VISIONE", "dots-studio/dots-3-note-preview:free").split(",") if m.strip()]
 IA_MAX_TOKEN_TESTO, IA_MAX_TOKEN_VISIONE = 2000, 6000   # i modelli «ragionano»: con pochi token la risposta resta vuota
+IA_TOKEN_PER_COMMENTO = 150        # in più per ogni commento di un blocco (20 commenti con 2000 token in tutto davano risposta vuota)
 IA_TIMEOUT_RICHIESTA = 90          # secondi (12-40 s tipici)
 IA_TIMEOUT_VISIONE = 150           # con le foto il modello ci mette fino a 40-60 s
 IA_INTERVALLO_MIN = 4              # secondi tra due richieste: 20 al minuto è il limite, qui ne facciamo al massimo 15

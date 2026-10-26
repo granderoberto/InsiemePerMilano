@@ -206,6 +206,12 @@ Differenze dal piano:
 - **Presa della coda atomica**: `coda.prendi` segna «in corso» solo le righe ancora libere; se due lavoratori (per esempio il thread e il pulsante dell'amministratore) puntano alla stessa riga, uno solo la lavora.
 - Il soglia di sicurezza (da 44 richieste i commenti aspettano) e l'attesa a quota esaurita erano già nella fase 2; il pannello li mostra.
 
+### Stato della fase 5 (2026-10-26)
+
+Fatti: `tools/ia/dataset/bozza_contenuti.csv` (80 contenuti etichettati), `tools/ia/valuta.py` e il primo rapporto in [`ia_taratura.md`](ia_taratura.md): sulle etichette della bozza il sistema dà 78 esiti giusti su 80, nessun contenuto buono segnalato, nessuna minaccia lasciata passare, 2 contenuti dubbi (testo ripetuto, «ho visto un cartello») approvati. Il risultato è ottimistico (vedi il rapporto). Dalla valutazione è emerso un difetto reale: un blocco di 20 commenti con 2000 token di risposta tornava vuoto; ora i token crescono di 150 per commento (`IA_TOKEN_PER_COMMENTO`, massimo 8000).
+
+Da fare: etichette corrette dall'autore, contenuti nuovi (soprattutto commenti buoni con un segnale del prefiltro e casi ambigui), rilancio del rapporto e scelta definitiva delle soglie.
+
 ## 8. Rischi
 
 | Rischio | Risposta |

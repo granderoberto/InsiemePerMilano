@@ -133,6 +133,11 @@ def _salva_media(media, foto, ocr_esiti, problemi):
             m.save(update_fields=campi)
 
 
+def max_token_commenti(n):
+    """Token di risposta per un blocco di `n` commenti: il modello ragiona prima di rispondere e il ragionamento cresce con i commenti."""
+    return min(settings.IA_MAX_TOKEN_TESTO + settings.IA_TOKEN_PER_COMMENTO * n, 8000)
+
+
 def _commenti(righe):
     valide = []
     for riga in righe:
@@ -144,7 +149,7 @@ def _commenti(righe):
         return
     utente = "\n".join(f'<commento id="{r.commento_id}">{prompt.pulisci(r.commento.testo)}</commento>' for r in valide)
     r = openrouter.chiedi("commento", prompt.SISTEMA_COMMENTI, utente, prompt.SCHEMA_COMMENTI,
-                          modelli=settings.IA_MODELLI_TESTO, max_token=settings.IA_MAX_TOKEN_TESTO)
+                          modelli=settings.IA_MODELLI_TESTO, max_token=max_token_commenti(len(valide)))
     per_id = {}
     for x in r.dati["risultati"]:
         per_id.setdefault(x["id"], x)  # se un id compare due volte vale il primo
