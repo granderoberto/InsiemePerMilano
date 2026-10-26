@@ -37,6 +37,11 @@
    {% else %}<p class="piccolo">Non attiva.</p>{% endif %}</section>
   <section class="riquadro"><h2>Verifica d'identità e consensi</h2>
    {% for v in verifiche %}<p class="piccolo">Tentativo {{ v.tentativo }}: punteggio <strong>{{ v.punteggio }}</strong> → {{ v.esito_ia }}{% if v.esito_finale %}, rivista: {{ v.esito_finale }}{% endif %}</p>{% empty %}<p class="piccolo">Nessuna verifica (accesso con identità digitale).</p>{% endfor %}
+   <p>Identità: {% if u.identita_verificata %}<span class="badge badge-3">verificata</span>{% else %}<span class="badge badge-2">non verificata</span>{% endif %}</p>
+   {% if u.stato_account != 'eliminato' %}{% if not u.identita_verificata %}
+   <form method="post" action="{% url 'amm_azione_utente' u.id 'verifica_identita' %}">{% csrf_token %}<div class="campo"><label for="vi-mot">Verifica a mano, senza che l'utente la richieda: come l'hai controllata?</label><input id="vi-mot" name="motivo" required placeholder="per esempio: documento visto di persona"></div><button class="btn btn-primario btn-piccolo" type="submit">Segna come verificata</button></form>
+   {% elif u.metodo_registrazione == 'credenziali' and u.ruolo == 'utente' %}
+   <form method="post" action="{% url 'amm_azione_utente' u.id 'revoca_verifica' %}">{% csrf_token %}<div class="campo"><label for="rv-mot">Revoca la verifica: motivo</label><input id="rv-mot" name="motivo" required></div><button class="btn btn-pericolo btn-piccolo" type="submit">Revoca la verifica</button></form>{% endif %}{% endif %}
    <p class="piccolo">Consensi: {% for c in consensi %}{{ c.documento.tipo }} v{{ c.documento.versione }}{% if not forloop.last %}, {% endif %}{% empty %}nessuno{% endfor %}</p></section>
  </div>
 </div>

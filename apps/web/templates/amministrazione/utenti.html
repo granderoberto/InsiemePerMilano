@@ -4,6 +4,7 @@
   <div class="cerca"><label for="q">Cerca per nome, email o quartiere</label><input id="q" type="search" name="q" value="{{ filtri.q }}"></div>
   <div><label for="ruolo">Ruolo</label><select id="ruolo" name="ruolo"><option value="">Tutti</option>{% for v in ruoli %}<option value="{{ v }}" {% if filtri.ruolo == v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
   <div><label for="stato">Stato account</label><select id="stato" name="stato"><option value="">Tutti</option>{% for v in stati %}<option value="{{ v }}" {% if filtri.stato == v %}selected{% endif %}>{{ v }}</option>{% endfor %}</select></div>
+  <div><label for="identita">Identità</label><select id="identita" name="identita"><option value="">Tutte</option><option value="si" {% if filtri.identita == 'si' %}selected{% endif %}>Verificata</option><option value="no" {% if filtri.identita == 'no' %}selected{% endif %}>Non verificata</option></select></div>
   <div><label for="metodo">Registrazione</label><select id="metodo" name="metodo"><option value="">Tutte</option>{% for v in metodi %}<option value="{{ v }}" {% if filtri.metodo == v %}selected{% endif %}>{{ v|upper }}</option>{% endfor %}</select></div>
   <div><button class="btn btn-primario" type="submit">Cerca</button> <a class="btn btn-lieve" href="{% url 'amm_utenti' %}">Azzera</a></div>
 </form>

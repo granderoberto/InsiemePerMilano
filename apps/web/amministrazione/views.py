@@ -5,12 +5,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db import DatabaseError
-from django.db.models import Count, Q
+from django.db import transaction
+from django.db.models import Count, Exists, OuterRef, Q
+from django.utils import timezone
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from core.models import (Categoria, DocumentoNormativo, LogAttivita, Notifica, Quartiere, Segnalazione, Sospensione, Utente)
+from core.models import (Categoria, DocumentoNormativo, LogAttivita, Notifica, Quartiere, Segnalazione, Sospensione, Utente, VerificaIdentita)
 from core.services import log, normative, utenti as servizio
 from core.services.errori import RegolaViolata, traduci
 
@@ -51,6 +53,11 @@ def elenco_utenti(request):
     for campo, chiave in (("ruolo", "ruolo"), ("stato", "stato_account"), ("metodo", "metodo_registrazione")):
         if g.get(campo):
             qs = qs.filter(**{chiave: g[campo]})
+    if g.get("identita") in ("si", "no"):
+        approvata = Exists(VerificaIdentita.objects.filter(utente=OuterRef("pk")).filter(
+            Q(esito_finale="approvata") | Q(esito_finale__isnull=True, esito_ia="approvata")))
+        verificata = Q(metodo_registrazione__in=["spid", "cie"]) | Q(ruolo__in=["moderatore", "amministratore"]) | Q(ha_approvata=True)
+        qs = qs.annotate(ha_approvata=approvata).filter(verificata if g["identita"] == "si" else ~verificata)
     pagina = Paginator(qs, 25).get_page(g.get("pagina"))
     p = g.copy(); p.pop("pagina", None)
     return render(request, "amministrazione/utenti.html", {"pagina": pagina, "filtri": g, "querystring": p.urlencode(),
@@ -107,13 +114,53 @@ def azione_utente(request, pk, azione):
                 raise RegolaViolata("L'email è già confermata.")
             if not p.get("motivo", "").strip():
                 raise RegolaViolata("Indica il motivo (per esempio: invio email non attivo, identità verificata di persona).")
-            from django.utils import timezone
             from portale.views_account import ricalcola_attivazione
             u.email_verificata_il = timezone.now()
             u.save(update_fields=["email_verificata_il"])
             log.registra(me, "modifica", "utenti", u.id, {"email_verificata_il": None}, {"email_verificata_il": u.email_verificata_il, "confermata_da_admin": True, "motivo": p["motivo"].strip()})
             attivato = ricalcola_attivazione(u)
             messages.success(request, "Email confermata dall'amministratore." + (" L'account ora è attivo." if attivato else " Resta da completare la verifica dell'identità."))
+        elif azione == "verifica_identita":
+            if u.identita_verificata:
+                raise RegolaViolata("L'identità di questo utente risulta già verificata.")
+            motivo = p.get("motivo", "").strip()
+            if not motivo:
+                raise RegolaViolata("Indica come hai verificato l'identità (per esempio: documento visto di persona).")
+            now = timezone.now()
+            with transaction.atomic():
+                ultima = u.verifiche.order_by("-tentativo").first()
+                if ultima is not None:
+                    # c'è già una richiesta (rifiutata o da rivedere): la decisione dell'amministratore prevale
+                    ultima.revisore, ultima.esito_finale, ultima.motivo_revisione, ultima.revisionata_il = me, "approvata", "Verifica manuale: " + motivo, now
+                    ultima.save(update_fields=["revisore", "esito_finale", "motivo_revisione", "revisionata_il"])
+                    vid = ultima.id
+                else:
+                    nuova = VerificaIdentita.objects.create(
+                        utente=u, tentativo=1, tipo_documento="carta_identita", ok_lettura_ocr=True, ok_corrispondenza_dati=True,
+                        ok_validita=True, ok_autenticita=True, ok_confronto_volto=True, punteggio=100, esito_ia="approvata",
+                        motivo="Nessun controllo automatico: verifica manuale dell'amministratore.",
+                        revisore=me, esito_finale="approvata", motivo_revisione="Verifica manuale: " + motivo, revisionata_il=now)
+                    vid = nuova.id
+                log.registra(me, "revisione_moderatore", "verifiche_identita", vid, None, {"esito_finale": "approvata", "manuale": True, "id_utente": u.id, "motivo": motivo})
+            Notifica.objects.create(utente=u, tipo="verifica_account", messaggio="La tua identità è stata verificata da un amministratore: ora puoi pubblicare segnalazioni.", link="/profilo/")
+            from portale.views_account import ricalcola_attivazione
+            ricalcola_attivazione(u)
+            messages.success(request, "Identità verificata manualmente e registrata nel log.")
+        elif azione == "revoca_verifica":
+            motivo = p.get("motivo", "").strip()
+            if not motivo:
+                raise RegolaViolata("Indica il motivo della revoca.")
+            da_revocare = [x for x in u.verifiche.all() if (x.esito_finale or x.esito_ia) == "approvata"]
+            if not da_revocare:
+                raise RegolaViolata("Non c'è una verifica del documento da revocare" + (" (l'identità viene da SPID/CIE o dal ruolo)." if u.identita_verificata else "."))
+            now = timezone.now()
+            with transaction.atomic():
+                for x in da_revocare:
+                    x.revisore, x.esito_finale, x.motivo_revisione, x.revisionata_il = me, "rifiutata", "Revoca: " + motivo, now
+                    x.save(update_fields=["revisore", "esito_finale", "motivo_revisione", "revisionata_il"])
+                    log.registra(me, "revisione_moderatore", "verifiche_identita", x.id, {"esito_finale": "approvata"}, {"esito_finale": "rifiutata", "revoca": True, "motivo": motivo})
+            Notifica.objects.create(utente=u, tipo="verifica_account", messaggio="La verifica della tua identità è stata revocata da un amministratore.", link="/profilo/")
+            messages.success(request, "Verifica revocata.")
         elif azione == "riattiva":
             servizio.riattiva(u, me)
             messages.success(request, "Account riattivato.")
