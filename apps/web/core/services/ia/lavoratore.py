@@ -192,7 +192,10 @@ def passo(adesso=None):
     ammesso, motivo = quota.ammesso(tipo)
     if not ammesso:
         return "quota"
-    coda.prendi(righe)
+    if not coda.prendi(righe):
+        return "vuoto"   # un altro lavoratore (o l'amministratore) ha preso il lavoro
+    for r in righe:
+        r.refresh_from_db()
     try:
         _segnalazione(righe[0]) if tipo == "segnalazione" else _commenti(righe)
     except openrouter.QuotaEsaurita:

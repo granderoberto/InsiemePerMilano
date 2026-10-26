@@ -12,6 +12,7 @@ from core.models import (APPROVATA, Utente, IN_ATTESA, PRESENTATA, RIFIUTATA, Ca
                          Segnalazione, VerificaIdentita)
 from core.queries import con_conteggi
 from core.services import log, utenti as servizio_utenti
+from core.services.ia import esiti
 from core.services.errori import RegolaViolata, traduci
 from core.services.stati import cambia_stato
 from portale.views import notifica, notifica_quartiere
@@ -38,6 +39,8 @@ def dashboard(request):
     da_presentare = con_conteggi(base.filter(stato_id=APPROVATA, nascosta=False)).order_by("-n_sostegni", "-creata_il")
     verifiche = (VerificaIdentita.objects.filter(esito_ia="da_rivedere", revisore__isnull=True).select_related("utente"))
     richieste = RichiestaRevisione.objects.filter(stato="aperta").select_related("richiedente", "segnalazione", "verifica__utente")
+    in_attesa, segnalate = esiti.collega(in_attesa, "segnalazioni"), esiti.collega(segnalate, "segnalazioni")
+    commenti = esiti.collega(commenti, "commenti")
     return render(request, "moderazione/dashboard.html", {
         "richieste": richieste,
         "in_attesa": in_attesa, "segnalate": segnalate, "commenti": commenti, "da_presentare": da_presentare,
@@ -47,6 +50,7 @@ def dashboard(request):
 @moderatore_richiesto
 def segnalazione(request, pk):
     s = get_object_or_404(Segnalazione.objects.select_related("autore", "quartiere", "stato"), pk=pk)
+    esiti.collega([s], "segnalazioni")
     return render(request, "moderazione/segnalazione.html", {
         "s": s, "media": s.media.all(), "cronologia": s.cambi_stato.select_related("stato_a", "operatore"),
         "candidati": Candidato.objects.all(), "n_sostegni": s.sostegni.count(),

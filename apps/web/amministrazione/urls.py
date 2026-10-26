@@ -10,6 +10,8 @@ urlpatterns = [
     path("registro/", views.registro, name="amm_registro"),
     path("statistiche/", views.statistiche_complete, name="amm_statistiche"),
     path("statistiche/<str:nome>.csv", views.esporta_csv, name="amm_csv"),
+    path("ia/", views.controlli_ia, name="amm_ia"),
+    path("ia/<str:azione>/", views.azione_ia, name="amm_ia_azione"),
     path("categorie/", views.categorie, name="amm_categorie"),
     path("normative/", views.documenti, name="amm_documenti"),
 ]

@@ -8,7 +8,8 @@
       <ul class="etichette"><li><span class="badge badge-{{ s.stato_id }}">{{ s.stato.nome }}</span></li><li><span class="badge badge-{{ s.tipo }}">{{ s.tipo }}</span></li>{% if s.nascosta %}<li><span class="badge badge-4">nascosta</span></li>{% endif %}{% for c in categorie %}<li class="etichetta">{{ c.categoria.nome }}{% if c.confidenza %} ({{ c.origine }} {{ c.confidenza }}){% else %} ({{ c.origine }}){% endif %}</li>{% endfor %}</ul>
       <p class="meta">{{ s.quartiere.nome_leggibile }} · di {{ s.autore.nome }} {{ s.autore.cognome }} · {{ s.creata_il|date:"j M Y, H:i" }}</p>
       <p style="white-space:pre-line">{{ s.descrizione }}</p>
-      <p class="piccolo">Controlli IA (simulati): esito <strong>{{ s.esito_moderazione|default:"—" }}</strong>, rischio {{ s.punteggio_moderazione|default:"—" }}, coerenza {{ s.punteggio_coerenza|default:"—" }}.</p>
+      <p class="piccolo">Controlli automatici: esito <strong>{{ s.esito_moderazione|default:"in corso" }}</strong>, rischio {{ s.punteggio_moderazione|default:"—" }}, coerenza {{ s.punteggio_coerenza|default:"—" }}.</p>
+      {% if s.ia %}<p>{% include "moderazione/_motivo_ia.html" with ia=s.ia %}</p>{% endif %}
       <div class="galleria">{% for m in media %}{% if m.tipo == 'video' %}<video controls preload="metadata" src="{{ m.percorso|url_media }}"></video>{% else %}<img src="{{ m.percorso|url_media }}" alt="Foto {{ forloop.counter }}" loading="lazy">{% endif %}{% endfor %}</div>
     </article>
   </div>

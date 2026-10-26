@@ -1,0 +1,2 @@
+{# Motivo della decisione automatica: ia = ultima riga di registro (core.services.ia.esiti). #}
+{% if ia %}<span class="piccolo motivo-ia">{% if ia.motivazione %}Motivo: <strong>{{ ia.motivazione }}</strong>{% endif %}{% if ia.segnali %}{% if ia.motivazione %} · {% endif %}Segnali: {{ ia.segnali|join:", " }}{% endif %}{% if ia.fornitore == "openrouter" %} · controllo con modello{% elif ia.fornitore == "locale" %} · solo controllo locale{% endif %}</span>{% endif %}

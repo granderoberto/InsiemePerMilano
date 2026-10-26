@@ -16,6 +16,8 @@ from core.models import (Categoria, DocumentoNormativo, LogAttivita, Notifica, Q
 from core.services import log, normative, utenti as servizio
 from core.services.errori import RegolaViolata, traduci
 
+from core.services.ia import coda as coda_ia, lavoratore, quota
+
 from . import statistiche as stat
 
 RUOLI = ["utente", "moderatore", "amministratore"]
@@ -258,3 +260,45 @@ def documenti(request):
         return redirect("amm_documenti")
     return render(request, "amministrazione/documenti.html", {"documenti": DocumentoNormativo.objects.order_by("-id"),
                                                               "ultime": normative.ultime_versioni(), "tipi": TIPI_DOCUMENTO})
+
+
+# ------------------------------------------------------------------ controlli IA (docs/piano_ia_openrouter.md)
+@amministratore_richiesto
+def controlli_ia(request):
+    from django.conf import settings
+    from core.models import CodaIA
+    q = quota.stato()
+    attivi = (CodaIA.objects.filter(stato__in=["in_coda", "in_corso", "fallito"]).select_related("segnalazione", "commento__segnalazione")
+              .order_by("stato", "-priorita", "creata_il")[:60])
+    ultime = LogAttivita.objects.filter(tabella=quota.TABELLA, operazione="decisione_ia").order_by("-id")[:25]
+    t = lavoratore._thread[0]
+    return render(request, "amministrazione/ia.html", {
+        "quota": q, "pct": round(100 * q["usate"] / q["limite"]) if q["limite"] else 0, "limiti": {
+            "segnalazioni": settings.IA_QUOTA_SEGNALAZIONI, "commenti": settings.IA_QUOTA_COMMENTI, "soglia": settings.IA_QUOTA_SOGLIA_COMMENTI},
+        "conteggi": coda_ia.conteggi(), "attivi": attivi, "ultime": ultime,
+        "config": {"modalita": settings.IA_MODALITA, "lavoratore": settings.IA_LAVORATORE, "thread_vivo": bool(t and t.is_alive()),
+                   "chiave": bool(settings.OPENROUTER_API_KEY), "modelli_testo": settings.IA_MODELLI_TESTO, "modelli_visione": settings.IA_MODELLI_VISIONE}})
+
+
+@require_POST
+@amministratore_richiesto
+def azione_ia(request, azione):
+    from django.conf import settings
+    from django.utils import timezone
+    from core.models import CodaIA
+    if azione == "riprova_falliti":
+        n = CodaIA.objects.filter(stato="fallito").update(stato="in_coda", tentativi=0, errore=None, non_prima_di=timezone.now())
+        log.registra(request.user, "modifica", "coda_ia", 0, None, {"azione": azione, "righe": n})
+        messages.success(request, f"{n} controlli rimessi in coda." if n else "Nessun controllo da rimettere in coda.")
+    elif azione == "esegui":
+        if settings.IA_MODALITA != "coda":
+            messages.error(request, "I controlli in coda non sono attivi (IA_MODALITA).")
+        else:
+            esito = lavoratore.passo()
+            log.registra(request.user, "modifica", "coda_ia", 0, None, {"azione": azione, "esito": esito})
+            messages.success(request, {"fatto": "Un controllo eseguito.", "vuoto": "Niente da controllare in questo momento.",
+                                       "quota": "Quota giornaliera esaurita: i controlli riprendono a mezzanotte UTC.",
+                                       "errore": "Il controllo non è riuscito: ritenterà da solo più tardi."}[esito])
+    else:
+        raise Http404()
+    return redirect("amm_ia")

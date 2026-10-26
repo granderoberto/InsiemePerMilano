@@ -1,0 +1,27 @@
+{% extends "base.html" %}{% block titolo %}Controlli IA{% endblock %}
+{% block contenuto %}<h1>Controlli IA</h1>{% include "amministrazione/_menu.html" %}
+<div class="due-colonne">
+  <section class="riquadro"><h2>Quota di oggi</h2>
+    <p><span class="contatore">{{ quota.usate }}</span> richieste su {{ quota.limite }} <span class="piccolo">(si azzera a mezzanotte UTC; ne restano {{ quota.rimaste }})</span></p>
+    <progress max="{{ quota.limite }}" value="{{ quota.usate }}" aria-label="Richieste usate oggi" style="width:100%">{{ pct }}%</progress>
+    <p class="piccolo">Segnalazioni {{ quota.segnalazioni }} di {{ limiti.segnalazioni }} · commenti {{ quota.commenti }} di {{ limiti.commenti }} · da {{ limiti.soglia }} richieste in su i commenti aspettano. {% if quota.ufficiale is None %}Il contatore di OpenRouter non è raggiungibile: conto dal registro.{% else %}Contatore di OpenRouter: {{ quota.ufficiale }}.{% endif %}</p>
+  </section>
+  <section class="riquadro"><h2>Stato</h2>
+    <p>Modalità: <strong>{% if config.modalita == "coda" %}coda in background{% else %}sincrona (controlli simulati){% endif %}</strong><br>
+    Lavoratore: <strong>{% if config.lavoratore and config.thread_vivo %}attivo{% elif config.lavoratore %}attivato ma fermo{% else %}spento{% endif %}</strong> · chiave OpenRouter: <strong>{% if config.chiave %}presente{% else %}mancante{% endif %}</strong></p>
+    <p class="piccolo">Modelli per il testo: {{ config.modelli_testo|join:", " }}<br>Modelli per le foto: {{ config.modelli_visione|join:", " }}</p>
+    {% if config.modalita == "coda" %}<form class="in-linea" method="post" action="{% url 'amm_ia_azione' 'esegui' %}">{% csrf_token %}<button class="btn btn-primario btn-piccolo" type="submit">Esegui un controllo ora</button></form>{% endif %}
+    <form class="in-linea" method="post" action="{% url 'amm_ia_azione' 'riprova_falliti' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Rimetti in coda i falliti</button></form>
+  </section>
+</div>
+<section class="riquadro"><h2>Coda</h2>
+  <p>{% for k, v in conteggi.items %}<span class="badge badge-{% if k == 'fallito' %}4{% elif k == 'fatto' %}3{% else %}2{% endif %}">{{ k }} {{ v }}</span> {% empty %}<span class="piccolo">Vuota.</span>{% endfor %}</p>
+  {% if attivi %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Contenuto</th><th scope="col">Stato</th><th scope="col">Priorità</th><th scope="col">Segnali</th><th scope="col">Tentativi</th><th scope="col">In coda dal</th><th scope="col">Errore</th></tr></thead><tbody>
+  {% for r in attivi %}<tr><td>{% if r.segnalazione %}<a href="{% url 'moderazione_segnalazione' r.segnalazione_id %}">{{ r.segnalazione.titolo|truncatechars:50 }}</a>{% else %}commento su <a href="{% url 'dettaglio' r.commento.segnalazione_id %}#commento-{{ r.commento_id }}">{{ r.commento.segnalazione.titolo|truncatechars:40 }}</a>{% endif %}</td><td>{{ r.stato }}</td><td>{{ r.priorita }}</td><td class="piccolo">{{ r.segnali|join:", " }}</td><td>{{ r.tentativi }}</td><td>{{ r.creata_il|date:"j M, H:i" }}</td><td class="piccolo">{{ r.errore|default:"" }}</td></tr>{% endfor %}</tbody></table></div>
+  {% else %}<p class="piccolo">Nessun controllo in attesa.</p>{% endif %}
+</section>
+<section class="riquadro"><h2>Ultime richieste a OpenRouter</h2>
+  {% if ultime %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Quando</th><th scope="col">Per</th><th scope="col">Modello</th><th scope="col">Risposta</th><th scope="col">Secondi</th><th scope="col">Consumata</th></tr></thead><tbody>
+  {% for l in ultime %}<tr><td>{{ l.avvenuto_il|date:"j M, H:i:s" }}</td><td>{{ l.dati_nuovi.tipo }}</td><td class="piccolo">{{ l.dati_nuovi.modello }}</td><td>{{ l.dati_nuovi.http }}{% if l.dati_nuovi.errore %} <span class="piccolo">{{ l.dati_nuovi.errore|truncatechars:70 }}</span>{% endif %}</td><td>{{ l.dati_nuovi.secondi }}</td><td>{% if l.dati_nuovi.contata %}sì{% else %}no{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+  {% else %}<p class="piccolo">Ancora nessuna richiesta.</p>{% endif %}
+</section>{% endblock %}

@@ -42,7 +42,16 @@ def scegli(adesso=None):
 
 
 def prendi(righe):
-    CodaIA.objects.filter(pk__in=[r.pk for r in righe]).update(stato="in_corso", presa_il=timezone.now(), tentativi=F("tentativi") + 1)
+    """Segna le righe «in_corso» solo se sono ancora in coda. -> True se le ha prese tutte; altrimenti rimette a posto quelle
+    prese e restituisce False (le ha prese un altro lavoratore, per esempio l'amministratore dal pannello)."""
+    prese = []
+    for r in righe:
+        if CodaIA.objects.filter(pk=r.pk, stato="in_coda").update(stato="in_corso", presa_il=timezone.now(), tentativi=F("tentativi") + 1):
+            prese.append(r.pk)
+    if len(prese) != len(righe):
+        CodaIA.objects.filter(pk__in=prese).update(stato="in_coda", tentativi=F("tentativi") - 1)
+        return False
+    return True
 
 
 def rilascia(righe, minuti=15, errore=""):

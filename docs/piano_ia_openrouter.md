@@ -165,7 +165,7 @@ lavoratore (backend)  ──> prende la riga più urgente ──> rispetta limit
 | 1 | **Fatta.** Client `openrouter.py`, `quota.py`, `trasporto.py` con prove su risposte simulate (429, scadenza, JSON rotto, quota esaurita) | `apps/web/smoke/ia_openrouter.py`, 42 controlli, senza rete |
 | 2 | **Fatta** (vedi sotto le differenze dal piano). Prefiltro locale con i tre esiti (bloccato, da inviare, pulito), migrazione `006_coda_ia` e modelli, coda e lavoratore, richiesta unica per le segnalazioni di solo testo; attivabile per ambiente con `IA_BACKEND` | prove su un set di frasi, sulla coda (ordine, blocco, ripresa) e sul limite al minuto |
 | 3 | **Fatta** (vedi sotto). Foto, coerenza, video a fotogrammi, volti sfocati, testo nelle foto | `smoke/ia_coda.py` (66 controlli) e una richiesta reale di prova |
-| 4 | Commenti a blocchi nella stessa coda; coda del moderatore con «controllo in corso»; pannello amministratore con quota usata e coda | prova con quota bassa |
+| 4 | **Fatta** (vedi sotto). Commenti a blocchi nella stessa coda; coda del moderatore con «controllo in corso»; pannello amministratore con quota usata e coda | `smoke/ia_pannello.py` (19 controlli), `smoke/ia_coda.py` |
 | 5 | Taratura: 60-100 contenuti italiani etichettati a mano, `tools/ia/valuta.py` (una richiesta per ogni gruppo di contenuti, non una per contenuto), soglie scelte sui risultati | rapporto in `docs/` |
 | 6 | Documenti: `architettura_ia.md` (fornitore, quota, flussi), informativa IA (fornitore terzo, cosa si invia), `produzione.md` (variabili), `README` | rilettura |
 | 7 | Messa online e prova reale di una segnalazione e di un commento | prova sul sito |
@@ -198,6 +198,13 @@ Differenze dal piano:
 - **Classificatore locale per la nudità**: non fatto. Il modello con visione basta per ora; si rivaluta dopo la taratura (fase 5).
 - **Targhe e documenti nelle foto**: non si sfocano (nessun rilevatore locale); si leggono solo come testo.
 - Se OpenCV o il modello dei volti mancano, le foto partono senza sfocatura e il registro segna `volti_non_sfocati`.
+
+### Stato della fase 4 (2026-10-26)
+
+- **Pannello amministratore** `/amministrazione/ia/` (voce «Controlli IA» nel menu): quota di oggi (usate, rimaste, ripartizione segnalazioni/commenti, contatore di OpenRouter), stato (modalità, lavoratore, presenza della chiave: mai il valore; modelli), coda con priorità, segnali, tentativi ed errori, ultime 25 richieste a OpenRouter (modello, risposta, secondi, se hanno consumato quota). Azioni: «Rimetti in coda i falliti» e «Esegui un controllo ora» (utile quando il sito dorme e il lavoratore non gira; con le foto può durare fino a 150 secondi). Ogni azione finisce nel registro.
+- **Motivazione al moderatore**: nella coda e nella scheda della segnalazione compaiono il motivo del modello («insulto a un utente»), i segnali del prefiltro («numero di telefono», «volti sfocati: 2») e se il controllo è col modello o solo locale. I dati si leggono dall'ultima riga `decisione_ia` del registro (`core/services/ia/esiti.py`): nessuna colonna nuova.
+- **Presa della coda atomica**: `coda.prendi` segna «in corso» solo le righe ancora libere; se due lavoratori (per esempio il thread e il pulsante dell'amministratore) puntano alla stessa riga, uno solo la lavora.
+- Il soglia di sicurezza (da 44 richieste i commenti aspettano) e l'attesa a quota esaurita erano già nella fase 2; il pannello li mostra.
 
 ## 8. Rischi
 

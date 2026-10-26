@@ -19,17 +19,18 @@
 <section id="attesa" class="riquadro"><h2>Segnalazioni in attesa</h2>
 {% if in_attesa %}<div class="scorri"><table class="tabella"><thead><tr><th scope="col">Titolo</th><th scope="col">Autore</th><th scope="col">Controlli IA</th><th scope="col">Data</th><th scope="col"><span class="visually-hidden">Azioni</span></th></tr></thead><tbody>
 {% for s in in_attesa %}<tr><td><a href="{% url 'moderazione_segnalazione' s.id %}">{{ s.titolo }}</a><br><span class="piccolo">{{ s.quartiere.nome_leggibile }}</span></td><td>{{ s.autore.nome_pubblico }}</td>
-<td>{% if s.esito_moderazione == 'ok' %}<span class="badge badge-3">Nessun problema</span>{% elif s.esito_moderazione == 'dubbio' %}<span class="badge badge-2">Dubbio</span>{% elif s.esito_moderazione == 'bloccato' %}<span class="badge badge-4">Bloccata</span>{% elif s.controllo_in_corso %}<span class="badge badge-2">Controllo in corso</span>{% else %}—{% endif %}</td>
+<td>{% if s.esito_moderazione == 'ok' %}<span class="badge badge-3">Nessun problema</span>{% elif s.esito_moderazione == 'dubbio' %}<span class="badge badge-2">Dubbio</span>{% elif s.esito_moderazione == 'bloccato' %}<span class="badge badge-4">Bloccata</span>{% elif s.controllo_in_corso %}<span class="badge badge-2">Controllo in corso</span>{% else %}—{% endif %}{% if s.ia %}<br>{% include "moderazione/_motivo_ia.html" with ia=s.ia %}{% endif %}</td>
 <td>{{ s.creata_il|date:"j M, H:i" }}</td>
 <td><form class="in-linea" method="post" action="{% url 'azione_segnalazione' s.id 'approva' %}">{% csrf_token %}<button class="btn btn-primario btn-piccolo" type="submit"{% if s.controllo_in_corso %} disabled title="Il controllo automatico è in corso"{% endif %}>Approva</button></form> <a class="btn btn-lieve btn-piccolo" href="{% url 'moderazione_segnalazione' s.id %}">Esamina</a></td></tr>{% endfor %}</tbody></table></div>
 {% else %}<p class="vuoto-msg">Nessuna segnalazione in attesa.</p>{% endif %}</section>
 
 <section id="segnalati" class="riquadro"><h2>Contenuti segnalati dall'IA</h2>
 <h3>Segnalazioni</h3>
-{% for s in segnalate %}<p><a href="{% url 'moderazione_segnalazione' s.id %}">{{ s.titolo }}</a> — <span class="badge badge-{% if s.esito_moderazione == 'bloccato' %}4{% else %}2{% endif %}">{{ s.esito_moderazione }}</span> <span class="piccolo">punteggio {{ s.punteggio_moderazione }} · {{ s.stato.nome }}</span></p>{% empty %}<p class="piccolo">Nessuna.</p>{% endfor %}
+{% for s in segnalate %}<p><a href="{% url 'moderazione_segnalazione' s.id %}">{{ s.titolo }}</a> — <span class="badge badge-{% if s.esito_moderazione == 'bloccato' %}4{% else %}2{% endif %}">{{ s.esito_moderazione }}</span> <span class="piccolo">punteggio {{ s.punteggio_moderazione }} · {{ s.stato.nome }}</span>{% if s.ia %}<br>{% include "moderazione/_motivo_ia.html" with ia=s.ia %}{% endif %}</p>{% empty %}<p class="piccolo">Nessuna.</p>{% endfor %}
 <h3>Commenti (ultimi 30)</h3>
 {% for c in commenti %}<div class="voce"><header><strong>{{ c.autore.nome_pubblico }}</strong> su <a href="{% url 'dettaglio' c.segnalazione_id %}#commento-{{ c.id }}">{{ c.segnalazione.titolo }}</a> <span class="badge badge-2">{{ c.esito_moderazione }}</span>{% if c.nascosto %} <span class="badge badge-4">nascosto</span>{% endif %}</header>
 <p>{{ c.testo }}</p>
+{% if c.ia %}<p>{% include "moderazione/_motivo_ia.html" with ia=c.ia %}</p>{% endif %}
 {% if c.nascosto %}<form class="in-linea" method="post" action="{% url 'azione_commento' c.id 'ripristina' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Ripristina</button></form>
 {% else %}<form class="in-linea" method="post" action="{% url 'azione_commento' c.id 'nascondi' %}">{% csrf_token %}<input name="motivo" aria-label="Motivo" placeholder="Motivo" class="campo-corto"> <button class="btn btn-pericolo btn-piccolo" type="submit">Nascondi</button></form>
 <form class="in-linea" method="post" action="{% url 'azione_commento' c.id 'ripristina' %}">{% csrf_token %}<button class="btn btn-lieve btn-piccolo" type="submit">Segna come a posto</button></form>{% endif %}</div>{% empty %}<p class="piccolo">Nessuno.</p>{% endfor %}</section>
