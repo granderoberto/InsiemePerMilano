@@ -126,17 +126,28 @@ Le soglie vanno **tarate sui dati reali**: per questo ogni punteggio è salvato 
 
 | Elemento | Oggi |
 |---|---|
-| Esiti e punteggi | colonne `esito_moderazione`, `punteggio_*`, `esito_visione`, `testo_ocr` in `segnalazioni`, `media`, `commenti`; `verifiche_identita` |
-| Origine delle categorie | `classificazioni.origine` (`ia`, `utente`, `moderatore`) e `confidenza` |
-| Registro | `log_attivita` con operazione `decisione_ia` |
-| Code del moderatore | `/moderazione/` in `apps/web` |
-| Controlli IA | **simulati** in `apps/web/core/services/ia/simulato.py` (parole chiave ed espressioni regolari) dietro l'interfaccia unica `core/services/ia/__init__.py`; il fornitore si sceglie con `IA_BACKEND` |
-| Verifica del documento | **controlli veri** in `core/services/ia/documento_reale.py` (OCR con Tesseract, zona a lettura ottica con codici di controllo in `mrz.py`, confronto dei dati col modulo, validità, volto con OpenCV YuNet+SFace); se Tesseract o i modelli mancano (`apps/web/modelli/scarica.sh`) si usa il simulato (`IA_DOCUMENTO=auto`). L'autenticità è solo coerenza degli elementi, non una perizia: i casi dubbi vanno al moderatore. Caricamento **vero** (fronte, retro, selfie dalla fotocamera, JPG/PNG/PDF fino a 5 MB, controlli sui byte dei file), archivio temporaneo cifrato (`core/services/temporaneo.py`) con cancellazione a fine verifica, massimo 3 tentativi; il controllo è **simulato** in `core/services/ia/simulato_documento.py` (qualità delle immagini al posto di OCR, dati, validità, autenticità e volto) |
+| Esiti e punteggi | colonne `esito_moderazione`, `punteggio_*`, `esito_visione`, `testo_ocr`, `esito_testo_ocr` in `segnalazioni`, `media`, `commenti`; `verifiche_identita` |
+| Origine delle categorie | `classificazioni.origine` (`ia`, `utente`, `moderatore`) e `confidenza`: le categorie le sceglie l'autore, con il suggerimento locale per parole chiave |
+| Registro | `log_attivita` con operazione `decisione_ia`: esito, motivazione, segnali, modello, versione del prompt; una riga anche per ogni richiesta a OpenRouter |
+| Code del moderatore | `/moderazione/`, con motivazione e segnali accanto a ogni contenuto segnalato |
+| Controlli su testi e foto | **veri, con modelli gratuiti di OpenRouter** (`core/services/ia/openrouter.py`), dopo un **prefiltro locale** senza IA (`prefiltro.py`). Piano e decisioni: [`piano_ia_openrouter.md`](piano_ia_openrouter.md); prove dei modelli: [`ia_sonda_modelli.md`](ia_sonda_modelli.md); taratura: [`ia_taratura.md`](ia_taratura.md). Spenti per impostazione (`IA_MODALITA=sincrona`, simulato) |
+| Coda e lavoratore | tabella tecnica `coda_ia` (migrazione 006), `coda.py`, `lavoratore.py`; quota giornaliera in `quota.py`; pannello `/amministrazione/ia/` |
+| Foto e video | `immagini.py`: fino a 5 immagini da 768 px per segnalazione (dei video 2 fotogrammi), volti sfocati e testo delle foto letto in locale prima dell'invio |
+| Verifica del documento | **controlli veri e locali**, mai inviati a un fornitore esterno: `core/services/ia/documento_reale.py` (OCR con Tesseract, zona a lettura ottica con codici di controllo in `mrz.py`, confronto dei dati col modulo, validità, volto con OpenCV YuNet+SFace). Se Tesseract o i modelli mancano si usa il simulato (`IA_DOCUMENTO`) |
+
+## Come funziona oggi (con `IA_MODALITA=coda`)
+
+1. **Prefiltro locale** (Python, nessuna richiesta): normalizza il testo e cerca minacce e auguri di morte (→ `bloccato`), insulti anche scritti male, tono ostile, accuse a persone, telefoni, email, targhe, codici fiscali e IBAN validi, indirizzi di casa, spam, testi ripetitivi, doppioni. Decide se il contenuto va al modello.
+2. **Salvataggio e coda**: il contenuto si salva subito e l'utente lo vede «In attesa»; se serve il modello entra in `coda_ia` con una priorità pari al rischio.
+3. **Lavoratore in background**: una richiesta alla volta, distanziata, nel rispetto della quota (50 richieste al giorno nel piano gratuito, 36 per le segnalazioni, 8 per i commenti). Una segnalazione costa 1 richiesta (testo e fino a 5 immagini); i commenti si mandano a blocchi fino a 25.
+4. **Esito**: il modello risponde solo con un JSON a schema fisso (`approvato`, `motivazione` di poche parole, per le foto anche `coerente` e `problema`). Può solo **peggiorare** l'esito: `ok` oppure `dubbio`; `bloccato` lo dà soltanto il prefiltro. Se non risponde, dopo 3 tentativi o 24 ore l'esito è `dubbio` e decide il moderatore, che non può approvare finché manca l'esito.
+5. **Commenti «puliti»** per il prefiltro sono pubblicati con esito `ok` e riletti dal modello con la quota avanzata (`IA_RILEGGI_PULITI`): se il modello li giudica non approvati diventano `dubbio`.
 
 ## Passi per l'IA vera
 
-1. ~~Estrarre un'interfaccia~~ **fatto**: `core/services/ia/` con le quattro funzioni del contratto (testo, categorie, coerenza, documento); il simulato è il primo fornitore. Un fornitore vero è un nuovo modulo con le stesse funzioni, scelto con `IA_BACKEND`.
-2. Scegliere i fornitori (costo, DPA, UE) e implementare un adattatore per ciascun modulo.
-3. Spostare i compiti lenti su una coda con un worker.
-4. Aggiungere il campo «modello e versione» alle decisioni salvate.
-5. Tarare le soglie su un campione di contenuti etichettati e rivedere la qualità con i moderatori.
+1. ~~Interfaccia unica~~ **fatto**: `core/services/ia/__init__.py`.
+2. ~~Scegliere i fornitori~~ **fatto**: OpenRouter, modelli gratuiti, nessuna spesa. Con la privacy `data_collection = "deny"` i modelli utilizzabili sono pochi e cambiano: stanno in configurazione (`IA_MODELLI_TESTO`, `IA_MODELLI_VISIONE`).
+3. ~~Coda e lavoratore~~ **fatto**.
+4. ~~Modello e versione nelle decisioni~~ **fatto** (registro).
+5. Tarare le soglie su contenuti etichettati: **in corso**, vedi [`ia_taratura.md`](ia_taratura.md).
+6. Da fare quando serve: un fornitore a pagamento con accordo di trattamento dei dati (DPA) e dati in UE; la valutazione d'impatto (DPIA); un controllo dei volti con più modelli.

@@ -92,6 +92,22 @@ Su Render gratuito questo metodo **non funziona** (SMTP bloccato): usa la Gmail 
 - Backup del database (Aiven) e del disco `/data`.
 - Normative: sostituire i testi segnaposto con quelli del comitato (GDPR, termini, cookie).
 
+## 5. IA con OpenRouter (gratuita)
+
+I controlli su testi, commenti e foto con modelli veri sono **spenti** finché non si imposta questo (decisioni e limiti in [`piano_ia_openrouter.md`](piano_ia_openrouter.md)):
+
+| Variabile | Valore |
+|---|---|
+| `OPENROUTER_API_KEY` | chiave da <https://openrouter.ai/keys>; account gratuito, nessun credito. **Mai** nel repository |
+| `IA_MODALITA` | `coda` per attivare il prefiltro locale e la coda; `sincrona` (predefinito) lascia i controlli simulati |
+| `IA_LAVORATORE` | `1` per far girare il lavoratore dentro il sito (un solo processo gunicorn) |
+| `IA_MODELLI_TESTO`, `IA_MODELLI_VISIONE` | facoltative; identificativi dei modelli `:free` separati da virgola, in ordine di preferenza |
+| `IA_RILEGGI_PULITI` | `1` (predefinito): i commenti senza segnali si rileggono col modello con la quota avanzata; `0` per spendere richieste solo sui sospetti |
+
+Prima di attivare: nelle impostazioni di privacy dell'account OpenRouter vieta l'uso dei dati per l'addestramento; controlla con `python manage.py ia_lavora --stato` o dal pannello `/amministrazione/ia/` che la chiave sia riconosciuta e la quota visibile. Il piano gratuito ha 50 richieste al giorno (si azzerano a mezzanotte UTC); quando finiscono i contenuti aspettano in coda e, dopo 24 ore, passano al moderatore. Il sito dorme dopo circa 15 minuti senza visite: la coda resta nel database e riparte al primo avvio.
+
+L'informativa sull'intelligenza artificiale deve dire che testi e foto delle segnalazioni (senza metadati e con i volti sfocati) vanno a un fornitore esterno: bozza in [`informativa_ia_bozza.md`](informativa_ia_bozza.md). Documento e selfie non escono mai dal sito.
+
 ## Variabili riassunte
 
 Vedi [`.env.example`](../.env.example).
