@@ -6,7 +6,7 @@
   const esito = document.getElementById('esito-posizione');
   const mappa = L.map(el, { gestureHandling: true, gestureHandlingOptions: { text: { touch: 'Usa due dita per muovere la mappa', scroll: 'Usa Ctrl + scorrimento per zoomare la mappa', scrollMac: 'Usa ⌘ + scorrimento per zoomare la mappa' } } }).setView([45.4642, 9.19], 12);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(mappa);
+    maxZoom: 19, referrerPolicy: 'origin', attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(mappa);
   let segnaposto = null;
 
   async function imposta(la, lo, centra) {

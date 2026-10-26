@@ -4,7 +4,7 @@
   if (!el || typeof L === 'undefined') return;
   const mappa = L.map(el, { zoomControl: true, gestureHandling: true, gestureHandlingOptions: { text: { touch: 'Usa due dita per muovere la mappa', scroll: 'Usa Ctrl + scorrimento per zoomare la mappa', scrollMac: 'Usa ⌘ + scorrimento per zoomare la mappa' } } }).setView([45.4642, 9.19], 12);
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(mappa);
+    maxZoom: 19, referrerPolicy: 'origin', attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(mappa);
 
   const icona = tipo => L.divIcon({ className: 'pin-contenitore', html: `<span class="pin pin-${tipo}"></span>`, iconSize: [24, 24], iconAnchor: [12, 12], popupAnchor: [0, -14] });
   const gruppo = typeof L.markerClusterGroup === 'function'

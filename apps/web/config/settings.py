@@ -34,6 +34,8 @@ if not SECRET_KEY:
     if not DEBUG:
         raise RuntimeError("DJANGO_SECRET_KEY è obbligatoria in produzione (DJANGO_DEBUG=0). Se cambia, i segreti 2FA non si leggono più.")
     SECRET_KEY = "solo-sviluppo-non-usare-in-produzione"
+# Gli altri siti ricevono solo il nome del nostro sito (non l'indirizzo completo): serve ai tile di OpenStreetMap, che rispondono 403 se manca il Referer
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 ALLOWED_HOSTS = [h.strip() for h in _e("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",") if h.strip()]
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in _e("DJANGO_CSRF_ORIGINS").split(",") if o.strip()]  # es. https://lanostracitta.example
 _host_render = _e("RENDER_EXTERNAL_HOSTNAME")  # su Render è l'indirizzo pubblico del servizio, già noto: niente da configurare a mano
@@ -50,7 +52,6 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = int(_e("DJANGO_HSTS_SECONDS", "3600"))  # alzare a 31536000 quando tutto funziona
     SECURE_REDIRECT_EXEMPT = [r"^salute/$"]  # il controllo di stato dell'hosting arriva in HTTP
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_REFERRER_POLICY = "same-origin"
     X_FRAME_OPTIONS = "DENY"
 
 INSTALLED_APPS = [

@@ -25,7 +25,7 @@
     contenitore.hidden = false; bMappa.setAttribute('aria-expanded', 'true'); bMappa.textContent = 'Nascondi la mappa';
     if (!mappa) {
       mappa = L.map(contenitore, { gestureHandling: true, gestureHandlingOptions: { text: { touch: 'Usa due dita per muovere la mappa', scroll: 'Usa Ctrl + scorrimento per zoomare la mappa', scrollMac: 'Usa ⌘ + scorrimento per zoomare la mappa' } } });
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 17, attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(mappa);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 17, referrerPolicy: 'origin', attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(mappa);
       try {
         const dati = await (await fetch(URL_CONTORNI)).json();
         livello = L.geoJSON(dati, {
