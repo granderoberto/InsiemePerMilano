@@ -48,7 +48,7 @@ FORNITORI = {f.nome: f for f in (
               campo_token="max_completion_tokens", max_immagini=3,
               nota_dati="il contratto vieta di addestrare su input e output; log di sicurezza fino a 30 giorni"),
     Fornitore("cloudflare", "Cloudflare Workers AI", "https://api.cloudflare.com/client/v4/accounts/{account}/ai/v1", "CLOUDFLARE_API_TOKEN",
-              rpm=20, rpd=100, testo=("@cf/meta/llama-3.3-70b-instruct-fp8-fast",), visione=("@cf/meta/llama-3.2-11b-vision-instruct",),
+              rpm=20, rpd=100, testo=("@cf/meta/llama-3.3-70b-instruct-fp8-fast",), visione=("@cf/mistralai/mistral-small-3.1-24b-instruct",),
               json_object=False, max_immagini=1, nota_dati="non usa i contenuti dei clienti per addestrare (10.000 neuroni al giorno, azzeramento 00:00 UTC)"),
     Fornitore("cerebras", "Cerebras", "https://api.cerebras.ai/v1", "CEREBRAS_API_KEY", rpm=5, rpd=200,
               testo=("gpt-oss-120b",), visione=("qwen-3.8-27b",), max_immagini=2,

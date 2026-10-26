@@ -26,3 +26,18 @@ Eseguita con `tools/ia/sonda_modelli.py` (13 richieste in tutto; risultati grezz
 
 - Orario di azzeramento della quota: `used` va letto prima e dopo mezzanotte UTC (il campo `/key` non indica l'orario).
 - Se Gemma torna disponibile in altre ore.
+
+## Prova dei fornitori aggiuntivi (2026-10-26, 16:19 UTC)
+
+Stesse 10 frasi (testo) e 5 foto disegnate (visione) della prova su OpenRouter, con `tools/ia/sonda_modelli.py --fornitore NOME`. Le foto sono disegni dei dati demo: la qualità sulle immagini è solo indicativa.
+
+| Fornitore | Modello | Esito |
+|---|---|---|
+| **Cerebras** | `gpt-oss-120b` (testo) | JSON valido, **10/10**, motivazioni di 2 parole, **0,5 s** |
+| **Cerebras** | `qwen-3.8-27b` (foto) | JSON valido, id completi, coerenza 3/5, **1,6 s** (fino a 2 immagini) |
+| **Cloudflare** | `@cf/meta/llama-3.3-70b-instruct-fp8-fast` (testo) | JSON valido, **10/10**, 4,5 s |
+| **Cloudflare** | `@cf/mistralai/mistral-small-3.1-24b-instruct` (testo e foto) | testo **10/10**, 10 s; foto: JSON valido ma id incompleti e coerenza 2/5 con 5 immagini (accetta bene 1 immagine) |
+| Cloudflare | `@cf/meta/llama-3.2-11b-vision-instruct` | **403**: chiede di accettare la licenza Meta con una richiesta «agree»: è un accordo da accettare a nome dell'account, non fatto |
+| **Groq** | tutti | **401 «Invalid API Key»**: la chiave nel `.env` non è valida; da rifare |
+
+Osservazioni: Cerebras è di gran lunga il più veloce (decimi di secondo, contro 10-40 s dei modelli «ragionanti» gratuiti di OpenRouter) e ha un'interfaccia con visione per 2 immagini; i suoi crediti gratuiti però scadono dopo 30 giorni e non è chiaro se il piano gratuito richieda una carta. Cloudflare funziona per il testo con la quota di 10.000 «neuroni» al giorno. L'elenco dei modelli non è disponibile da Cloudflare (405) e per Groq non si è potuto leggere perché la chiave non è valida.
