@@ -135,6 +135,7 @@ PROMPT_FOTO = (
     "vuota se tutto va bene, altrimenti al massimo 8 parole. Rispondi solo con il JSON richiesto, con gli stessi id.")
 
 
+MAX_TOKEN = 400  # con --max-token si alza per i modelli che «ragionano» e finiscono i token prima di rispondere
 PARAMETRI = {}  # identificativo -> parametri supportati (riempito in main)
 
 
@@ -149,6 +150,14 @@ def corpo_base(modello, messaggi, schema, nome, max_token):
         corpo["response_format"] = {"type": "json_object"}
         corpo["messages"][0]["content"] += " Schema JSON da rispettare: " + json.dumps(schema, ensure_ascii=False)
     return corpo
+
+
+def dettaglio(r):
+    try:
+        c = r["choices"][0]
+        return {"finish": c.get("finish_reason"), "ragionamento_car": len(c["message"].get("reasoning") or "")}
+    except (KeyError, IndexError, TypeError):
+        return {}
 
 
 def estrai_json(r):
@@ -167,7 +176,7 @@ def estrai_json(r):
 def provino_testo(modello, chiave):
     blocco = "\n".join(f'<commento id="{i}">{t}</commento>' for i, t, _ in COMMENTI)
     corpo = corpo_base(modello, [{"role": "system", "content": PROMPT_COMMENTI}, {"role": "user", "content": blocco}],
-                       SCHEMA_COMMENTI, "commenti", 400)
+                       SCHEMA_COMMENTI, "commenti", MAX_TOKEN)
     cod, r, intest, sec = chiama("/chat/completions", chiave, corpo, timeout=90)
     esito = {"modello": modello, "tipo": "testo", "http": cod, "secondi": round(sec, 1)}
     if cod != 200:
@@ -178,6 +187,7 @@ def provino_testo(modello, chiave):
         return esito
     j, grezzo = estrai_json(r)
     esito["token"] = r.get("usage", {}).get("total_tokens")
+    esito.update(dettaglio(r))
     esito["fornitore"] = r.get("provider")
     if not j or not isinstance(j.get("risultati"), list):
         esito.update(json_valido=False, risposta=grezzo[:300])
@@ -205,7 +215,7 @@ def provino_visione(modello, chiave):
         contenuto += [{"type": "text", "text": f'<foto id="{n}"><descrizione>{desc}</descrizione></foto>'},
                       {"type": "image_url", "image_url": {"url": immagine_base64(rel)}}]
     corpo = corpo_base(modello, [{"role": "system", "content": PROMPT_FOTO}, {"role": "user", "content": contenuto}],
-                       SCHEMA_FOTO, "foto", 400)
+                       SCHEMA_FOTO, "foto", MAX_TOKEN)
     cod, r, intest, sec = chiama("/chat/completions", chiave, corpo, timeout=120)
     esito = {"modello": modello, "tipo": "visione", "http": cod, "secondi": round(sec, 1)}
     if cod != 200 or (isinstance(r, dict) and r.get("error")):
@@ -213,6 +223,7 @@ def provino_visione(modello, chiave):
         return esito
     j, grezzo = estrai_json(r)
     esito["token"] = r.get("usage", {}).get("total_tokens")
+    esito.update(dettaglio(r))
     esito["fornitore"] = r.get("provider")
     if not j or not isinstance(j.get("risultati"), list):
         esito.update(json_valido=False, risposta=grezzo[:300])
@@ -230,7 +241,10 @@ def main():
     ap.add_argument("--testo", action="append", help="modello da provare sul testo (ripetibile)")
     ap.add_argument("--visione", action="append", help="modello da provare sulle foto (ripetibile)")
     ap.add_argument("--max", type=int, default=8, help="massimo di richieste ai modelli (predefinito 8)")
+    ap.add_argument("--max-token", type=int, default=400, help="limite dei token della risposta (predefinito 400)")
     a = ap.parse_args()
+    global MAX_TOKEN
+    MAX_TOKEN = a.max_token
 
     liberi = elenco()
     PARAMETRI.update(liberi)
@@ -266,15 +280,21 @@ def main():
         e = (provino_testo if tipo == "testo" else provino_visione)(m, chiave)
         risultati.append(e)
         print("  " + json.dumps(e, ensure_ascii=False))
-        if e["http"] == 429:
-            print("\nQuota raggiunta (429): mi fermo.")
+        if e["http"] == 429 and "upstream" not in e.get("errore", ""):
+            print("\nQuota dell'account raggiunta (429): mi fermo.")
             break
+        # un 429 «upstream» è il fornitore a monte occupato, non la nostra quota: si passa al modello successivo
         time.sleep(4)  # distanza tra le richieste, come farà il lavoratore
 
     cartella = Path(__file__).parent / "risultati"
     cartella.mkdir(exist_ok=True)
     f = cartella / f"sonda_{ora:%Y%m%d}.json"
-    f.write_text(json.dumps({"quando": ora.isoformat(), "richieste": usate, "risultati": risultati}, ensure_ascii=False, indent=2), encoding="utf-8")
+    prima = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {"richieste": 0, "risultati": []}
+    for x in risultati:
+        x["alle"] = f"{datetime.now(timezone.utc):%H:%M}"
+    prima["richieste"] += usate
+    prima["risultati"] += risultati
+    f.write_text(json.dumps(prima, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n{usate} richieste usate. Risultati in {f.relative_to(RADICE)}")
 
 

@@ -72,6 +72,8 @@ Il prefiltro produce un **punteggio di rischio** e un elenco di segnali. Il punt
 
 ## 4. Modelli gratuiti
 
+> **Aggiornamento dopo la fase 0** (dettagli in [`ia_sonda_modelli.md`](ia_sonda_modelli.md)): con la privacy `deny` restano pochi modelli (oggi `recursive/flint-v1.0:free` per il testo, `dots-studio/dots-3-note-preview:free` per le foto); Gemma è saturo a monte; i modelli NVIDIA e Liquid richiedono di consentire l'addestramento e sono esclusi. I modelli «ragionano»: 12-40 secondi per richiesta e `max_tokens` 2000 (testo) o 6000 (foto), quindi il tempo massimo del lavoratore è 90 secondi. Il contatore ufficiale della quota è `GET /api/v1/key` → `free_model_daily_requests`. Gli errori 404/403/429 a monte non consumano quota.
+
 Elenco attuale dall'API pubblica dei modelli (26 ottobre 2026): 17 modelli `:free`. Con visione `google/gemma-4-31b-it:free`, `google/gemma-4-26b-a4b-it:free`, `nvidia/nemotron-3.5-super-vl:free`, `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free`. Per la moderazione `nvidia/nemotron-3.5-content-safety:free` (testo e immagini). Di solo testo con JSON strutturato `nvidia/nemotron-3-super-120b-a12b:free`.
 
 - Gli identificativi cambiano spesso: stanno in configurazione, con una **catena di riserva**. Passare al modello successivo dopo un errore **consuma una richiesta**, quindi la catena si usa solo su errore del server, non su risposta di bassa qualità.
