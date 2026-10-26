@@ -28,6 +28,7 @@ import hashlib
 import json
 import os
 import sys
+import time
 from collections import Counter
 from pathlib import Path
 
@@ -86,8 +87,9 @@ def interroga(da_inviare, cache, massimo, ricalcola, sigla="", catena=None):
     segnalazioni = [r for r in nuovi if r["tipo"] == "segnalazione"]
     lavori = [("commento", commenti[i:i + settings.IA_COMMENTI_BLOCCO]) for i in range(0, len(commenti), settings.IA_COMMENTI_BLOCCO)]
     lavori += [("segnalazione", [r]) for r in segnalazioni]
-    fatte = 0
-    for tipo, gruppo in lavori:
+    fatte, tentativi_attesa = 0, 0
+    while lavori:
+        tipo, gruppo = lavori.pop(0)
         if fatte >= massimo:
             print(f"  tetto di {massimo} richieste raggiunto: i contenuti restanti non hanno risposta del modello")
             break
@@ -117,6 +119,13 @@ def interroga(da_inviare, cache, massimo, ricalcola, sigla="", catena=None):
             fatte += 1
             print(f"  richiesta {fatte}: {tipo} ({len(gruppo)}) → {risp.fornitore}:{risp.modello} in {risp.secondi:.0f} s")
         except router.QuotaEsaurita:
+            attesa = max((quota.secondi_residui(f) for f, _ in (catena or [])), default=0)
+            if catena and 0 < attesa <= 150 and tentativi_attesa < 8:   # limite al minuto (token o richieste): si aspetta e si riprova lo stesso lavoro
+                tentativi_attesa += 1
+                print(f"  limite al minuto raggiunto: aspetto {attesa:.0f} s e riprovo")
+                time.sleep(attesa + 1)
+                lavori.insert(0, (tipo, gruppo))
+                continue
             print("  quota esaurita: mi fermo")
             break
         except router.ErroreIA as e:

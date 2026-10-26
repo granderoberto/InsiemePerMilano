@@ -182,7 +182,7 @@ GROQ_API_KEY = _e("GROQ_API_KEY")
 MISTRAL_API_KEY = _e("MISTRAL_API_KEY")
 CEREBRAS_API_KEY = _e("CEREBRAS_API_KEY")
 CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID = _e("CLOUDFLARE_API_TOKEN"), _e("CLOUDFLARE_ACCOUNT_ID")
-IA_FORNITORI = [x.strip() for x in _e("IA_FORNITORI", "openrouter,groq").split(",") if x.strip()]   # attivi, in ordine di preferenza
+IA_FORNITORI = [x.strip() for x in _e("IA_FORNITORI", "groq,cloudflare,openrouter").split(",") if x.strip()]   # attivi, in ordine di preferenza
 IA_CATENA_TESTO, IA_CATENA_VISIONE = _e("IA_CATENA_TESTO"), _e("IA_CATENA_VISIONE")   # «fornitore:modello,fornitore:modello» (vuoto = modelli predefiniti di ogni fornitore)
 IA_URL = {}   # solo per le prove: {nome fornitore: indirizzo di base}
 IA_ENV = {k: _e(k) for n in ("OPENROUTER", "GROQ", "MISTRAL", "CEREBRAS", "CLOUDFLARE") for k in

@@ -85,6 +85,11 @@ def segna_esaurito(f, minuti=30):
     _esauriti[f.nome] = time.monotonic() + minuti * 60
 
 
+def secondi_residui(f):
+    """Quanto manca prima che un fornitore messo da parte venga riprovato (0 se è disponibile)."""
+    return max(_esauriti.get(f.nome, 0) - time.monotonic(), 0)
+
+
 def ammesso_da(f, tipo):
     """-> (si/no, motivo): il fornitore ha ancora quota per questo tipo di lavoro? `tipo`: «segnalazione» o «commento»."""
     if _esauriti.get(f.nome, 0) > time.monotonic():

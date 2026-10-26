@@ -158,6 +158,17 @@ def _messaggio_errore(d):
 
 
 MOTIVO_429 = "limite di richieste raggiunto presso i fornitori"
+_RE_RIPROVA = re.compile(r"try again in\s+(?:(\d+)m(?!s))?\s*(?:(\d+(?:\.\d+)?)(ms|s))?", re.I)
+
+
+def attesa_dopo_429(errore, default_minuti=30):
+    """Minuti da aspettare prima di riprovare un fornitore dopo un suo 429. Groq e altri dicono «try again in 7.5s» quando il limite
+    è al minuto (token o richieste): in quel caso basta attendere poco, non mezz'ora."""
+    m = _RE_RIPROVA.search(errore or "")
+    if not m or not (m.group(1) or m.group(2)):
+        return default_minuti
+    sec = int(m.group(1) or 0) * 60 + (float(m.group(2)) / (1000 if m.group(3) == "ms" else 1) if m.group(2) else 0)
+    return max(sec + 2, 1) / 60   # qualche secondo di margine
 
 
 def chiedi(tipo, sistema, utente, schema, *, max_token, visione=False, timeout=None, catena=None):
@@ -210,7 +221,7 @@ def chiedi(tipo, sistema, utente, schema, *, max_token, visione=False, timeout=N
             quota.registra_richiesta(tipo, f, modello, codice, sec, False, errore)
             ultimo = f"{f.nome} {modello}: HTTP {codice}"
             if codice == 429 and (f.nome != "openrouter" or "upstream" not in errore):
-                quota.segna_esaurito(f)   # il limite è il nostro con questo fornitore: si passa al successivo
+                quota.segna_esaurito(f, attesa_dopo_429(errore))   # il limite è il nostro con questo fornitore: si passa al successivo
                 senza_quota.append(f.nome)
                 break
             if codice in (401, 402):
